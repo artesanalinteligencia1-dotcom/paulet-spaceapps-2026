@@ -132,6 +132,11 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 | 2026-11-14 | **Informe final: "Carta a Paulet".** Goicochea escribe a la memoria de Paulet qué salió bien, qué falló y por qué, firmada con el valor que dominó (rigor, audacia o servicio); los números van debajo | Respuesta del dueño; el reto pide explicar el porqué (Validity, Presentation) |
 | 2026-11-14 | **Nueva intro: "Goicochea y el cuaderno".** Amanecer en una azotea de Arequipa con el Misti detrás; Goicochea adulto abre el cuaderno de Paulet, Kuntur despliega sus alas y le pasa la misión al jugador. Sin menores; marca "AI-generated" si hay imagen o video generado | Respuesta del dueño; regla de menores de 18 |
 | 2026-11-14 | **Diapositiva 2 (gancho): "Una promesa de 130 años".** Paulet afirmó en 1895 haber probado un motor de combustible líquido (siempre "afirmado"): ¿qué haría falta para terminar hoy lo que empezó? El juego es la respuesta | Respuesta del dueño; Presentation |
+| 2026-11-14 | **Multijugador en línea con Firebase** (Realtime Database, plan gratis Spark, proyecto creado por el dueño): uno crea la sala e invita con un enlace; cada uno pone su nombre y elige su perfil (rol); juegan juntos. Se mantiene también el modo de un solo dispositivo | Pedido del dueño; hueco más grande frente al reto |
+| 2026-11-14 | **Personajes del equipo de Goicochea:** Goicochea (Director de misión), **Chicho** (Ingeniero de la nave), **Roberto** (Astrofísico), **Franchesca** (Astrobióloga). Todos adultos y ficticios | Respuesta del dueño |
+| 2026-11-14 | **Ranking:** comparación lado a lado de dos diseños ("trade study", como el Mission Design Lab de NASA) + ranking por misión en el dispositivo, compartible con los retos por enlace; sin servidor | Respuesta del dueño; Relevance |
+| 2026-11-14 | **Valores de Goicochea visibles:** tres barras en vivo en el panel del diseño (rigor, audacia, servicio) y la carta a Paulet firmada con el valor que dominó | Respuesta del dueño; Creativity |
+| 2026-11-14 | **Diapositivas:** 1 título, equipo, integrantes y reto · 2 "Una promesa de 130 años" · 3 el juego en una imagen · 4 cómo negocia un equipo de 4 · 5 datos y recursos de NASA dentro del juego · 6 impacto (gratis, sin conexión, bilingüe) · 7 equipo, enlace y QR | Respuesta del dueño; Presentation |
 
 ## 9. Hecho
 - [x] 2026-11-14 · Lectura de las guías de entrega y jurado, del reto, sus recursos y las Global Offers.
@@ -161,18 +166,20 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
 2. [ ] Pedir ofertas: Miro Templates, GitHub Copilot Free; Google Cloud si haremos ranking o tiempo real.
-3. [ ] Ranking o comparación de diseños (la colaboración de 4 ya está hecha).
-4. [ ] Recursos de NASA dentro del juego: barra CML, segmentos de misión, "misión real más parecida", escenario CubeSat; validar Δv con GMAT.
-5. [ ] Nueva toma de la intro sin el niño; marca "AI-generated" en imágenes y videos generados.
-6. [ ] Quitar cualquier logo o identificador de NASA de los recursos reutilizados.
-7. [ ] Desplegar el enlace público (Vercel) y probarlo en ventana privada y en el teléfono.
-8. [ ] Diapositivas (7) en inglés: título/equipo/integrantes/reto · problema · historia · cómo se juega · equipo de 4 · datos de NASA · futuro + enlace/QR.
-9. [ ] Página del proyecto en inglés: resumen, descripción detallada, uso de IA, datos de NASA, referencias (incluida la primera versión, licencias de fuentes, música, voces).
-10. [ ] **Guardar progreso desde el sábado; primer "Submit for Judging" el domingo temprano**; reenviar si mejora.
-11. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
+3. [ ] **Multijugador en línea (Firebase):** salas con enlace, nombre y perfil por jugador, diseño y votación sincronizados. **Bloqueado por el dueño:** crear el proyecto de Firebase y pasar su `firebaseConfig` (pasos en §12).
+4. [ ] Ranking: trade study (dos diseños lado a lado) + ranking por misión en el dispositivo.
+5. [ ] Historia en el juego: personajes (Goicochea, Chicho, Roberto, Franchesca) en los roles, barras de valores, carta a Paulet en el informe, intro nueva.
+6. [ ] Recursos de NASA dentro del juego: barra CML, segmentos de misión, "misión real más parecida", escenario CubeSat; validar Δv con GMAT.
+7. [ ] Nueva toma de la intro sin el niño; marca "AI-generated" en imágenes y videos generados.
+8. [ ] Quitar cualquier logo o identificador de NASA de los recursos reutilizados.
+9. [ ] Desplegar el enlace público (Vercel) y probarlo en ventana privada y en el teléfono.
+10. [ ] Diapositivas (7) en inglés: título/equipo/integrantes/reto · problema · historia · cómo se juega · equipo de 4 · datos de NASA · futuro + enlace/QR.
+11. [ ] Página del proyecto en inglés: resumen, descripción detallada, uso de IA, datos de NASA, referencias (incluida la primera versión, licencias de fuentes, música, voces).
+12. [ ] **Guardar progreso desde el sábado; primer "Submit for Judging" el domingo temprano**; reenviar si mejora.
+13. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
 
 ## 11. Siguiente paso exacto
-Ranking o comparación de diseños (§10, punto 3); luego los recursos de NASA dentro del juego (punto 4). En paralelo, el dueño: confirmar evento local y hora de cierre (punto 1) y los nombres de los integrantes para la diapositiva 1. Pendiente de la parte creativa: escribir los textos de las decisiones de §8 (personajes del equipo de Goicochea, carta a Paulet, valores) en el juego.
+Multijugador en línea (§10, punto 3): se programa con una capa de sala intercambiable (Firebase en producción, BroadcastChannel entre pestañas para probar sin cuenta). Falta que el dueño cree el proyecto de Firebase (pasos en §12) y pase su configuración. Después: ranking (punto 4) e historia en el juego (punto 5).
 
 ## 12. Dónde está cada cosa
 - Primera versión: repo `artesanalinteligencia1-dotcom/PP.game` (rama `cloud/fase-1`), clon `C:\PPgame\PP.game`,
@@ -182,3 +189,7 @@ Ranking o comparación de diseños (§10, punto 3); luego los recursos de NASA d
 - Repo antiguo del grupo: `artesanalinteligencia1-dotcom/NASA-Hackathon` (privado, solo README del 2026-11-01).
 - Este repo: `C:\PPgame\paulet-spaceapps-2026`.
 - Memoria de Claude Code (solo en esta PC): `C:\Users\roone\.claude\projects\C--PPgame\memory\`.
+- **Firebase (multijugador en línea), pasos para el dueño:** console.firebase.google.com → Crear proyecto `paulet-spaceapps`
+  (sin Analytics) → Compilación → Realtime Database → Crear base de datos (Estados Unidos, modo de prueba) → Configuración
+  del proyecto → Tus apps → Web `</>` → apodo `paulet-game`, Registrar → copiar `firebaseConfig` y pasarlo a Claude.
+  Va como variables `VITE_FIREBASE_*` en `game/.env.local` y en Vercel (no es un secreto: lo protegen las reglas).
