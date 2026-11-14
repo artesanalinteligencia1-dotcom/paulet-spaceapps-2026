@@ -22,8 +22,11 @@
 - **Dónde vive hoy el código del juego (2026-11-14):** en `artesanalinteligencia1-dotcom/PP.game`, rama `cloud/fase-1`,
   clon `C:\PPgame\PP.game`, último commit `c58b78b`. **Ojo:** los 4 últimos commits (`b4a191d`, `1cf10ed`, `8937f2f`,
   `c58b78b`) están solo en la PC del dueño hasta que él haga `git push origin cloud/fase-1` desde su terminal.
-  Su estado vivo (hecho, pendiente, siguiente paso) está en `PP.game/HANDOFF.md`. Falta decidir si el código del
-  concurso se queda ahí o se trae a este repo (§10, punto 2).
+  **Decidido el 2026-11-14: el código del concurso vive en este repo, en `game/`.** Se trajo ese estado (commit
+  `c58b78b` de PP.game) como base declarada; todo lo nuevo del concurso se hace aquí. Cómo correrlo: `cd game`,
+  `npm ci`, `npm run dev` (puerto 5173), `npm test`. El historial y los documentos técnicos de la base están en
+  `game/PROGRESS.md`, `game/DECISIONS.md`, `game/docs/model.md` y `game/HANDOFF.md` (este último es el de la primera
+  versión; para el concurso manda este archivo).
 
 ## 2. Fechas (hora del evento local del equipo)
 | Cuándo | Qué |
@@ -120,6 +123,11 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 | 2026-11-14 | Nueva toma de la intro sin Goicochea niño | Regla de menores de 18 |
 | 2026-11-14 | Marca "AI-generated" visible en imágenes y video; declaración de IA en texto y metadatos | Regla de la entrega |
 | 2026-11-14 | Reparto: el dueño hace la parte creativa; Claude código, datos y página de entrega en inglés | Pedido del dueño |
+| 2026-11-14 | **El código del concurso vive en este repo**, en `game/`: se trae el estado actual de *Paulet: Andes to Orbit* (PP.game, commit `c58b78b`) como base declarada y lo nuevo del concurso se hace aquí; despliegue aparte en Vercel | Respuesta del dueño; originalidad y orden |
+| 2026-11-14 | **Equipo de 4: se combinan los tres mecanismos.** (1) Votación con veto en las decisiones grandes y en la revisión antes de lanzar; (2) el dinero se reparte por áreas según lo que más importa en cada misión (cambia de misión a misión); (3) cada rol tiene metas propias y además hay una meta de grupo | Respuesta del dueño; hueco más grande frente al reto, pesa en Creativity |
+| 2026-11-14 | **Si juega una sola persona:** puede llevar varios roles, o Kuntur lleva uno o varios | Respuesta del dueño (ya estaba en la idea original) |
+| 2026-11-14 | **Arco de una partida corta (5–10 min): "Una promesa a Paulet".** Goicochea adulto recibe en Arequipa un contrato que termina lo que Paulet empezó; diseñas, lanzas y el informe final se lee como una carta o bitácora | Respuesta del dueño; Presentation y Best Storytelling |
+| 2026-11-14 | **Legado: "Valores de Goicochea".** Tres valores (rigor, audacia, servicio a la gente); cada decisión inclina uno, y el informe dice qué Goicochea fuiste y qué habría pensado Paulet (sus hechos siempre como "afirmados") | Respuesta del dueño; Creativity y Validity |
 
 ## 9. Hecho
 - [x] 2026-11-14 · Lectura de las guías de entrega y jurado, del reto, sus recursos y las Global Offers.
@@ -135,20 +143,20 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 - [x] 2026-11-14 · (en `PP.game`) Robot guía **Kuntur** (elegido por el dueño entre tres): pistas en el diseño, explicación
       del resultado tras cada misión y tutorial de la primera misión, en inglés y español.
 - [x] 2026-11-14 · `PP.game`: 229 pruebas en verde; build de producción correcto.
+- [x] 2026-11-14 · Código traído a este repo en `game/` (base declarada: PP.game `c58b78b`); 229 pruebas en verde aquí.
 
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
-2. [ ] Decidir dónde vive el código nuevo (este repo o el que use la otra sesión) y anotarlo en §1.
-3. [ ] Pedir ofertas: Miro Templates, GitHub Copilot Free; Google Cloud si haremos ranking o tiempo real.
-4. [ ] Cerrar huecos del reto: colaboración real de 4 personas (decisiones negociadas) y ranking/comparación de diseños.
-5. [ ] Recursos de NASA dentro del juego: barra CML, segmentos de misión, "misión real más parecida", escenario CubeSat; validar Δv con GMAT.
-6. [ ] Nueva toma de la intro sin el niño; marca "AI-generated" en imágenes y videos generados.
-7. [ ] Quitar cualquier logo o identificador de NASA de los recursos reutilizados.
-8. [ ] Desplegar el enlace público (Vercel) y probarlo en ventana privada y en el teléfono.
-9. [ ] Diapositivas (7) en inglés: título/equipo/integrantes/reto · problema · historia · cómo se juega · equipo de 4 · datos de NASA · futuro + enlace/QR.
-10. [ ] Página del proyecto en inglés: resumen, descripción detallada, uso de IA, datos de NASA, referencias (incluida la primera versión, licencias de fuentes, música, voces).
-11. [ ] **Guardar progreso desde el sábado; primer "Submit for Judging" el domingo temprano**; reenviar si mejora.
-12. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
+2. [ ] Pedir ofertas: Miro Templates, GitHub Copilot Free; Google Cloud si haremos ranking o tiempo real.
+3. [ ] Cerrar huecos del reto: colaboración real de 4 personas (decisiones negociadas) y ranking/comparación de diseños.
+4. [ ] Recursos de NASA dentro del juego: barra CML, segmentos de misión, "misión real más parecida", escenario CubeSat; validar Δv con GMAT.
+5. [ ] Nueva toma de la intro sin el niño; marca "AI-generated" en imágenes y videos generados.
+6. [ ] Quitar cualquier logo o identificador de NASA de los recursos reutilizados.
+7. [ ] Desplegar el enlace público (Vercel) y probarlo en ventana privada y en el teléfono.
+8. [ ] Diapositivas (7) en inglés: título/equipo/integrantes/reto · problema · historia · cómo se juega · equipo de 4 · datos de NASA · futuro + enlace/QR.
+9. [ ] Página del proyecto en inglés: resumen, descripción detallada, uso de IA, datos de NASA, referencias (incluida la primera versión, licencias de fuentes, música, voces).
+10. [ ] **Guardar progreso desde el sábado; primer "Submit for Judging" el domingo temprano**; reenviar si mejora.
+11. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
 
 ## 11. Siguiente paso exacto
 Punto 1 y 2 de la lista: confirmar evento y hora de cierre; decidir y anotar dónde vive el código nuevo.
