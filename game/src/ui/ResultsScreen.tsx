@@ -5,6 +5,8 @@ import { SpacecraftSprite } from './spacecraft/SpacecraftSprite'
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { getScenario } from '../engine/catalog'
 import { useGuideContent } from '../store/guide'
+import { BOARD_KEY, loadBoard, type BoardEntry } from '../store/leaderboard'
+import { useOnline } from '../store/online'
 import { resultsLines, resultsMood } from './guide/lines'
 import { TeamResults } from './team/TeamResults'
 import { analyseMission } from '../engine/report'
@@ -20,23 +22,6 @@ const RANK_STYLE: Record<Rank, string> = {
   Partial: 'text-amber-300 border-amber-400/50',
   Success: 'text-emerald-300 border-emerald-500/50',
   Outstanding: 'text-violet-300 border-violet-400/60',
-}
-
-interface BoardEntry {
-  score: number
-  rank: Rank
-  seed: number
-  date: string
-  summary: string
-}
-const BOARD_KEY = 'ppgame.leaderboard.v1'
-
-function loadBoard(): Record<string, BoardEntry[]> {
-  try {
-    return JSON.parse(localStorage.getItem(BOARD_KEY) ?? '{}') as Record<string, BoardEntry[]>
-  } catch {
-    return {}
-  }
 }
 
 export function ResultsScreen() {
@@ -73,7 +58,13 @@ export function ResultsScreen() {
   useEffect(() => {
     const all = loadBoard()
     const summary = mission.design.instruments.map((i) => i.id).join('+') + ` · ${mission.design.orbitId} · ${mission.design.launcherId}`
-    const entry: BoardEntry = { score: score.total, rank: score.rank, seed: mission.seed, date: new Date().toISOString().slice(0, 10), summary }
+    const room = useOnline.getState().room
+    const who = mission.team
+      ? room
+        ? Object.values(room.players ?? {}).sort((a, b) => a.order - b.order).map((p) => p.name).join(', ')
+        : `team:${new Set(Object.values(mission.team.holders).filter((h) => h > 0)).size}`
+      : ''
+    const entry: BoardEntry = { score: score.total, rank: score.rank, seed: mission.seed, date: new Date().toISOString().slice(0, 10), summary, who }
     const list = [...(all[scenario.id] ?? []).filter((e) => !(e.seed === entry.seed && e.summary === entry.summary && e.score === entry.score)), entry]
       .sort((a, b) => b.score - a.score)
       .slice(0, 5)
@@ -233,6 +224,7 @@ export function ResultsScreen() {
                 <li key={`${e.seed}-${e.score}-${i}`} className="flex flex-wrap gap-x-3 text-slate-300">
                   <span className="font-mono text-slate-100">{e.score}</span>
                   <span>{t(`results.rank.${e.rank}` as StringKey)}</span>
+                  <span className="text-violet-300">{e.who ? (e.who.startsWith('team:') ? t('ranking.team', { n: e.who.slice(5) }) : e.who) : t('ranking.solo')}</span>
                   <span className="text-slate-500">{t('results.seed', { seed: e.seed })}</span>
                   <span className="text-slate-500">{e.summary}</span>
                 </li>

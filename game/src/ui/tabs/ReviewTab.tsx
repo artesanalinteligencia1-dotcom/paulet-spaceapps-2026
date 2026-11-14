@@ -3,6 +3,7 @@ import type { Design, DesignReport, Scenario } from '../../engine/types'
 import { useTeam } from '../../store/team'
 import { useOnline } from '../../store/online'
 import { TeamReview } from '../team/TeamReview'
+import { TradeStudy } from './TradeStudy'
 import { RESOURCE_LABEL, ROLE_LABEL, message } from '../../i18n/en'
 import { Pill, SEV_BORDER, SEV_TEXT, Section } from '../components'
 import { RequirementsList } from './MissionTab'
@@ -53,6 +54,7 @@ export function ReviewTab({ report, design, scenario }: { report: DesignReport; 
           })}
         </ul>
       </Section>
+      <TradeStudy design={design} report={report} scenario={scenario} />
       <Section title={t('review.requirements')}>
         <RequirementsList report={report} />
       </Section>
