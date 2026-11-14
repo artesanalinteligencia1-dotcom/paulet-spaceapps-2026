@@ -4,11 +4,12 @@ import type { MissionState, Quality } from './simulate'
 import { SIM_WEEKS_PER_YEAR } from './simulate'
 import type { Scenario } from './types'
 import { nextWindowMonth } from './mars'
+import { collaborationPoints } from './team'
 
 export type Rank = 'Fail' | 'Partial' | 'Success' | 'Outstanding'
 
 export interface ScoreLine {
-  key: 'success' | 'science' | 'efficiency' | 'decisions' | 'schedule' | 'bonus'
+  key: 'success' | 'science' | 'efficiency' | 'decisions' | 'schedule' | 'collaboration' | 'bonus'
   /** English label (reports, tests). The UI shows labelMsg. */
   label: string
   labelMsg: Msg
@@ -129,9 +130,10 @@ export function scoreMission(s: MissionState, scenario: Scenario): MissionScore 
     scenario.requirements.filter((q) => q.optional && requirements.find((x) => x.id === q.id)?.met).reduce((t, q) => t + (q.bonus ?? 0), 0),
   )
 
-  // Solo: no collaboration (100) → rescale the 850 base points to 950.
-  const soloRescale = 950 / 850
-  const base = (success + science + efficiency + decisions + schedule) * soloRescale
+  // Solo: no collaboration (100) → rescale the 850 base points to 950. A team earns those 100 points by negotiating.
+  const collab = s.team ? collaborationPoints(s.team) : null
+  const soloRescale = collab ? 1 : 950 / 850
+  const base = (success + science + efficiency + decisions + schedule) * soloRescale + (collab && launched ? collab.total : 0)
   const total = Math.round(Math.min(1000, base + (launched ? bonus : 0)))
 
   let rank: Rank
@@ -152,6 +154,9 @@ export function scoreMission(s: MissionState, scenario: Scenario): MissionScore 
     line('efficiency', M('score.label.efficiency'), efficiency * soloRescale, 150 * soloRescale, M('score.detail.efficiency', { launch: Math.round(launchMargin * 100), power: Math.round(r.power.marginEol * 100), budget: Math.round(used * 100) })),
     line('decisions', M('score.label.decisions'), decisions * soloRescale, 100 * soloRescale, M('score.detail.decisions', { warns, decisions: s.decisions.length })),
     line('schedule', M('score.label.schedule'), schedule * soloRescale, 50 * soloRescale, late <= 0 ? M('score.detail.onTime') : M('score.detail.late', { months: fmt1(late) })),
+    ...(collab
+      ? [line('collaboration', M('score.label.collaboration'), launched ? collab.total : 0, 100, M('score.detail.collaboration', { goals: Object.values(s.team!.goals).filter(Boolean).length, shares: Object.values(s.team!.withinShare).filter(Boolean).length, approvals: s.team!.approvals, rounds: s.team!.failedRounds }))]
+      : []),
     line('bonus', M('score.label.bonus'), launched ? bonus : 0, 50, M('score.detail.bonus', { count: requirements.filter((x) => x.optional && x.met).length })),
   ]
   return { total, rank, lines, requirements, soloRescale, actual: { lifeYears, deliveredGbDay, costM, devMonths, science: s.science } }

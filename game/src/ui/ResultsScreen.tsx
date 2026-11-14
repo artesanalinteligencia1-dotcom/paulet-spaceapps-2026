@@ -6,6 +6,7 @@ import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'rec
 import { getScenario } from '../engine/catalog'
 import { useGuideContent } from '../store/guide'
 import { resultsLines, resultsMood } from './guide/lines'
+import { TeamResults } from './team/TeamResults'
 import { analyseMission } from '../engine/report'
 import { scoreMission, type Rank } from '../engine/score'
 import { CAUSE_TEXT, END_REASON_LABEL, REQUIREMENT_LABEL, fmt, localName } from '../i18n/en'
@@ -124,7 +125,7 @@ export function ResultsScreen() {
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-[11px] text-slate-500">{t('results.soloHint')}</p>
+          {mission.team ? <TeamResults outcome={mission.team} /> : <p className="mt-3 text-[11px] text-slate-500">{t('results.soloHint')}</p>}
         </section>
 
         <section className="min-w-0 space-y-5">

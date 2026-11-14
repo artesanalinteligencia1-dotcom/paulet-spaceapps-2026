@@ -8,6 +8,7 @@ import { COLLISION_AVOIDANCE_DV, evaluateDesign } from './evaluate'
 import { getScenario } from './catalog/scenarios'
 import { getRoute, marsCruiseDays } from './catalog/routes'
 import { EDL_MINUTES } from './edl'
+import type { TeamOutcome } from './team'
 import { SOL_HOURS } from './isru'
 import { CONJUNCTION_BLACKOUT_WEEKS, conjunctionDays } from './mars'
 import { MINUTES_PER_YEAR, maintenanceDvPerYear, noPropulsionOrbitLifeYears, stationContactMinutes } from './orbit'
@@ -90,6 +91,8 @@ export interface MissionState {
   dust?: { until: number; factor: number }
   /** Landers: multiplier on the chance of a safe landing (decisions before entry). */
   landingFactor?: number
+  /** Team play: what the team carried to the launch pad (goals, shares, review). Absent in solo play. */
+  team?: TeamOutcome
   /** Mars: no radio link through this week (the Sun is between the two planets). */
   blackoutUntil?: number
   /** Multiplier on science (e.g. after accepting a looser, less stable orbit). */

@@ -74,7 +74,7 @@ Premios con más afinidad: Best Storytelling, Art & Technology, Best Mission Con
 | Instrumentos con masa, potencia, costo, datos, valor científico | Catálogo de 12+ instrumentos | hecho |
 | Órbitas explicadas; lanzador compatible con masa y órbita | Orbit & Launch + revisión bloqueante | hecho |
 | Recursos visibles (masa, potencia, presupuesto, datos, comms, tiempo) | Panel en vivo con deltas | hecho |
-| Hasta 4 personas con roles que negocian | 4 roles en un dispositivo, bots, retos por enlace; robot guía Kuntur | **reforzar** |
+| Hasta 4 personas con roles que negocian | Modo equipo: reparto del dinero por áreas, metas por rol y de grupo, revisión con voto y veto, Kuntur en asientos vacíos; 100 puntos de negociación | hecho (2026-11-14) |
 | Simulación, puntuación, análisis post-misión | Simulación con semilla, 0–1000, 3 causas | hecho |
 | Dificultades, escenarios, eventos, sandbox | Cadete/Investigador/Director, contratos, sandbox | hecho |
 | Guardar, compartir, comparar; ranking | Guardado y enlaces; **sin ranking** | **falta ranking** |
@@ -128,6 +128,10 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 | 2026-11-14 | **Si juega una sola persona:** puede llevar varios roles, o Kuntur lleva uno o varios | Respuesta del dueño (ya estaba en la idea original) |
 | 2026-11-14 | **Arco de una partida corta (5–10 min): "Una promesa a Paulet".** Goicochea adulto recibe en Arequipa un contrato que termina lo que Paulet empezó; diseñas, lanzas y el informe final se lee como una carta o bitácora | Respuesta del dueño; Presentation y Best Storytelling |
 | 2026-11-14 | **Legado: "Valores de Goicochea".** Tres valores (rigor, audacia, servicio a la gente); cada decisión inclina uno, y el informe dice qué Goicochea fuiste y qué habría pensado Paulet (sus hechos siempre como "afirmados") | Respuesta del dueño; Creativity y Validity |
+| 2026-11-14 | **Roles en la ficción: "El equipo de Goicochea".** Cada rol es un personaje del instituto de Goicochea en Arequipa, con una línea de motivación que explica su meta propia; Kuntur ocupa los asientos vacíos | Respuesta del dueño; Creativity y Best Storytelling |
+| 2026-11-14 | **Informe final: "Carta a Paulet".** Goicochea escribe a la memoria de Paulet qué salió bien, qué falló y por qué, firmada con el valor que dominó (rigor, audacia o servicio); los números van debajo | Respuesta del dueño; el reto pide explicar el porqué (Validity, Presentation) |
+| 2026-11-14 | **Nueva intro: "Goicochea y el cuaderno".** Amanecer en una azotea de Arequipa con el Misti detrás; Goicochea adulto abre el cuaderno de Paulet, Kuntur despliega sus alas y le pasa la misión al jugador. Sin menores; marca "AI-generated" si hay imagen o video generado | Respuesta del dueño; regla de menores de 18 |
+| 2026-11-14 | **Diapositiva 2 (gancho): "Una promesa de 130 años".** Paulet afirmó en 1895 haber probado un motor de combustible líquido (siempre "afirmado"): ¿qué haría falta para terminar hoy lo que empezó? El juego es la respuesta | Respuesta del dueño; Presentation |
 
 ## 9. Hecho
 - [x] 2026-11-14 · Lectura de las guías de entrega y jurado, del reto, sus recursos y las Global Offers.
@@ -144,11 +148,20 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
       del resultado tras cada misión y tutorial de la primera misión, en inglés y español.
 - [x] 2026-11-14 · `PP.game`: 229 pruebas en verde; build de producción correcto.
 - [x] 2026-11-14 · Código traído a este repo en `game/` (base declarada: PP.game `c58b78b`); 229 pruebas en verde aquí.
+- [x] 2026-11-14 · **Modo equipo de hasta 4** (`game/src/engine/team.ts`, `game/src/store/team.ts`, `game/src/ui/team/`):
+      en la pestaña Mission se elige 1–4 jugadores y quién lleva cada rol (o Kuntur); el dinero se reparte por áreas según
+      las prioridades de la misión (se puede renegociar con deslizadores); cada rol ve su meta en privado ("show my goal",
+      se pasa el dispositivo) y hay una meta de grupo; antes de lanzar, revisión de diseño con aprobar / rechazar / vetar
+      (3 de 4 y sin veto). El informe suma "Team negotiation" (0–100) y muestra la tabla del equipo. Fórmulas en
+      `game/docs/model.md` §25. Probado en el navegador de punta a punta (2 jugadores + Kuntur: 3 de 4 aprobaron, misión
+      completa, 73/100 de negociación). Capturas: `docs/screenshots/team-panel.jpg`, `docs/screenshots/team-design-review.jpg`.
+      239 pruebas en verde.
+- [x] 2026-11-14 · Entrevista creativa, dos rondas (8 decisiones en §8).
 
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
 2. [ ] Pedir ofertas: Miro Templates, GitHub Copilot Free; Google Cloud si haremos ranking o tiempo real.
-3. [ ] Cerrar huecos del reto: colaboración real de 4 personas (decisiones negociadas) y ranking/comparación de diseños.
+3. [ ] Ranking o comparación de diseños (la colaboración de 4 ya está hecha).
 4. [ ] Recursos de NASA dentro del juego: barra CML, segmentos de misión, "misión real más parecida", escenario CubeSat; validar Δv con GMAT.
 5. [ ] Nueva toma de la intro sin el niño; marca "AI-generated" en imágenes y videos generados.
 6. [ ] Quitar cualquier logo o identificador de NASA de los recursos reutilizados.
@@ -159,7 +172,7 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 11. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
 
 ## 11. Siguiente paso exacto
-Punto 1 y 2 de la lista: confirmar evento y hora de cierre; decidir y anotar dónde vive el código nuevo.
+Ranking o comparación de diseños (§10, punto 3); luego los recursos de NASA dentro del juego (punto 4). En paralelo, el dueño: confirmar evento local y hora de cierre (punto 1) y los nombres de los integrantes para la diapositiva 1. Pendiente de la parte creativa: escribir los textos de las decisiones de §8 (personajes del equipo de Goicochea, carta a Paulet, valores) en el juego.
 
 ## 12. Dónde está cada cosa
 - Primera versión: repo `artesanalinteligencia1-dotcom/PP.game` (rama `cloud/fase-1`), clon `C:\PPgame\PP.game`,
