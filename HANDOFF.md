@@ -161,12 +161,18 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
       `game/docs/model.md` §25. Probado en el navegador de punta a punta (2 jugadores + Kuntur: 3 de 4 aprobaron, misión
       completa, 73/100 de negociación). Capturas: `docs/screenshots/team-panel.jpg`, `docs/screenshots/team-design-review.jpg`.
       239 pruebas en verde.
-- [x] 2026-11-14 · Entrevista creativa, dos rondas (8 decisiones en §8).
+- [x] 2026-11-14 · Entrevista creativa, tres rondas (decisiones en §8).
+- [x] 2026-11-14 · **Multijugador en línea** (`game/src/online/`, `game/src/store/online.ts`, `game/src/ui/online/`): crear sala,
+      enlace `?room=CODE`, unirse con nombre, tomar un rol (personajes Goicochea, Chicho, Roberto y Franchesca, con su frase),
+      diseño y reparto compartidos en vivo, metas privadas por jugador, votación en línea (cada uno vota sus roles) y
+      "Launch together": todos vuelan la misma misión. Probado con dos pestañas (backend local): misma semilla, mismo
+      puntaje (866) y 83/100 de negociación. **Falta solo conectar Firebase** (configuración del dueño). Reglas en
+      `game/database.rules.json`, plantilla en `game/.env.example`. 244 pruebas en verde.
 
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
 2. [ ] Pedir ofertas: Miro Templates, GitHub Copilot Free; Google Cloud si haremos ranking o tiempo real.
-3. [ ] **Multijugador en línea (Firebase):** salas con enlace, nombre y perfil por jugador, diseño y votación sincronizados. **Bloqueado por el dueño:** crear el proyecto de Firebase y pasar su `firebaseConfig` (pasos en §12).
+3. [ ] **Conectar Firebase al multijugador en línea** (el código ya está y funciona entre pestañas). **Bloqueado por el dueño:** crear el proyecto de Firebase y pasar su `firebaseConfig` (pasos en §12). Luego: poner las variables en `game/.env.local` y en Vercel, publicar las reglas de `game/database.rules.json` y probar con dos dispositivos.
 4. [ ] Ranking: trade study (dos diseños lado a lado) + ranking por misión en el dispositivo.
 5. [ ] Historia en el juego: personajes (Goicochea, Chicho, Roberto, Franchesca) en los roles, barras de valores, carta a Paulet en el informe, intro nueva.
 6. [ ] Recursos de NASA dentro del juego: barra CML, segmentos de misión, "misión real más parecida", escenario CubeSat; validar Δv con GMAT.
@@ -179,7 +185,7 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 13. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
 
 ## 11. Siguiente paso exacto
-Multijugador en línea (§10, punto 3): se programa con una capa de sala intercambiable (Firebase en producción, BroadcastChannel entre pestañas para probar sin cuenta). Falta que el dueño cree el proyecto de Firebase (pasos en §12) y pase su configuración. Después: ranking (punto 4) e historia en el juego (punto 5).
+Cuando el dueño pase el `firebaseConfig`: conectarlo y probar el multijugador en dos dispositivos (§10, punto 3). Mientras tanto: ranking y trade study (punto 4) e historia en el juego (punto 5: barras de valores, carta a Paulet, personajes ya puestos en el panel del equipo).
 
 ## 12. Dónde está cada cosa
 - Primera versión: repo `artesanalinteligencia1-dotcom/PP.game` (rama `cloud/fase-1`), clon `C:\PPgame\PP.game`,

@@ -14,6 +14,8 @@ import { HomeScreen, MenuBackdrop } from './hub/HomeScreen'
 import { IntroScreen } from './hub/IntroScreen'
 import { LearnScreen } from './hub/LearnScreen'
 import { GuideDock } from './guide/GuideDock'
+import { JoinRoom } from './online/OnlinePanel'
+import { startOnlinePush } from '../store/online'
 import { MockScreen, mockFromUrl } from './mock/MockScreen'
 import { useT } from '../i18n'
 import { RocketScreen } from './rocket/RocketScreen'
@@ -64,6 +66,8 @@ export function App() {
   const reduce = useReducedMotion()
   const [booted, setBooted] = useState(false)
   const start = useCallback(() => setBooted(true), [])
+
+  useEffect(() => startOnlinePush(), [])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -118,6 +122,7 @@ export function App() {
               </button>
             </div>
             <GuideDock />
+            <JoinRoom />
             {settingsOpen && <SettingsPanel onClose={() => openSettings(false)} />}
           </>
         )}

@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useOnline } from '../store/online'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { prefersReducedMotion } from '../store/settings'
 import { audio, useMusic } from '../audio/audio'
 import { getOrbit, getScenario } from '../engine/catalog'
@@ -42,6 +43,15 @@ export function LaunchScreen() {
     setPhase('flying')
   }
   const onDone = useCallback((o: LaunchOutcome) => setPhase(o), [])
+  // online: the host's launch reaches every device; the countdown starts by itself
+  const autoLaunch = useOnline((st) => st.autoLaunch)
+  useEffect(() => {
+    if (autoLaunch && phase === 'ready') {
+      useOnline.getState().consumeAutoLaunch()
+      go()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoLaunch, phase])
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6">

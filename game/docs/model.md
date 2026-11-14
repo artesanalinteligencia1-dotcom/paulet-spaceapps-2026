@@ -407,3 +407,17 @@ Up to four players; each of the four roles is held by a player or by Kuntur. Thr
   their area is within its share, and says why otherwise.
 - **Score:** the 100 collaboration points that solo play redistributes: 40 × goals met / 4 + 30 × roles within share / 4
   + consensus (30 for four approvals, 20 for three) − 10 per repeated review.
+
+## 26. Online rooms (`src/online/`, `src/store/online.ts`, Space Apps 2026)
+- One player creates a room (6-character code, no look-alike characters) and shares the link `?room=CODE`; up to four
+  players join with a name and take roles (the others stay with Kuntur). The room is plain data in Firebase Realtime
+  Database (`rooms/<code>`): players, who holds each role, the design (as a JSON string), the money split, the review
+  (round, votes, result), failed rounds, vetoes used and the launch (seed, round).
+- Every device runs the game locally and mirrors the room; local edits to the design and the split are pushed within
+  120 ms. Each player votes only for the roles they hold; Kuntur's votes are fixed when the review opens; the host
+  settles the result (so a failed round counts once). Goals are private: a player sees only the goals of their roles.
+- The host's launch reaches every device; Kuntur takes the in-flight decisions (balanced), so the deterministic engine
+  flies the same mission on every device (same design, same seed): same score everywhere (checked in two tabs).
+- Without Firebase configuration (or with `?roomBackend=local`) rooms live in the browser and are shared between its
+  tabs (localStorage + BroadcastChannel), which is how the flow is tested without an account.
+- Rules (`database.rules.json`): read and write only under `rooms/<6-character code>`. Rooms hold first names only.
