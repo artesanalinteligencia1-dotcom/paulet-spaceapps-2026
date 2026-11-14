@@ -77,7 +77,7 @@ Premios con más afinidad: Best Storytelling, Art & Technology, Best Mission Con
 | Hasta 4 personas con roles que negocian | Modo equipo: reparto del dinero por áreas, metas por rol y de grupo, revisión con voto y veto, Kuntur en asientos vacíos; 100 puntos de negociación | hecho (2026-11-14) |
 | Simulación, puntuación, análisis post-misión | Simulación con semilla, 0–1000, 3 causas | hecho |
 | Dificultades, escenarios, eventos, sandbox | Cadete/Investigador/Director, contratos, sandbox | hecho |
-| Guardar, compartir, comparar; ranking | Guardado y enlaces; **sin ranking** | **falta ranking** |
+| Guardar, compartir, comparar; ranking | Guardado, enlaces, retos por enlace, trade study de dos opciones y ranking por misión (solo / equipo / nombres de la sala) | hecho (2026-11-14) |
 | Enseñar el por qué | Revisión explicada, lecciones | hecho |
 
 ## 6. Recursos oficiales del reto (pestaña Resources, publicados) y cómo usarlos
@@ -171,13 +171,19 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 - [x] 2026-11-14 · **Firebase conectado** (proyecto `paulet-spaceapps`, plan Spark gratis, Realtime Database en us-central1,
       `https://paulet-spaceapps-default-rtdb.firebaseio.com`). La configuración está en `game/.env.local` (no se sube; no es
       secreta). Probado con dos pestañas sobre Firebase real: unirse por enlace, tomar roles, diseño compartido, votación
-      3 de 4 y "Launch together"; los dos vieron la misma misión (semilla 766479, 807 puntos).
+      3 de 4 y "Launch together"; los dos vieron la misma misión (semilla 766479, 807 puntos). El dueño publicó las reglas.
+- [x] 2026-11-14 · **Trade study y ranking** (`game/src/engine/trade.ts`, `game/src/ui/tabs/TradeStudy.tsx`,
+      `game/src/store/leaderboard.ts`): en Review se guarda el diseño como opción A o B y se comparan con el actual en 9
+      métricas (requisitos, costo, margen del lanzador, margen de energía, datos, mes de lanzamiento, vida, ciencia,
+      probabilidad de éxito), con el mejor en verde y "mejor en n". Ranking de los 5 mejores vuelos por misión en el
+      dispositivo, visible en la pestaña Mission y en resultados, con quién voló (solo, equipo de n o los nombres de la
+      sala). 247 pruebas en verde.
 
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
 2. [ ] Pedir ofertas: Miro Templates, GitHub Copilot Free; Google Cloud si haremos ranking o tiempo real.
-3. [ ] **Firebase, lo que falta:** (a) el dueño publica las reglas de `game/database.rules.json` en Firebase → Realtime Database → Reglas (hoy sigue en modo de prueba: abierta entera y caduca en 30 días); (b) poner las 5 variables `VITE_FIREBASE_*` de `game/.env.local` en el proyecto de Vercel del concurso al desplegar (punto 8); (c) probar con dos dispositivos reales en el enlace público.
-4. [ ] Ranking: trade study (dos diseños lado a lado) + ranking por misión en el dispositivo.
+3. [ ] **Enlace público (lo hace el dueño, Claude no tiene sesión en Vercel):** vercel.com → Add New → Project → importar `paulet-spaceapps-2026` (dar acceso de GitHub si lo pide) → **Root Directory: `game`** (Vite se detecta solo) → Environment Variables: las 5 `VITE_FIREBASE_*` de `game/.env.local` → Deploy. Luego probar en ventana privada y con dos dispositivos reales (sala en línea). Alternativa: `npx vercel login` en la terminal del dueño y Claude despliega.
+4. [ ] **Intro actual con Goicochea niño: no puede ir en la entrega** (regla de menores de 18). Hasta tener la nueva toma, quitarla o saltarla en la versión del concurso.
 5. [ ] Historia en el juego: personajes (Goicochea, Chicho, Roberto, Franchesca) en los roles, barras de valores, carta a Paulet en el informe, intro nueva.
 6. [ ] Recursos de NASA dentro del juego: barra CML, segmentos de misión, "misión real más parecida", escenario CubeSat; validar Δv con GMAT.
 7. [ ] Nueva toma de la intro sin el niño; marca "AI-generated" en imágenes y videos generados.
@@ -189,7 +195,7 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 13. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
 
 ## 11. Siguiente paso exacto
-Ranking y trade study (§10, punto 4) e historia en el juego (punto 5: barras de valores, carta a Paulet). Desplegar el enlace público en Vercel con las variables de Firebase (puntos 3b y 8). El dueño: publicar las reglas de Firebase (3a), confirmar evento y hora de cierre, y dar los nombres de los integrantes para la diapositiva 1.
+El dueño prueba el juego como jurado (local: `cd game && npm run dev`, o el enlace de Vercel cuando lo despliegue) y dicta sus mejoras; se anotan aquí como pendientes. En paralelo: desplegar (§10, punto 3), resolver la intro con el niño (punto 4), historia en el juego (barras de valores, carta a Paulet), recursos de NASA dentro del juego, diapositivas y página del proyecto.
 
 ## 12. Dónde está cada cosa
 - Primera versión: repo `artesanalinteligencia1-dotcom/PP.game` (rama `cloud/fase-1`), clon `C:\PPgame\PP.game`,

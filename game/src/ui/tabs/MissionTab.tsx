@@ -1,5 +1,6 @@
 import type { Design, DesignReport, Role, Scenario } from '../../engine/types'
 import { TeamPanel } from '../team/TeamPanel'
+import { loadBoard } from '../../store/leaderboard'
 import { PROTAGONIST, REQUIREMENT_LABEL, ROLE_BLURB, ROLE_LABEL, fmt, message, localName } from '../../i18n/en'
 import { Pill, SEV_BORDER, SEV_TEXT, Section } from '../components'
 import { useT, useTx, type StringKey } from '../../i18n'
@@ -70,6 +71,25 @@ export function MissionTab({ scenario, report, design }: { scenario: Scenario; r
         </p>
       </Section>
       <TeamPanel design={design} report={report} scenario={scenario} />
+      {(() => {
+        const board = loadBoard()[scenario.id] ?? []
+        if (!board.length) return null
+        return (
+          <Section title={t('ranking.title')} hint={t('ranking.hint')}>
+            <ol className="space-y-1 text-xs">
+              {board.map((e, i) => (
+                <li key={`${e.seed}-${e.score}-${i}`} className="flex flex-wrap gap-x-3 text-slate-300">
+                  <span className="w-5 text-slate-500">{i + 1}.</span>
+                  <span className="font-mono text-slate-100">{e.score}</span>
+                  <span>{t(`results.rank.${e.rank}` as StringKey)}</span>
+                  <span className="text-violet-300">{e.who ? (e.who.startsWith('team:') ? t('ranking.team', { n: e.who.slice(5) }) : e.who) : t('ranking.solo')}</span>
+                  <span className="text-slate-500">{e.date}</span>
+                </li>
+              ))}
+            </ol>
+          </Section>
+        )
+      })()}
       <Section title={t('mission.requirements')} hint={t('mission.requirements.hint')}>
         <RequirementsList report={report} />
       </Section>
