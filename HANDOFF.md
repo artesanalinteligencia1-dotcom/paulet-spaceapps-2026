@@ -5,7 +5,7 @@
 > fecha, actualiza "Pendiente" y "Siguiente paso exacto", y haz commit.
 > Explicaciones al dueño en español; código, textos del juego y entrega en inglés.
 
-Última actualización: 2026-11-14 (madrugada, antes de que abra la entrega).
+Última actualización: 2026-11-14 (tarde).
 
 ---
 
@@ -19,6 +19,11 @@
   se reutilizan el conocimiento y los recursos de la primera versión, declarados en Referencias.
 - **Este repositorio** (`artesanalinteligencia1-dotcom/paulet-spaceapps-2026`, privado) es el del concurso.
   Hacerlo público antes de entregar si el enlace del proyecto final apunta aquí.
+- **Dónde vive hoy el código del juego (2026-11-14):** en `artesanalinteligencia1-dotcom/PP.game`, rama `cloud/fase-1`,
+  clon `C:\PPgame\PP.game`, último commit `c58b78b`. **Ojo:** los 4 últimos commits (`b4a191d`, `1cf10ed`, `8937f2f`,
+  `c58b78b`) están solo en la PC del dueño hasta que él haga `git push origin cloud/fase-1` desde su terminal.
+  Su estado vivo (hecho, pendiente, siguiente paso) está en `PP.game/HANDOFF.md`. Falta decidir si el código del
+  concurso se queda ahí o se trae a este repo (§10, punto 2).
 
 ## 2. Fechas (hora del evento local del equipo)
 | Cuándo | Qué |
@@ -66,7 +71,7 @@ Premios con más afinidad: Best Storytelling, Art & Technology, Best Mission Con
 | Instrumentos con masa, potencia, costo, datos, valor científico | Catálogo de 12+ instrumentos | hecho |
 | Órbitas explicadas; lanzador compatible con masa y órbita | Orbit & Launch + revisión bloqueante | hecho |
 | Recursos visibles (masa, potencia, presupuesto, datos, comms, tiempo) | Panel en vivo con deltas | hecho |
-| Hasta 4 personas con roles que negocian | 4 roles en un dispositivo, bots, retos por enlace | **reforzar** |
+| Hasta 4 personas con roles que negocian | 4 roles en un dispositivo, bots, retos por enlace; robot guía Kuntur | **reforzar** |
 | Simulación, puntuación, análisis post-misión | Simulación con semilla, 0–1000, 3 causas | hecho |
 | Dificultades, escenarios, eventos, sandbox | Cadete/Investigador/Director, contratos, sandbox | hecho |
 | Guardar, compartir, comparar; ranking | Guardado y enlaces; **sin ranking** | **falta ranking** |
@@ -121,7 +126,15 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 - [x] 2026-11-14 · Manual técnico de la primera versión (historia, herramientas, física, método con IA, reglas del concurso):
       `C:\PPgame\MANUAL_TECNICO_PAULET.html`, publicado en https://claude.ai/artifact/F6c9mVkKBPLeQ24E2UaK3d (privado).
 - [x] 2026-11-14 · Repositorio del concurso creado (privado) con este HANDOFF.
-- [x] (otra sesión, en curso) · Versión nueva del juego para el concurso. **La sesión que la lleva debe anotar aquí dónde vive su código y qué terminó.**
+- [x] 2026-11-13 · (en `PP.game`, rama `cloud/fase-1`) Taller del Ingeniero de cohetes: piezas, masa / empuje / Δv en vivo, vista 3D, tu cohete en misiones y carrera.
+- [x] 2026-11-13 · (en `PP.game`) Laboratorio del Astrobiólogo con vista 3D de seis mundos.
+- [x] 2026-11-13 · (en `PP.game`) Multijugador asíncrono: "retos por enlace" (mismo escenario y semilla, gana el mejor puntaje).
+- [x] 2026-11-13/14 · (en `PP.game`) Acto 3, Marte, jugable completo: ventanas de lanzamiento cada 25,6 meses, retardo de radio,
+      conjunción, aerofrenado; misiones "Red Horizon" (orbitador), "Stranded" (aterrizaje con escudo, paracaídas y
+      retrocohetes) y "Breathing Mars" (planta de oxígeno del CO₂, referencia MOXIE). Fórmulas en `PP.game/docs/model.md` §22–24.
+- [x] 2026-11-14 · (en `PP.game`) Robot guía **Kuntur** (elegido por el dueño entre tres): pistas en el diseño, explicación
+      del resultado tras cada misión y tutorial de la primera misión, en inglés y español.
+- [x] 2026-11-14 · `PP.game`: 229 pruebas en verde; build de producción correcto.
 
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
