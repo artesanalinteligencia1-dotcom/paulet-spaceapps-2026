@@ -168,11 +168,15 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
       "Launch together": todos vuelan la misma misión. Probado con dos pestañas (backend local): misma semilla, mismo
       puntaje (866) y 83/100 de negociación. **Falta solo conectar Firebase** (configuración del dueño). Reglas en
       `game/database.rules.json`, plantilla en `game/.env.example`. 244 pruebas en verde.
+- [x] 2026-11-14 · **Firebase conectado** (proyecto `paulet-spaceapps`, plan Spark gratis, Realtime Database en us-central1,
+      `https://paulet-spaceapps-default-rtdb.firebaseio.com`). La configuración está en `game/.env.local` (no se sube; no es
+      secreta). Probado con dos pestañas sobre Firebase real: unirse por enlace, tomar roles, diseño compartido, votación
+      3 de 4 y "Launch together"; los dos vieron la misma misión (semilla 766479, 807 puntos).
 
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
 2. [ ] Pedir ofertas: Miro Templates, GitHub Copilot Free; Google Cloud si haremos ranking o tiempo real.
-3. [ ] **Conectar Firebase al multijugador en línea** (el código ya está y funciona entre pestañas). **Bloqueado por el dueño:** crear el proyecto de Firebase y pasar su `firebaseConfig` (pasos en §12). Luego: poner las variables en `game/.env.local` y en Vercel, publicar las reglas de `game/database.rules.json` y probar con dos dispositivos.
+3. [ ] **Firebase, lo que falta:** (a) el dueño publica las reglas de `game/database.rules.json` en Firebase → Realtime Database → Reglas (hoy sigue en modo de prueba: abierta entera y caduca en 30 días); (b) poner las 5 variables `VITE_FIREBASE_*` de `game/.env.local` en el proyecto de Vercel del concurso al desplegar (punto 8); (c) probar con dos dispositivos reales en el enlace público.
 4. [ ] Ranking: trade study (dos diseños lado a lado) + ranking por misión en el dispositivo.
 5. [ ] Historia en el juego: personajes (Goicochea, Chicho, Roberto, Franchesca) en los roles, barras de valores, carta a Paulet en el informe, intro nueva.
 6. [ ] Recursos de NASA dentro del juego: barra CML, segmentos de misión, "misión real más parecida", escenario CubeSat; validar Δv con GMAT.
@@ -185,7 +189,7 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 13. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
 
 ## 11. Siguiente paso exacto
-Cuando el dueño pase el `firebaseConfig`: conectarlo y probar el multijugador en dos dispositivos (§10, punto 3). Mientras tanto: ranking y trade study (punto 4) e historia en el juego (punto 5: barras de valores, carta a Paulet, personajes ya puestos en el panel del equipo).
+Ranking y trade study (§10, punto 4) e historia en el juego (punto 5: barras de valores, carta a Paulet). Desplegar el enlace público en Vercel con las variables de Firebase (puntos 3b y 8). El dueño: publicar las reglas de Firebase (3a), confirmar evento y hora de cierre, y dar los nombres de los integrantes para la diapositiva 1.
 
 ## 12. Dónde está cada cosa
 - Primera versión: repo `artesanalinteligencia1-dotcom/PP.game` (rama `cloud/fase-1`), clon `C:\PPgame\PP.game`,
