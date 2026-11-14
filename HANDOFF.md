@@ -184,15 +184,14 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 2. [ ] Pedir ofertas: Miro Templates, GitHub Copilot Free; Google Cloud si haremos ranking o tiempo real.
 3. [ ] **Enlace público (lo hace el dueño, Claude no tiene sesión en Vercel):** vercel.com → Add New → Project → importar `paulet-spaceapps-2026` (dar acceso de GitHub si lo pide) → **Root Directory: `game`** (Vite se detecta solo) → Environment Variables: las 5 `VITE_FIREBASE_*` de `game/.env.local` → Deploy. Luego probar en ventana privada y con dos dispositivos reales (sala en línea). Alternativa: `npx vercel login` en la terminal del dueño y Claude despliega.
 4. [ ] **Intro actual con Goicochea niño: no puede ir en la entrega** (regla de menores de 18). Hasta tener la nueva toma, quitarla o saltarla en la versión del concurso.
-5. [ ] Historia en el juego: personajes (Goicochea, Chicho, Roberto, Franchesca) en los roles, barras de valores, carta a Paulet en el informe, intro nueva.
+5. [ ] Historia en el juego (los personajes ya están en el panel del equipo): barras de valores, carta a Paulet en el informe, intro nueva.
 6. [ ] Recursos de NASA dentro del juego: barra CML, segmentos de misión, "misión real más parecida", escenario CubeSat; validar Δv con GMAT.
 7. [ ] Nueva toma de la intro sin el niño; marca "AI-generated" en imágenes y videos generados.
 8. [ ] Quitar cualquier logo o identificador de NASA de los recursos reutilizados.
-9. [ ] Desplegar el enlace público (Vercel) y probarlo en ventana privada y en el teléfono.
-10. [ ] Diapositivas (7) en inglés: título/equipo/integrantes/reto · problema · historia · cómo se juega · equipo de 4 · datos de NASA · futuro + enlace/QR.
-11. [ ] Página del proyecto en inglés: resumen, descripción detallada, uso de IA, datos de NASA, referencias (incluida la primera versión, licencias de fuentes, música, voces).
-12. [ ] **Guardar progreso desde el sábado; primer "Submit for Judging" el domingo temprano**; reenviar si mejora.
-13. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
+9. [ ] Diapositivas (7) en inglés: título/equipo/integrantes/reto · problema · historia · cómo se juega · equipo de 4 · datos de NASA · futuro + enlace/QR.
+10. [ ] Página del proyecto en inglés: resumen, descripción detallada, uso de IA, datos de NASA, referencias (incluida la primera versión, licencias de fuentes, música, voces).
+11. [ ] **Guardar progreso desde el sábado; primer "Submit for Judging" el domingo temprano**; reenviar si mejora.
+12. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
 
 ## 11. Siguiente paso exacto
 El dueño prueba el juego como jurado (local: `cd game && npm run dev`, o el enlace de Vercel cuando lo despliegue) y dicta sus mejoras; se anotan aquí como pendientes. En paralelo: desplegar (§10, punto 3), resolver la intro con el niño (punto 4), historia en el juego (barras de valores, carta a Paulet), recursos de NASA dentro del juego, diapositivas y página del proyecto.
