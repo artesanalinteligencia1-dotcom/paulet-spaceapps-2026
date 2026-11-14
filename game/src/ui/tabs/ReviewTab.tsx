@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Design, DesignReport, Scenario } from '../../engine/types'
 import { useTeam } from '../../store/team'
+import { useOnline } from '../../store/online'
 import { TeamReview } from '../team/TeamReview'
 import { RESOURCE_LABEL, ROLE_LABEL, message } from '../../i18n/en'
 import { Pill, SEV_BORDER, SEV_TEXT, Section } from '../components'
@@ -15,6 +16,8 @@ export function ReviewTab({ report, design, scenario }: { report: DesignReport; 
   const goToLaunchPad = useGame((s) => s.goToLaunchPad)
   const team = useTeam((s) => s.team)
   const [voting, setVoting] = useState(false)
+  const room = useOnline((s) => s.room)
+  const openReview = useOnline((s) => s.openReview)
   const t = useT()
   return (
     <div>
@@ -57,7 +60,7 @@ export function ReviewTab({ report, design, scenario }: { report: DesignReport; 
         <button
           type="button"
           disabled={errors.length > 0}
-          onClick={team ? () => setVoting(true) : goToLaunchPad}
+          onClick={room ? openReview : team ? () => setVoting(true) : goToLaunchPad}
           className={`w-full rounded-lg px-4 py-3 font-semibold ${
             errors.length ? 'cursor-not-allowed bg-slate-800 text-slate-500' : 'btn-primary'
           }`}
@@ -68,11 +71,20 @@ export function ReviewTab({ report, design, scenario }: { report: DesignReport; 
               ? t('team.review.open')
               : t('review.goToLaunchPad')}
         </button>
-        {voting && <TeamReview design={design} report={report} scenario={scenario} onClose={() => setVoting(false)} />}
+        {voting && !room && <TeamReview design={design} report={report} scenario={scenario} onClose={() => setVoting(false)} />}
         <p className="mt-2 text-center text-xs text-slate-500">
           {errors.length ? t('review.status.errors') : t('review.status.warnings')}
         </p>
       </div>
     </div>
   )
+}
+
+/** Online: the shared review opens on every player's screen, whatever tab they are on. */
+export function OnlineReviewHost({ design, report, scenario }: { design: Design; report: DesignReport; scenario: Scenario }) {
+  const room = useOnline((s) => s.room)
+  const [dismissed, setDismissed] = useState(0)
+  const round = room?.review?.open && room.review.round !== dismissed ? room.review.round : 0
+  if (!round) return null
+  return <TeamReview key={round} design={design} report={report} scenario={scenario} onClose={() => setDismissed(round)} />
 }

@@ -7,6 +7,7 @@ import type { Design, DesignReport, Role, Scenario } from '../../engine/types'
 import { useT, type StringKey } from '../../i18n'
 import { useGame } from '../../store/game'
 import { useTeam } from '../../store/team'
+import { useOnline } from '../../store/online'
 import { Kuntur } from '../guide/robots'
 import { ROLE_ICON } from '../tabs/MissionTab'
 import { GoalLine, holderLabel } from './TeamPanel'
@@ -22,8 +23,21 @@ export function TeamReview({ design, report, scenario, onClose }: { design: Desi
     () => Object.fromEntries(TEAM_ROLES.filter((r) => team.holders[r] === 0).map((r) => [r, kunturVote(goals[r], within[r], report)])) as Partial<Record<Role, ReturnType<typeof kunturVote>>>,
     [goals, within, report, team.holders],
   )
-  const [votes, setVotes] = useState<Partial<Record<Role, Vote>>>(() => Object.fromEntries(Object.entries(bot).map(([r, v]) => [r, v!.vote])))
-  const [result, setResult] = useState<null | boolean>(null)
+  const [localVotes, setLocalVotes] = useState<Partial<Record<Role, Vote>>>(() => Object.fromEntries(Object.entries(bot).map(([r, v]) => [r, v!.vote])))
+  const [localResult, setResult] = useState<null | boolean>(null)
+  // online: the votes and the result live in the room; each device votes only for the roles its player holds
+  const room = useOnline((s) => s.room)
+  const me = useOnline((s) => s.me)
+  const onlineVote = useOnline((s) => s.vote)
+  const launchTogether = useOnline((s) => s.launchTogether)
+  const votes = room ? (room.review?.votes ?? {}) : localVotes
+  const result = room ? (room.review?.result ? room.review.result === 'passed' : null) : localResult
+  const setVotes = (next: Partial<Record<Role, Vote>>) => {
+    if (!room) return setLocalVotes(next)
+    for (const r of TEAM_ROLES) if (next[r] !== votes[r] && next[r]) onlineVote(r, next[r]!)
+  }
+  const canVote = (r: Role) => (room ? room.holders[r] === me : team.holders[r] !== 0)
+  const hostName = room ? (room.players?.[room.host]?.name ?? '') : ''
   const ready = TEAM_ROLES.every((r) => votes[r])
   const count = () => {
     const all = votes as Record<Role, Vote>
@@ -64,7 +78,7 @@ export function TeamReview({ design, report, scenario, onClose }: { design: Desi
                     <button
                       key={v}
                       type="button"
-                      disabled={h === 0 || result !== null || (v === 'veto' && vetoUsed)}
+                      disabled={!canVote(r) || result !== null || (v === 'veto' && vetoUsed)}
                       aria-pressed={votes[r] === v}
                       onClick={() => setVotes({ ...votes, [r]: v })}
                       title={v === 'veto' && vetoUsed ? t('team.vote.vetoUsed') : undefined}
@@ -92,16 +106,35 @@ export function TeamReview({ design, report, scenario, onClose }: { design: Desi
             <button type="button" className="btn-secondary ml-auto px-4 py-2 text-sm" onClick={onClose}>
               {t('team.review.cancel')}
             </button>
-            <button type="button" className="btn-primary px-4 py-2 text-sm" disabled={!ready} onClick={count}>
-              {t('team.review.count')}
-            </button>
+            {room ? (
+              <span className="text-xs text-violet-300">{t('online.waitingVotes')}</span>
+            ) : (
+              <button type="button" className="btn-primary px-4 py-2 text-sm" disabled={!ready} onClick={count}>
+                {t('team.review.count')}
+              </button>
+            )}
           </div>
         ) : (
           <div className={`mt-4 rounded-lg border p-3 ${result ? 'border-emerald-500/50' : 'border-rose-500/50'}`}>
             <p className="text-sm font-semibold">{result ? t('team.review.passed', { n: approvals }) : t('team.review.failed', { n: approvals })}</p>
             <p className="mt-1 text-xs text-slate-400">{result ? t('team.review.passedHint') : t('team.review.failedHint')}</p>
             <div className="mt-3 flex justify-end gap-2">
-              {result ? (
+              {result && room ? (
+                room.host === me ? (
+                  <button
+                    type="button"
+                    className="btn-primary px-4 py-2 text-sm"
+                    onClick={() => {
+                      onClose()
+                      launchTogether()
+                    }}
+                  >
+                    {t('online.launchTogether')}
+                  </button>
+                ) : (
+                  <span className="text-sm text-violet-300">{t('online.waitingHost', { host: hostName })}</span>
+                )
+              ) : result ? (
                 <button
                   type="button"
                   className="btn-primary px-4 py-2 text-sm"

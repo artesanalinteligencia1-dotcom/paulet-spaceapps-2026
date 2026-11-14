@@ -15,7 +15,7 @@ import { CommsTab } from './tabs/CommsTab'
 import { MissionTab } from './tabs/MissionTab'
 import { OrbitTab } from './tabs/OrbitTab'
 import { PayloadTab } from './tabs/PayloadTab'
-import { ReviewTab } from './tabs/ReviewTab'
+import { OnlineReviewHost, ReviewTab } from './tabs/ReviewTab'
 import { SpacecraftTab } from './tabs/SpacecraftTab'
 import { useT, useTx, type StringKey } from '../i18n'
 
@@ -145,6 +145,7 @@ export function DesignScreen({ design }: { design: Design }) {
           {tab === 'orbit' && <OrbitTab design={design} report={report} />}
           {tab === 'comms' && <CommsTab design={design} report={report} />}
           {tab === 'review' && <ReviewTab report={report} design={design} scenario={scenario} />}
+          <OnlineReviewHost design={design} report={report} scenario={scenario} />
           <div className="mt-8 border-t border-slate-800 pt-3">
             <Disclaimer />
           </div>
