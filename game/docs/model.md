@@ -389,3 +389,21 @@ The budget is computed from the ground up, because every kilogram set down has t
 - Sources: NASA / MIT MOXIE results (Hecht et al., "Mars Oxygen ISRU Experiment (MOXIE)", Space Science Reviews 2021;
   Hoffman et al., Science Advances 2022); NASA Mars 2020 mission pages; NASA Design Reference Architecture 5.0 for the
   oxygen a crew ascent needs (about 25 tonnes) and the fission power proposed for it.
+
+## 25. Team play (`src/engine/team.ts`, Space Apps 2026)
+Up to four players; each of the four roles is held by a player or by Kuntur. Three mechanisms combined (owner's decision):
+- **Budget split by area.** Spendable budget = budget / 1.15 (the contingency stays out). Areas: Director = launch +
+  operations; Engineer = spacecraft bus + integration (+ an oxygen plant); Astrophysicist and Astrobiologist = their
+  instruments (catalog cost × TRL factor). Default split by mission priority: science missions 45 / 25 / 30 (the 30 %
+  divided by the most relevant instrument of each discipline); cargo and production missions 55 / 35 / 5 / 5. Steps of
+  5 %, always 100 %. A role is "within its share" up to 5 % over its envelope.
+- **Goals of each role**, made to pull against each other: Director spends ≤ 90 % of the budget; Engineer keeps EOL
+  power margin ≥ 20 % and launcher margin ≥ 15 %; Astrophysicist brings 1.5 × the required data (or 1.5 × the required
+  life when the mission has no data requirement); Astrobiologist reaches 1.1 × the science per year the target needs
+  (or flies one astrobiology instrument as a passenger on cargo and production missions). **Group goal:** every
+  mandatory requirement met and a design the team approves.
+- **Design review with veto.** Every role votes approve / reject / veto; launch needs ≥ 3 approvals, no veto and a
+  design that can launch. One veto per role per mission. Kuntur approves for its roles only when their goal is met and
+  their area is within its share, and says why otherwise.
+- **Score:** the 100 collaboration points that solo play redistributes: 40 × goals met / 4 + 30 × roles within share / 4
+  + consensus (30 for four approvals, 20 for three) − 10 per repeated review.

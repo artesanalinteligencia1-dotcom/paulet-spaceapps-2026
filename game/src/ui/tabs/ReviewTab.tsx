@@ -1,4 +1,7 @@
-import type { DesignReport } from '../../engine/types'
+import { useState } from 'react'
+import type { Design, DesignReport, Scenario } from '../../engine/types'
+import { useTeam } from '../../store/team'
+import { TeamReview } from '../team/TeamReview'
 import { RESOURCE_LABEL, ROLE_LABEL, message } from '../../i18n/en'
 import { Pill, SEV_BORDER, SEV_TEXT, Section } from '../components'
 import { RequirementsList } from './MissionTab'
@@ -7,9 +10,11 @@ import { useT } from '../../i18n'
 
 const ICON = { ok: '●', warn: '▲', error: '■' } as const
 
-export function ReviewTab({ report }: { report: DesignReport }) {
+export function ReviewTab({ report, design, scenario }: { report: DesignReport; design: Design; scenario: Scenario }) {
   const errors = report.review.filter((r) => r.blocking)
   const goToLaunchPad = useGame((s) => s.goToLaunchPad)
+  const team = useTeam((s) => s.team)
+  const [voting, setVoting] = useState(false)
   const t = useT()
   return (
     <div>
@@ -52,15 +57,18 @@ export function ReviewTab({ report }: { report: DesignReport }) {
         <button
           type="button"
           disabled={errors.length > 0}
-          onClick={goToLaunchPad}
+          onClick={team ? () => setVoting(true) : goToLaunchPad}
           className={`w-full rounded-lg px-4 py-3 font-semibold ${
             errors.length ? 'cursor-not-allowed bg-slate-800 text-slate-500' : 'btn-primary'
           }`}
         >
           {errors.length
             ? t(errors.length === 1 ? 'review.fixBlocking.one' : 'review.fixBlocking.other', { count: errors.length })
-            : t('review.goToLaunchPad')}
+            : team
+              ? t('team.review.open')
+              : t('review.goToLaunchPad')}
         </button>
+        {voting && <TeamReview design={design} report={report} scenario={scenario} onClose={() => setVoting(false)} />}
         <p className="mt-2 text-center text-xs text-slate-500">
           {errors.length ? t('review.status.errors') : t('review.status.warnings')}
         </p>

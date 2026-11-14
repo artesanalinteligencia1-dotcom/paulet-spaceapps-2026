@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useTeam } from '../store/team'
 import { useGuideContent } from '../store/guide'
 import { useSettings } from '../store/settings'
 import { TUTORIAL, designHints, designMood } from './guide/lines'
@@ -83,6 +84,9 @@ export function DesignScreen({ design }: { design: Design }) {
   const blocking = report.review.filter((r) => r.blocking).length
   useMusic('design')
   useDesignGuide(report, tab, setTab)
+  // team play: a new mission keeps the players and starts a fresh negotiation
+  const ensureTeam = useTeam((s) => s.ensureFor)
+  useEffect(() => ensureTeam(scenario.id), [ensureTeam, scenario.id])
 
   return (
     <div className="min-h-full">
@@ -135,12 +139,12 @@ export function DesignScreen({ design }: { design: Design }) {
           </div>
         </aside>
         <main className="min-w-0">
-          {tab === 'mission' && <MissionTab scenario={scenario} report={report} />}
+          {tab === 'mission' && <MissionTab scenario={scenario} report={report} design={design} />}
           {tab === 'payload' && <PayloadTab design={design} scenario={scenario} report={report} />}
           {tab === 'spacecraft' && <SpacecraftTab design={design} report={report} />}
           {tab === 'orbit' && <OrbitTab design={design} report={report} />}
           {tab === 'comms' && <CommsTab design={design} report={report} />}
-          {tab === 'review' && <ReviewTab report={report} />}
+          {tab === 'review' && <ReviewTab report={report} design={design} scenario={scenario} />}
           <div className="mt-8 border-t border-slate-800 pt-3">
             <Disclaimer />
           </div>

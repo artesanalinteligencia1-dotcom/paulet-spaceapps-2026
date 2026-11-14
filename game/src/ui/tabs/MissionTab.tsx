@@ -1,4 +1,5 @@
-import type { DesignReport, Role, Scenario } from '../../engine/types'
+import type { Design, DesignReport, Role, Scenario } from '../../engine/types'
+import { TeamPanel } from '../team/TeamPanel'
 import { PROTAGONIST, REQUIREMENT_LABEL, ROLE_BLURB, ROLE_LABEL, fmt, message, localName } from '../../i18n/en'
 import { Pill, SEV_BORDER, SEV_TEXT, Section } from '../components'
 import { useT, useTx, type StringKey } from '../../i18n'
@@ -39,7 +40,7 @@ export function RequirementsList({ report }: { report: DesignReport }) {
   )
 }
 
-export function MissionTab({ scenario, report }: { scenario: Scenario; report: DesignReport }) {
+export function MissionTab({ scenario, report, design }: { scenario: Scenario; report: DesignReport; design: Design }) {
   const t = useT()
   const tx = useTx()
   const roles: Role[] = ['lead', 'engineer', 'astrophysicist', 'astrobiologist']
@@ -68,6 +69,7 @@ export function MissionTab({ scenario, report }: { scenario: Scenario; report: D
           {tx(`scenario.${scenario.id}.whyItMatters`, scenario.whyItMatters)}
         </p>
       </Section>
+      <TeamPanel design={design} report={report} scenario={scenario} />
       <Section title={t('mission.requirements')} hint={t('mission.requirements.hint')}>
         <RequirementsList report={report} />
       </Section>

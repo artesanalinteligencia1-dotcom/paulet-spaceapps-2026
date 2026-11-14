@@ -15,6 +15,7 @@ import {
 import { getInstrument, getOrbit, getBand, getScenario, launchers } from '../engine/catalog'
 import { CUSTOM_LAUNCHER_ID } from '../engine/rocket'
 import { scoreMission } from '../engine/score'
+import { useTeam } from './team'
 import { advanceWeek, botChoice, createMission, decide, type MissionState, type Personality } from '../engine/simulate'
 import type { SoundingResult } from '../engine/sounding'
 import type { Design, Role } from '../engine/types'
@@ -247,6 +248,9 @@ export const useGame = create<GameState>((set, get) => ({
     const { mode, campaign } = get()
     const difficulty = mode === 'campaign' && campaign ? LEVEL_TO_DIFFICULTY[campaign.profile.level] : undefined
     const mission = createMission(design, getScenario(design.scenarioId), seed, { difficulty })
+    // team play: the outcome of the design review flies with the mission, if the team approved this very design
+    const { team, approval } = useTeam.getState()
+    if (team && approval && approval.designKey === JSON.stringify(design)) mission.team = structuredClone(approval.outcome)
     set({ mission, tick: get().tick + 1 })
   },
   startFlight: () => set({ screen: 'flight', playing: true }),
