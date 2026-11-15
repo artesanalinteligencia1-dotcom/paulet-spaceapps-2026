@@ -32,6 +32,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,woff2,mp3,mp4,vtt,webmanifest}'],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         navigateFallback: 'index.html',
+        // The demo deck (public/deck) is a separate online page: not precached, not served as the game.
+        globIgnores: ['deck/**'],
+        navigateFallbackDenylist: [/^\/deck/],
       },
     }),
   ],

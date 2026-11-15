@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paulet: A 130-Year Promise — Demo</title>
+<meta name="description" content="Seven-slide demo of Paulet: A 130-Year Promise, a Space Mission Design Game for the NASA Space Apps Challenge 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Seven 1920×1080 slides in the game's mission-control console style: graphite panels, cream text, gold labels, one orange accent. */
+:root{
+  --bg:#0c0d10; --panel:#16181d; --line:#2b2f37; --cream:#efe6d2; --muted:#a59f92; --gold:#e3b866; --orange:#f08a3a; --green:#4fd39a; --red:#ff6b7d;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif; --body:"Inter",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#000;color:var(--cream);font-family:var(--body)}
+.viewport{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
+.stage{width:1920px;height:1080px;position:relative;transform-origin:center center;flex:none}
+.slide{position:absolute;inset:0;background:var(--bg);padding:84px 110px;display:none;overflow:hidden}
+.slide.on{display:block}
+body.all .viewport{position:static;display:block}
+body.all .stage{transform:none!important;height:auto;width:auto}
+body.all .slide{display:block;position:relative;width:1920px;height:1080px;margin:0 auto 24px;zoom:var(--allzoom,0.5)}
+.eyebrow{font:600 26px/1 var(--display);letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.02;text-wrap:balance}
+h2{font-size:88px;margin-top:18px}
+h3{font-size:40px;font-weight:600}
+p,li{font-size:30px;line-height:1.45;color:var(--cream)}
+.muted{color:var(--muted)}
+.num{position:absolute;right:110px;bottom:56px;font:600 22px var(--display);letter-spacing:.2em;color:var(--muted)}
+.brand{position:absolute;left:110px;bottom:52px;font:600 22px var(--display);letter-spacing:.3em;color:var(--muted)}
+.shot{border:1px solid var(--line);border-radius:6px;display:block;width:100%;height:auto}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;position:relative}
+.panel::before{content:"";position:absolute;top:-1px;left:-1px;width:18px;height:18px;border-top:3px solid var(--gold);border-left:3px solid var(--gold)}
+.tag{display:inline-block;font:600 22px var(--display);letter-spacing:.14em;text-transform:uppercase;padding:6px 14px;border:1px solid var(--gold);color:var(--gold);border-radius:4px}
+.accent{color:var(--orange)}
+/* slide 1 */
+.s1{background:linear-gradient(90deg,#0c0d10 0%,#0c0d10 50%,rgba(12,13,16,.55) 68%,rgba(12,13,16,.1) 100%),url(img/01-menu.jpg) right top/auto 112%}
+.logo{font:500 230px/0.9 var(--display);letter-spacing:.06em;margin-top:70px}
+.logo span{display:inline-block;transform:scaleX(1)}
+.promise{font:600 92px/1 var(--display);color:var(--orange);margin-top:18px;letter-spacing:.02em}
+.s1 .lead{max-width:900px;margin-top:40px;font-size:34px}
+.team{margin-top:70px;display:grid;grid-template-columns:auto 1fr;gap:14px 34px;max-width:1000px}
+.team dt{font:600 24px var(--display);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);padding-top:6px}
+.team dd{font-size:30px}
+.s1 .num{display:none}
+/* slide 2 */
+.s2{background:radial-gradient(ellipse at 80% 30%,rgba(240,138,58,.12),transparent 55%),var(--bg)}
+.quote{font:600 64px/1.12 var(--display);max-width:1500px;margin-top:60px;color:var(--cream)}
+.quote em{font-style:normal;color:var(--gold)}
+.question{font:700 104px/1 var(--display);color:var(--orange);margin-top:48px;max-width:1650px}
+.problem{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:70px}
+.problem .panel{padding:28px 30px}
+.problem p{font-size:27px}
+/* slide 3 */
+.loop{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:46px}
+.step .k{font:700 28px var(--display);letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin:18px 0 6px}
+.step p{font-size:25px;line-height:1.4}
+.rule{margin-top:44px;font:600 40px/1.2 var(--display)}
+/* slide 4 */
+.two{display:grid;grid-template-columns:1.08fr 1fr;gap:60px;margin-top:40px;align-items:start}
+.two>*{min-width:0}
+.mech{display:grid;gap:22px}
+.mech .panel{padding:24px 28px}
+.mech h3{font-size:36px;color:var(--gold)}
+.mech p{font-size:26px;margin-top:6px}
+.cast{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+/* slide 5 */
+.mapwrap{position:relative}
+.pin{position:absolute;width:52px;height:52px;border-radius:50%;background:var(--orange);color:#14110d;font:700 30px/52px var(--display);text-align:center;transform:translate(-50%,-50%);box-shadow:0 0 0 6px rgba(240,138,58,.25)}
+.legend{display:grid;gap:18px}
+.legend li{list-style:none;display:grid;grid-template-columns:52px 1fr;gap:18px;align-items:start;font-size:25px;line-height:1.35}
+.legend li b{font-family:var(--display);font-size:30px;font-weight:600;display:block}
+.legend .dot{width:44px;height:44px;border-radius:50%;background:var(--orange);color:#14110d;font:700 26px/44px var(--display);text-align:center}
+/* slide 6 */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:44px}
+.cards .panel{padding:28px 32px 30px}
+.cards .big{font:700 68px/1 var(--display);color:var(--orange)}
+.cards h3{margin-top:14px}
+.cards p{font-size:26px;margin-top:10px}
+.next{margin-top:34px;font-size:27px}
+/* slide 7 */
+.end{display:grid;grid-template-columns:1fr 420px;gap:80px;margin-top:60px;align-items:center}
+.links p{font-size:34px;margin-top:18px}
+.links a{color:var(--gold);text-decoration:none;border-bottom:2px solid rgba(227,184,102,.4)}
+.qr{background:#fff;padding:22px;border-radius:8px}
+.qr img{width:100%;display:block}
+.small{font-size:22px;line-height:1.5;color:var(--muted);margin-top:46px;max-width:1300px}
+/* controls */
+.nav{position:fixed;top:12px;right:12px;display:flex;gap:6px;z-index:5;opacity:.35;transition:opacity .2s}
+.nav:hover,.nav:focus-within{opacity:1}
+.nav button{background:rgba(22,24,29,.9);color:var(--cream);border:1px solid var(--line);font:600 16px var(--display);letter-spacing:.12em;padding:8px 14px;border-radius:4px;cursor:pointer}
+.nav button:focus-visible{outline:2px solid var(--gold)}
+body.all .nav{position:fixed}
+@media print{.nav{display:none}}
+@media (prefers-reduced-motion:no-preference){.slide.on{animation:fade .35s ease}}
+@keyframes fade{from{opacity:.4}to{opacity:1}}
+</style>
+</head>
+<body>
+<div class="viewport"><div class="stage" id="stage">
+
+<!-- 1 · Title -->
+<section class="slide s1" aria-label="Slide 1: title">
+  <div class="eyebrow">NASA Space Apps Challenge 2026 · Space Mission Design Game</div>
+  <div class="logo">PAUL<span>Ǝ</span>T</div>
+  <div class="promise">A 130-Year Promise</div>
+  <p class="lead">A free game where one to four players design a complete space mission, negotiate it as a team, launch it, fly it, and learn <span class="accent">why</span> it worked or failed.</p>
+  <dl class="team">
+    <dt>Team</dt><dd>Paulet Delta-V</dd>
+    <dt>Members</dt><dd id="members">—</dd>
+    <dt>Challenge</dt><dd>Space Mission Design Game</dd>
+  </dl>
+  <div class="num">01 / 07</div>
+</section>
+
+<!-- 2 · Hook and problem -->
+<section class="slide s2" aria-label="Slide 2: the promise and the problem">
+  <div class="eyebrow">The hook</div>
+  <p class="quote">In the 1890s, the Peruvian engineer <em>Pedro Paulet</em> claimed he fired a liquid-fuel rocket engine in Paris, decades before anyone else.</p>
+  <p class="question">What would it take to finish today what he started?</p>
+  <div class="problem">
+    <div class="panel"><h3>The gap</h3><p>Students rarely get to design a whole mission, from the goal to the last day of operations.</p></div>
+    <div class="panel"><h3>The trade-offs</h3><p>Mass, power, data, budget, orbit and launcher stay abstract when you learn them one at a time.</p></div>
+    <div class="panel"><h3>Our answer</h3><p>A game where every choice moves at least two resources, and there is never one right design.</p></div>
+  </div>
+  <div class="brand">PAULƎT · A 130-YEAR PROMISE</div><div class="num">02 / 07</div>
+</section>
+
+<!-- 3 · The game / user experience -->
+<section class="slide" aria-label="Slide 3: how the game plays">
+  <div class="eyebrow">The player's experience · 10 minutes</div>
+  <h2>Design. Launch. Fly. Read the letter.</h2>
+  <div class="loop">
+    <div class="step"><img class="shot" src="img/05-payload.jpg" alt="Payload tab with instruments and the live resource dashboard"><div class="k">1 · Design</div><p>Pick instruments, power, orbit and launcher. A live dashboard shows mass, power, data and budget move with every click.</p></div>
+    <div class="step"><img class="shot" src="img/11-liftoff.jpg" alt="3D launch flight deck with telemetry"><div class="k">2 · Launch</div><p>A 3D flight deck with real telemetry for the chosen orbit and live cameras: ground, chase, onboard, map.</p></div>
+    <div class="step"><img class="shot" src="img/17-ops-late.jpg" alt="Mission operations with an investor event"><div class="k">3 · Fly</div><p>Years of operations in minutes. Solar flares, debris and budget cuts: the team decides, with advisors who explain.</p></div>
+    <div class="step"><img class="shot" src="img/19-letter.jpg" alt="Mission report with the Letter to Paulet"><div class="k">4 · Learn why</div><p>A score out of 1,000 and a letter to Paulet that explains, in plain words, what worked, what failed and what to change.</p></div>
+  </div>
+  <p class="rule">The design review never says only "wrong": it says <span class="accent">why</span>, and what to change.</p>
+  <div class="num">03 / 07</div>
+</section>
+
+<!-- 4 · Team of four -->
+<section class="slide" aria-label="Slide 4: a team of four negotiates">
+  <div class="eyebrow">Collaboration · up to four players</div>
+  <h2>A real mission team has to agree</h2>
+  <div class="two">
+    <div><img class="shot" src="img/07-vote.jpg" alt="Design review: each role approves, rejects or vetoes the design"></div>
+    <div class="mech">
+      <div class="panel"><h3>The money is split</h3><p>Each role owns a share of the budget, set by what matters most in that mission.</p></div>
+      <div class="panel"><h3>Own goals, one group goal</h3><p>The engineer wants margins, the scientists want data. The team scores only if the mission works.</p></div>
+      <div class="panel"><h3>Vote with veto</h3><p>Three approvals and no veto launch the mission. One device, or an online room joined by link.</p></div>
+      <div class="cast"><span class="tag">Goicochea · Director</span><span class="tag">Chicho · Engineer</span><span class="tag">Roberto · Astrophysicist</span><span class="tag">Franchesca · Astrobiologist</span><span class="tag">Kuntur · robot guide</span></div>
+    </div>
+  </div>
+  <div class="num">04 / 07</div>
+</section>
+
+<!-- 5 · NASA data -->
+<section class="slide" aria-label="Slide 5: NASA data inside the game">
+  <div class="eyebrow">NASA data and methods are the engine, not a credits page</div>
+  <h2>Every number has a NASA source</h2>
+  <div class="two" style="grid-template-columns:1.25fr 1fr;gap:54px;margin-top:34px">
+    <div class="mapwrap">
+      <img class="shot" src="img/13-map.jpg" alt="Flight deck map view: the ascent from Arequipa drawn over NASA Blue Marble imagery">
+      <span class="pin" style="left:44%;top:30%">1</span>
+      <span class="pin" style="left:30%;top:36%">2</span>
+      <span class="pin" style="left:86%;top:22%">3</span>
+      <span class="pin" style="left:68%;top:74%">4</span>
+    </div>
+    <ul class="legend">
+      <li><span class="dot">1</span><span><b>Blue Marble &amp; Black Marble</b>NASA Earth Observatory imagery of the real Earth, day and night, under the ascent route from Arequipa.</span></li>
+      <li><span class="dot">2</span><span><b>Orbits from NASA constants</b>Earth's GM and radius (NASA NSSDCA fact sheets) give orbital speed, period and eclipse.</span></li>
+      <li><span class="dot">3</span><span><b>Rocket equation and staging</b>From NASA Glenn's Beginner's Guide: Δv per stage, specific impulse, why stages drop.</span></li>
+      <li><span class="dot">4</span><span><b>How NASA designs missions</b>Mission segments, JPL Concept Maturity Levels and the Mission Design Lab trade study, plus 19 cited sources in the in-game "NASA data" screen.</span></li>
+    </ul>
+  </div>
+  <div class="num">05 / 07</div>
+</section>
+
+<!-- 6 · Impact -->
+<section class="slide" aria-label="Slide 6: impact">
+  <div class="eyebrow">Impact</div>
+  <h2>Built for classrooms with little connectivity</h2>
+  <div class="cards">
+    <div class="panel"><div class="big">$0</div><h3>Free, no account</h3><p>Opens in any browser in one minute. A teacher shares one link.</p></div>
+    <div class="panel"><div class="big">Offline</div><h3>After the first visit</h3><p>The whole game installs itself, so it keeps working where the internet does not.</p></div>
+    <div class="panel"><div class="big">EN · ES</div><h3>Bilingual</h3><p>English and Spanish, for students in Latin America and beyond.</p></div>
+    <div class="panel"><div class="big">1–4</div><h3>Solo or as a team</h3><p>Kuntur, the robot condor, takes any empty seat and answers questions.</p></div>
+    <div class="panel"><div class="big">Seeded</div><h3>Fair comparisons</h3><p>Same mission, same events: a class can compare designs and challenge friends by link.</p></div>
+    <div class="panel"><div class="big">4 acts</div><h3>From Arequipa to Mars</h3><p>A sounding rocket, Earth orbit, the Moon's quiet points and Mars launch windows.</p></div>
+  </div>
+  <p class="next muted">Next: a short animated story before each act, more languages, and a teacher view to compare a whole class.</p>
+  <div class="num">06 / 07</div>
+</section>
+
+<!-- 7 · Link -->
+<section class="slide" aria-label="Slide 7: play it">
+  <div class="eyebrow">Play it now</div>
+  <h2>Finish the promise. Design your mission.</h2>
+  <div class="end">
+    <div class="links">
+      <p><span class="muted">Game</span><br><a href="https://paulet-spaceapps-2026.vercel.app/">paulet-spaceapps-2026.vercel.app</a></p>
+      <p><span class="muted">Source code (open source)</span><br><a href="https://github.com/artesanalinteligencia1-dotcom/paulet-spaceapps-2026">github.com/artesanalinteligencia1-dotcom/paulet-spaceapps-2026</a></p>
+      <p><span class="muted">Team</span><br>Paulet Delta-V · <span id="members2">—</span></p>
+    </div>
+    <div class="qr"><img src="img/qr.svg" alt="QR code to the game"></div>
+  </div>
+  <p class="small">Made with AI assistance, disclosed on the project page: code with Claude (Anthropic), any illustration made with Google Gemini carries an "AI-generated" mark, music with ACE-Step run locally, voices and effects with ElevenLabs. No NASA logos are used. Pedro Paulet's engine tests are presented as his own claims. Dr. Goicochea and the team are fictional adults.</p>
+  <div class="num">07 / 07</div>
+</section>
+
+</div></div>
+
+<nav class="nav" aria-label="Slides">
+  <button type="button" id="prev">‹ Prev</button>
+  <button type="button" id="count">1 / 7</button>
+  <button type="button" id="next">Next ›</button>
+  <button type="button" id="all">All slides</button>
+</nav>
+
+<script>
+// Team members: write the names here, separated by commas.
+const MEMBERS = '';
+const names = MEMBERS.trim() || 'Team members listed on the project page';
+document.getElementById('members').textContent = names;
+document.getElementById('members2').textContent = names;
+
+const slides = [...document.querySelectorAll('.slide')];
+const stage = document.getElementById('stage');
+let i = Math.max(0, Math.min(slides.length - 1, (parseInt((location.hash || '').replace('#s', ''), 10) || 1) - 1));
+function fit() {
+  if (document.body.classList.contains('all')) {
+    document.documentElement.style.setProperty('--allzoom', Math.min(1, (innerWidth - 24) / 1920));
+    return;
+  }
+  const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+  stage.style.transform = 'scale(' + s + ')';
+}
+function show(n) {
+  i = (n + slides.length) % slides.length;
+  slides.forEach((el, k) => el.classList.toggle('on', k === i));
+  document.getElementById('count').textContent = (i + 1) + ' / ' + slides.length;
+  history.replaceState(null, '', '#s' + (i + 1));
+}
+document.getElementById('prev').onclick = () => show(i - 1);
+document.getElementById('next').onclick = () => show(i + 1);
+document.getElementById('all').onclick = () => { document.body.classList.toggle('all'); document.getElementById('all').textContent = document.body.classList.contains('all') ? 'One by one' : 'All slides'; fit(); };
+addEventListener('keydown', (e) => {
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(i + 1) }
+  if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(i - 1) }
+});
+stage.addEventListener('click', (e) => { if (!document.body.classList.contains('all') && !e.target.closest('a')) show(i + 1) });
+addEventListener('resize', fit);
+fit(); show(i);
+</script>
+</body>
+</html>
