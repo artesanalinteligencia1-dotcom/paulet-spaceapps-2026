@@ -208,6 +208,11 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
       hacia arriba, las barras se llenan y las causas aparecen en orden. Todo se apaga con "movimiento reducido".
       Fuentes nuevas (OFL): Fraunces, JetBrains Mono y Caveat cargadas en `main.tsx`. Revisado en el navegador (Earth
       Watch); el informe animado no se revisó a ojo todavía. 250 pruebas en verde.
+- [x] 2026-11-14 (noche) · **Intro sin Goicochea niño** (punto 4): se quitó `game/src/assets/video/intro.mp4` del repo del
+      concurso y "Watch intro" ahora es una escena hecha en código, "Goicochea y el cuaderno": amanecer en Arequipa, 5
+      páginas del cuaderno de Paulet (estilo B) con GSAP, Kuntur entra volando al final. Sin personas en pantalla. Textos
+      `intro.scene.*` e `intro.hand.*` (inglés y español). **Ojo:** el video viejo sigue en el historial de git; si el repo se
+      hace público, decidir si se limpia el historial o se entrega otro enlace.
 
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
@@ -221,7 +226,7 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
       dispositivos** (o dos navegadores): crear sala, unirse por enlace, votar, "Launch together".
    5. Probar en el teléfono. Si el dominio es nuevo, pedir la clasificación de FortiGuard (§3).
    6. No tocar el proyecto de Vercel de la primera versión (`paulet-andes-to-orbit`, rama `main` de PP.game).
-4. [ ] **Intro actual con Goicochea niño: no puede ir en la entrega** (regla de menores de 18). Hasta tener la nueva toma, quitarla o saltarla en la versión del concurso.
+4. [x] (2026-11-14, ver §9; queda decidir el historial de git) **Intro actual con Goicochea niño: no puede ir en la entrega** (regla de menores de 18). Hasta tener la nueva toma, quitarla o saltarla en la versión del concurso.
 5. [ ] Historia en el juego (los personajes ya están en el panel del equipo): barras de valores, carta a Paulet en el informe, intro nueva.
 6. [ ] **Recursos de NASA referenciados DENTRO del juego** (pedido del dueño, 2026-11-14; criterio Relevance):
    - Una pantalla o tarjeta "NASA resources" (desde el menú y desde Learn) que cite cada fuente con enlace y diga qué
@@ -272,7 +277,7 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
   guarde y llame al modelo, con las preguntas sin internet como respaldo. Declarar el uso de IA en la entrega.
 
 ## 11. Siguiente paso exacto
-1) Recursos de NASA dentro del juego (punto 6) y quitar la intro con el niño (punto 4).
+1) Recursos de NASA dentro del juego (punto 6).
 2) Carta a Paulet en el informe, en estilo cuaderno y con el tono decidido (personal y luego técnica), y barras de
    valores (punto 5).
 3) Llevar la dirección A a la lista de misiones y a la pantalla de lanzamiento; luz de las escenas 3D (punto 18b).
