@@ -269,7 +269,7 @@ export function FlightDeck(p: FlightDeckProps) {
               <HeatBar k="heat" label="Fairing heating" />
               <HeatBar k="gload" label="Acceleration" />
             </Panel>
-            <Panel title="Live charts" className="min-h-0 flex-1" bodyClass="grid grid-cols-2 gap-x-3 gap-y-2 px-3 py-2">
+            <Panel title="Live charts" className="min-h-0 flex-1" bodyClass="grid grid-cols-2 grid-rows-2 gap-x-3 gap-y-1.5 px-3 py-2">
               <Chart id="alt" color="#d9b46a" label="Altitude" unit="km" />
               <Chart id="vel" color="#36d1ff" label="Velocity" unit="m/s" />
               <Chart id="q" color="#ff3d7f" label="Max-Q" unit="kPa" />
@@ -363,7 +363,7 @@ export function FlightDeck(p: FlightDeckProps) {
                 <HeatBar k="fuel" label="Fuel" />
               </div>
             </Panel>
-            <Panel title="Flight events" className="min-h-0 flex-1" bodyClass="overflow-hidden px-3 py-2">
+            <Panel title="Flight events" className="min-h-0 flex-1" bodyClass="overflow-y-auto overscroll-contain px-3 py-2 pointer-events-auto">
               <ul className="space-y-1 text-[15px] uppercase tracking-wide">
                 {shown.map((e) => (
                   <li key={e.id} className={`deck-log flex justify-between gap-3 border-l-2 pl-2 deck-tone-${e.tone}`}>

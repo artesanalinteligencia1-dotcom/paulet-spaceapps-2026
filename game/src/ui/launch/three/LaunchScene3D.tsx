@@ -225,6 +225,23 @@ export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visu
     })
     rocket.position.y = 4.8
     scene.add(rocket)
+    /** each half hinges on its outer base edge: that edge is this far from the axis (the half's depth, from its own geometry) */
+    const hingeR = halves.map((h) => {
+      const b = new THREE.Box3()
+      h.traverse((o) => {
+        const m = o as THREE.Mesh
+        if (!m.isMesh) return
+        m.geometry.computeBoundingBox()
+        b.union(m.geometry.boundingBox!)
+      })
+      return Math.max(0.3, b.max.z - b.min.z)
+    })
+    // the halves are built split front/back (±z); turn them a quarter so they open to the left and right of the
+    // side-on cameras, i.e. along the flight direction (±x), and hinge them about z (order ZYX: turn, then hinge)
+    halves.forEach((h) => {
+      h.rotation.order = 'ZYX'
+      h.rotation.y += Math.PI / 2
+    })
     const halfHome = halves.map((h) => ({ parent: h.parent!, pos: h.position.clone(), rot: h.rotation.clone(), v: new THREE.Vector3(), w: new THREE.Vector3() }))
 
     // ---- the launch complex ----
@@ -643,8 +660,10 @@ export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visu
       craft.rotation.set(de * 0.3, de * 0.25, -de * 0.15)
       sc.setDeploy((time - T.deploy - 0.6 * Math.sqrt(P)) / (1.6 * Math.sqrt(P)))
 
-      // fairing: the halves hinge open, then tumble away and fall behind the accelerating rocket
-      if (r.fairing > 0.25 && !fairingOff && !exploded) {
+      // fairing: like a clamshell, each half swings outward on a hinge at its base (the pyrotechnic seam fires first),
+      // the spacecraft appears with its arrays folded, then the halves let go, keep turning outward and fall behind
+      const FAIR_OPEN = 0.6
+      if (r.fairing >= FAIR_OPEN && !fairingOff && !exploded) {
         fairingOff = true
         const vel = tmp.set(0, 0, 0)
         const a0 = ascentAt(tt - 0.05, T)
@@ -652,14 +671,18 @@ export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visu
         halves.forEach((h, i) => {
           scene.attach(h)
           const s = i === 0 ? 1 : -1
-          halfHome[i].v.copy(vel).add(tmp2.set(0, 0, s * (5 + prand() * 2)).applyQuaternion(rocket.quaternion))
-          halfHome[i].w.set(s * (0.9 + prand() * 0.4), (prand() - 0.5) * 0.4, (prand() - 0.5) * 0.3)
+          halfHome[i].v.copy(vel).add(tmp2.set(s * (3 + prand() * 1.5), 0, (prand() - 0.5) * 0.6).applyQuaternion(rocket.quaternion))
+          halfHome[i].w.set((prand() - 0.5) * 0.1, (prand() - 0.5) * 0.15, -s * (0.7 + prand() * 0.3))
         })
       }
       if (!fairingOff) {
+        const a = smooth(r.fairing / FAIR_OPEN) * 0.62
         halves.forEach((g, i) => {
+          // halves[0] was the +z half, now the +x half: it tips toward +x about a hinge at (s·hr, base, 0)
           const s = i === 0 ? 1 : -1
-          g.rotation.x = halfHome[i].rot.x + s * r.fairing * 0.35
+          const hr = hingeR[i]
+          g.rotation.z = halfHome[i].rot.z - s * a
+          g.position.set(halfHome[i].pos.x + s * hr * (1 - Math.cos(a)), halfHome[i].pos.y + hr * Math.sin(a), halfHome[i].pos.z)
         })
       } else {
         halves.forEach((h, i) => {
@@ -692,11 +715,17 @@ export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visu
         flashK = fk
         flashY = (CL ? CL.stages[i + 1].y0 : h1) + 0.5
       })
-      if (fairingOff && !fairPuffed && !jumped) {
+      if (r.fairing > 0 && !fairPuffed && !jumped && !exploded) {
+        // the separation charges fire along both vertical seams (where the halves meet) and around the base
         fairPuffed = true
-        for (let j = 0; j < 18; j++) {
-          const c = rocket.localToWorld(tmp.set((prand() - 0.5) * 0.4, h1 + h2 + prand() * hf, (prand() - 0.5) * 0.4))
-          smoke.add({ x: c.x, y: c.y, z: c.z, vx: (prand() - 0.5) * 8, vy: (prand() - 0.5) * 8, vz: (prand() - 0.5) * 8, size: 0.8 + prand(), grow: 1.5, max: 1.6, a0: 0.5, rot: prand() * 6, tile: j % 4 })
+        const seam = hingeR[0] ?? R
+        for (let j = 0; j < 28; j++) {
+          const side = j % 2 ? 1 : -1
+          const base = j >= 22
+          // after the quarter turn the seams face the cameras (±z)
+          const o = tmp2.set(0, 0, side).applyQuaternion(rocket.quaternion)
+          const c = rocket.localToWorld(tmp.set((prand() - 0.5) * 0.3, h1 + h2 + (base ? 0.2 : prand() * hf * 0.8), side * seam))
+          smoke.add({ x: c.x, y: c.y, z: c.z, vx: o.x * 6 + (prand() - 0.5) * 3, vy: o.y * 6 + (prand() - 0.5) * 3, vz: o.z * 6 + (prand() - 0.5) * 3, size: 0.5 + prand() * 0.7, grow: 1.4, max: 1.4, a0: 0.6, heat: 0.5, cool: 1.5, rot: prand() * 6, tile: j % 4 })
         }
       }
       flash.position.copy(rocket.position).addScaledVector(up, flashY)

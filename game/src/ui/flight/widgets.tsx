@@ -35,14 +35,14 @@ export function Arc({ k, label }: { k: string; label: string }) {
 
 export function Chart({ id, color, label, unit }: { id: string; color: string; label: string; unit: string }) {
   return (
-    <div className="min-w-0">
-      <div className="flex justify-between gap-2 text-[12px] uppercase tracking-wider text-[#8a8f98]">
+    <div className="flex min-h-0 min-w-0 flex-col">
+      <div className="flex shrink-0 justify-between gap-2 text-[12px] uppercase tracking-wider text-[#8a8f98]">
         <span className="truncate">{label}</span>
         <span className="shrink-0">
           <V k={id + 'Live'} style={{ color }} /> {unit}
         </span>
       </div>
-      <canvas data-chart={id} data-color={color} width={320} height={84} className="mt-1 block h-[42px] w-full" />
+      <canvas data-chart={id} data-color={color} width={320} height={84} className="mt-1 block max-h-[42px] min-h-0 w-full flex-1" />
     </div>
   )
 }
@@ -136,7 +136,7 @@ export function Attitude() {
           <path d="M-40 0 H-12 L0 10 L12 0 H40" stroke="#d9b46a" strokeWidth={2.5} fill="none" />
           <circle r={3} fill="#d9b46a" />
         </svg>
-        <div className="absolute inset-x-0 top-0 text-center text-[12px] tracking-widest text-[#8a8f98]">
+        <div className="absolute inset-x-0 top-0 bg-[#0d0f12] pb-0.5 text-center text-[12px] tracking-widest text-[#8a8f98]">
           PITCH <V k="pitchDeg" className="text-[#e8e0cc]" />°
         </div>
       </div>
