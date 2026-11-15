@@ -32,8 +32,9 @@ export function GuideDock() {
   const t = useT()
   const on = useSettings((s) => s.guide)
   const reduce = useReducedMotion()
-  const { content, open, index, setOpen, setIndex } = useGuide()
-  const line = open && content ? content.lines[index] : undefined
+  const { content, open, index, setOpen, setIndex, asked, setAsked } = useGuide()
+  const answer = asked !== null ? content?.questions?.[asked]?.answer : undefined
+  const line = open && content ? (answer ?? content.lines[index]) : undefined
   const [shown, typing] = useTyped(line?.text ?? '', reduce)
   if (!on || !content) return null
   const name = t('guide.kuntur.name')
@@ -69,7 +70,7 @@ export function GuideDock() {
             <span className="hud-label" style={{ color: GUIDE_ACCENT }}>
               {name}
             </span>
-            {(content.progress || count > 1) && <span className="text-[11px] text-slate-500">{content.progress ?? t('guide.dock.count', { i: index + 1, n: count })}</span>}
+            {!answer && (content.progress || count > 1) && <span className="text-[11px] text-slate-500">{content.progress ?? t('guide.dock.count', { i: index + 1, n: count })}</span>}
             <button type="button" onClick={() => setOpen(false)} className="ml-auto px-1 text-slate-400 hover:text-white" aria-label={t('guide.dock.close')}>
               ×
             </button>
@@ -80,8 +81,24 @@ export function GuideDock() {
             {typing && <span className="ml-0.5 inline-block w-2 animate-pulse text-sky-300">▍</span>}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            {content.primary ? (
+            {answer ? (
               <>
+                {line.action && (
+                  <button type="button" className="btn-secondary px-3 py-1 text-xs" onClick={line.action.run}>
+                    {line.action.label}
+                  </button>
+                )}
+                <button type="button" className="ml-auto px-2 py-1 text-xs text-slate-400 hover:text-white" onClick={() => setAsked(null)}>
+                  {t('guide.dock.backToHints')}
+                </button>
+              </>
+            ) : content.primary ? (
+              <>
+                {content.back && (
+                  <button type="button" className="btn-secondary px-3 py-1 text-xs" onClick={content.back.run}>
+                    ‹ {content.back.label}
+                  </button>
+                )}
                 <button type="button" className="btn-primary px-3 py-1 text-xs" onClick={content.primary.run}>
                   {content.primary.label}
                 </button>
@@ -111,6 +128,26 @@ export function GuideDock() {
               </>
             )}
           </div>
+          {content.questions && content.questions.length > 0 && (
+            <div className="mt-2 border-t border-white/10 pt-2">
+              <div className="hud-label mb-1" style={{ color: GUIDE_ACCENT }}>
+                {t('guide.dock.ask')}
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {content.questions.map((q, i) => (
+                  <button
+                    key={q.label}
+                    type="button"
+                    aria-pressed={asked === i}
+                    onClick={() => setAsked(i)}
+                    className={`rounded-full border px-2.5 py-0.5 text-[11px] ${asked === i ? 'border-sky-300 bg-sky-500/20 text-sky-100' : 'border-slate-700 text-slate-300 hover:border-sky-400'}`}
+                  >
+                    {q.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

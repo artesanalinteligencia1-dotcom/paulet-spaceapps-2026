@@ -5,7 +5,7 @@
 > fecha, actualiza "Pendiente" y "Siguiente paso exacto", y haz commit.
 > Explicaciones al dueño en español; código, textos del juego y entrega en inglés.
 
-Última actualización: 2026-11-14 (tarde).
+Última actualización: 2026-11-14 (noche).
 
 ---
 
@@ -172,6 +172,16 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
       `https://paulet-spaceapps-default-rtdb.firebaseio.com`). La configuración está en `game/.env.local` (no se sube; no es
       secreta). Probado con dos pestañas sobre Firebase real: unirse por enlace, tomar roles, diseño compartido, votación
       3 de 4 y "Launch together"; los dos vieron la misma misión (semilla 766479, 807 puntos). El dueño publicó las reglas.
+- [x] 2026-11-14 (noche) · **Más contexto y un Kuntur que responde** (pedidos 15, 16 y 19, primera parte):
+      tutorial de 11 pasos (cómo llegó Pedro, su equipo Chicho/Roberto/Franchesca, quién paga y qué son los
+      inversionistas, qué son las estrellas) con botón **Atrás**; **sesión informativa por misión** la primera vez que se
+      abre cada una (de qué trata en palabras simples, qué hay que entregar, por dónde empezar; textos `brief.<misión>`);
+      **preguntas a Kuntur** en cada pestaña con respuestas calculadas del diseño, sin internet ("¿De qué trata esta
+      misión?", "¿Qué hago ahora?", "¿Qué son las estrellas?", "¿Qué instrumento necesito?", "¿Tengo suficiente
+      energía?", "¿Bajan suficientes datos?"…); **franja de contexto** arriba de cada pestaña: qué decides aquí, por qué
+      importa y qué pide esta misión en esa pestaña (✔/○). Archivos: `game/src/ui/guide/lines.ts`, `GuideDock.tsx`,
+      `game/src/ui/tabs/TabContext.tsx`. Probado en el navegador con Vigía de la Tierra. 247 pruebas en verde.
+      **Falta que el dueño lo valide** jugando Vigía de la Tierra.
 - [x] 2026-11-14 · **Trade study y ranking** (`game/src/engine/trade.ts`, `game/src/ui/tabs/TradeStudy.tsx`,
       `game/src/store/leaderboard.ts`): en Review se guarda el diseño como opción A o B y se comparan con el actual en 9
       métricas (requisitos, costo, margen del lanzador, margen de energía, datos, mes de lanzamiento, vida, ciencia,
@@ -212,8 +222,40 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 11. [ ] **Guardar progreso desde el sábado; primer "Submit for Judging" el domingo temprano**; reenviar si mejora.
 12. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
 
+### Pedidos del dueño tras probar el juego (2026-11-14, noche) — en sus palabras, resumidos
+14. [ ] **Más atractivo visualmente:** "el juego parece aún muy años 2000". Rediseño visual (decidir mostrando 2–3 variantes, PLAYBOOK regla 3.3).
+15. [~] (hecho en parte: franja de contexto, sesión por misión y preguntas; validar con el dueño) **Más contexto al elegir (de Carga útil a Revisión), sobre todo en la primera misión importante (Vigía de la Tierra / Earth Watch):** no quitar lo técnico, pero explicar qué elegir y para qué. El dueño no terminó Earth Watch porque no entendía de qué trataba y tuvo que probar hasta cumplir los requisitos.
+16. [~] (hecho sin IA: botón Atrás y preguntas; la IA queda como propuesta, ver Investigación) **Kuntur:** poder volver atrás en los pasos de la guía y poder preguntarle (hoy solo muestra mensajes). Propuesta del dueño (opcional): usar la API de una IA para que ayude en el juego. **Nada de proveedores chinos** (p. ej. DeepSeek): el concurso lo prohíbe.
+17. [ ] **Multijugador también desde el inicio**, para jugar cualquier misión.
+18. [x] Investigado (ver "Investigación: animación" abajo). Falta **aplicarlo** (punto 14 y 18b).
+18b. [ ] Aplicar la investigación: coreografía con GSAP en briefing, informe y transiciones; Kuntur animado con GSAP; escenas 3D con mejor luz e ilustración.
+19. [~] (hecho en texto: tutorial con historia + sesión por misión; faltan imágenes o video con Gemini) **Tutorial al comienzo de cada misión** (o al menos la primera): cómo funciona el juego, qué son los inversionistas, cómo llegó Pedro ahí, quiénes son sus amigos, qué son las estrellas. Se pueden usar imágenes o videos con IA: el dueño tiene **Gemini Pro** (marca "AI-generated" visible).
+
+### Investigación: animación y aspecto visual (2026-11-14)
+- **Mantener Three.js + postprocessing** para las escenas 3D (ya instalados). Mejorar luz, materiales e ilustración antes
+  que cambiar de motor. React Three Fiber solo si se reescriben las escenas (no antes del cierre).
+- **GSAP** (gratis con todos sus plugins, incluidos SplitText, MorphSVG, MotionPath y Flip, también para uso comercial
+  desde el 30-abr-2025; ya instalado): herramienta principal para coreografías de interfaz, cinemáticas del briefing,
+  números que cuentan, trayectorias SVG y animar el SVG de Kuntur.
+- **Motion** (MIT, ya instalado): transiciones entre pantallas y animaciones de layout en React.
+- **Rive**: lo mejor para una mascota interactiva con máquinas de estado, pero exportar al juego requiere plan pago
+  (Cadet, unos USD 9/mes según su documentación) → solo con aprobación del dueño; si no, Kuntur con GSAP.
+- **Lottie / dotLottie** (MIT; renderizado WebGL/WebGPU desde mayo de 2026): iconos y microanimaciones; revisar la
+  licencia de cada animación de LottieFiles.
+- **Theatre.js**: mantenimiento incierto (repo público lento, editor AGPL) → no usar antes del cierre.
+- **Spline**: marca de agua en el plan gratis → no.
+- **Video y cinemáticas:** HyperFrames (local, gratis) + Gemini Pro del dueño (imágenes y Veo) con marca "AI-generated".
+- "Años 2000" es sobre todo **diseño de interfaz** (tipografía, jerarquía, espacio, ilustración, profundidad): proponer
+  2–3 direcciones visuales hechas en código y que el dueño elija (PLAYBOOK regla 3.3).
+- **IA para Kuntur (propuesta del dueño, opcional):** proveedores no chinos: Gemini API (Google AI Studio, tiene nivel
+  gratis), Claude API (Anthropic) u OpenAI. La clave nunca va en el navegador: haría falta una función de Vercel que la
+  guarde y llame al modelo, con las preguntas sin internet como respaldo. Declarar el uso de IA en la entrega.
+
 ## 11. Siguiente paso exacto
-1) El dueño prueba el juego en http://localhost:5174 (en su PC: `cd C:\PPgame\paulet-spaceapps-2026\game` y `npm run dev -- --port 5174`) y dicta sus mejoras; anotarlas aquí. 2) La otra cuenta de Claude despliega en Vercel (§10, punto 3). 3) Recursos de NASA dentro del juego (punto 6). 4) Quitar la intro con el niño (punto 4).
+1) **Multijugador desde el inicio** (pedido 17): en el menú principal, "Play online" → crear sala eligiendo cualquier misión (nombre + misión) o unirse con un código; hoy la sala solo se crea desde la pestaña Mission de una misión (`game/src/ui/online/OnlinePanel.tsx`, `game/src/store/online.ts`, menú en `game/src/ui/hub/HomeScreen.tsx`).
+2) El dueño valida Vigía de la Tierra con el nuevo contexto y dicta mejoras.
+3) Aspecto visual y animaciones (puntos 14 y 18b), decidiendo por variantes.
+4) La otra cuenta despliega en Vercel (punto 3); recursos de NASA dentro del juego (punto 6); quitar la intro con el niño (punto 4); diapositivas y página.
 
 ## 12. Dónde está cada cosa
 - Primera versión: repo `artesanalinteligencia1-dotcom/PP.game` (rama `cloud/fase-1`), clon `C:\PPgame\PP.game`,
