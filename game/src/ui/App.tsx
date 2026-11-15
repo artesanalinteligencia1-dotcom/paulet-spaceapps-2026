@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { toggleFullscreen } from '../platform/desktop'
 import { useGame } from '../store/game'
 import { useReducedMotion } from '../store/settings'
@@ -106,9 +107,19 @@ export function App() {
           <BootScreen onStart={start} />
         ) : (
           <>
-            <div key={screen} className="stage-scroll screen-in relative h-full overflow-y-auto">
-              <CurrentScreen />
-            </div>
+            {/* screen changes: the old view blurs away, the new one comes into focus, a scan line sweeps the frame */}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={screen}
+                className="stage-scroll relative h-full overflow-y-auto"
+                initial={reduce ? false : { opacity: 0, y: 12, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] }, transitionEnd: { filter: 'none', transform: 'none' } }}
+                exit={reduce ? undefined : { opacity: 0, scale: 0.985, filter: 'blur(6px)', transition: { duration: 0.2, ease: 'easeIn' } }}
+              >
+                <CurrentScreen />
+              </motion.div>
+            </AnimatePresence>
+            {!reduce && <div key={`wipe-${screen}`} className="screen-wipe pointer-events-none absolute inset-x-0 top-0 z-30 h-[2px]" aria-hidden="true" />}
             {/* sound and settings: in a corner, except on the flight deck, which has them in its header */}
             {screen !== 'launch' && (
             <div className="absolute bottom-4 right-4 z-40 flex gap-2">

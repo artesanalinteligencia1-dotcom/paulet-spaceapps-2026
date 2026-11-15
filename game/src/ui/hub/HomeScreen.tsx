@@ -11,6 +11,7 @@ import { AndesBackdrop, LaunchPad, SceneryLight, SkyBackdrop, Stars } from '../l
 import { Rocket, makeTimeline } from '../launch/LaunchSequence'
 import { spacecraftVisual } from '../spacecraft/visual'
 import { ProfileDialog } from './ProfileDialog'
+import { PauletLogo } from '../brand/PauletLogo'
 import { OnlineLobby } from '../online/OnlinePanel'
 
 export function MenuBackdrop() {
@@ -90,8 +91,8 @@ export function HomeScreen() {
       </div>
       <div className="absolute left-16 top-[130px] w-[520px]">
         <p className="hud-label text-sm">{t('home.tagline')}</p>
-        <h1 className="mt-2 text-[104px] leading-none tracking-tight">
-          {GAME_NAME}
+        <h1 className="mt-4" aria-label={GAME_NAME}>
+          <PauletLogo height={76} />
         </h1>
         <p className="mt-2 text-2xl uppercase tracking-[0.35em] text-orange-400">{GAME_SUBTITLE}</p>
         <nav ref={navRef} onKeyDown={onKey} className="mt-10 border-t border-white/15" aria-label={t('home.menuLabel')}>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { MenuBackdrop } from '../hub/HomeScreen'
 import { GAME_NAME, GAME_SUBTITLE } from '../../brand'
+import { PauletLogo } from '../brand/PauletLogo'
 import { LANGUAGES, translate, useT, type Lang } from '../../i18n'
 import { useSettings } from '../../store/settings'
 
@@ -87,7 +88,9 @@ export function BootScreen({ onStart }: { onStart: () => void }) {
       <div className="relative grid h-full place-items-center text-center">
         <div>
           <p className="text-xs uppercase tracking-[0.4em] text-sky-300">{t('boot.tagline')}</p>
-          <h1 className="mt-2 text-8xl font-bold tracking-tight">{GAME_NAME}</h1>
+          <h1 className="mt-4 flex justify-center" aria-label={GAME_NAME}>
+            <PauletLogo height={72} />
+          </h1>
           <p className="mt-3 text-xl uppercase tracking-[0.4em] text-orange-400">{GAME_SUBTITLE}</p>
           {ready && !languageChosen ? (
             <LanguagePicker onPick={pick} />

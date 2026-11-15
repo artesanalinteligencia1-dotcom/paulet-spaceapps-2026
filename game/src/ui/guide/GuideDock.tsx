@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useT } from '../../i18n'
 import { useGuide } from '../../store/guide'
 import { useReducedMotion, useSettings } from '../../store/settings'
-import { GUIDE_ACCENT, Kuntur } from './robots'
+import { Kuntur } from './robots'
 
 const CHARS_PER_SECOND = 55
 
@@ -41,19 +41,22 @@ export function GuideDock() {
   const mood = line?.mood ?? content.mood
   const count = content.lines.length
   const badge = content.badge ?? 0
-  // story moments (the tutorial and each mission's briefing) open in Paulet's notebook (direction B)
+  // story moments (the tutorial and each mission's briefing) arrive as a transmission: a wider card with a title
   const story = !answer && (content.id.startsWith('tutorial') || content.id.startsWith('briefing'))
+  // a story moment takes the stage like a modal transmission (nothing underneath is half covered); hints stay docked
+  const modal = story && open && !!line
   return (
-    <div className="pointer-events-none absolute bottom-3 left-9 z-40 flex items-end gap-1">
+    <div data-modal={modal || undefined} className={modal ? 'guide-modal-in pointer-events-auto absolute inset-0 z-40 flex items-center justify-center gap-3 bg-black/60' : 'pointer-events-none absolute bottom-3 left-9 z-40 flex items-end gap-1'}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label={open ? t('guide.dock.close') : t('guide.dock.open', { name })}
         title={open ? t('guide.dock.close') : t('guide.dock.open', { name })}
+        data-box={modal ? undefined : 'kuntur'}
         className="pointer-events-auto relative shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
-        <Kuntur mood={mood} talking={typing} size={open ? 124 : 88} still={reduce} />
+        <Kuntur mood={mood} talking={typing} size={modal ? 160 : open ? 124 : 88} still={reduce} />
         {!open && badge > 0 && (
           <span className="absolute right-1 top-3 rounded-full bg-rose-500 px-1.5 text-[10px] font-bold text-white" aria-hidden="true">
             {badge}
@@ -61,30 +64,20 @@ export function GuideDock() {
         )}
       </button>
       {open && line && (
-        <div
-          role="dialog"
-          aria-label={name}
-          className={
-            story
-              ? 'paper pointer-events-auto relative mb-6 w-[540px] px-5 pb-4 pt-6 text-[15px] leading-relaxed'
-              : 'pointer-events-auto relative mb-6 w-[460px] rounded-xl border bg-[#0f141b]/95 p-4 text-sm leading-snug text-slate-100 shadow-2xl backdrop-blur'
-          }
-          style={story ? undefined : { borderColor: GUIDE_ACCENT }}
-        >
-          {!story && <span className="absolute -left-[7px] bottom-8 h-3 w-3 rotate-45 border-b border-l bg-[#0f141b]" style={{ borderColor: GUIDE_ACCENT }} aria-hidden="true" />}
-          <div className="mb-1 flex items-center gap-2">
-            <span className="hud-label" style={story ? undefined : { color: GUIDE_ACCENT }}>
-              {name}
-            </span>
-            {!answer && (content.progress || count > 1) && <span className="text-[11px] text-slate-500">{content.progress ?? t('guide.dock.count', { i: index + 1, n: count })}</span>}
-            <button type="button" onClick={() => setOpen(false)} className="ml-auto px-1 text-slate-400 hover:text-white" aria-label={t('guide.dock.close')}>
+        <div role="dialog" aria-label={name} className={`log-card pointer-events-auto relative ${modal ? 'w-[620px]' : 'mb-6 w-[470px]'} text-[15px] leading-relaxed`}>
+          <div className="log-head">
+            <span className="log-dot" aria-hidden="true" />
+            <span>{story ? t(content.id.startsWith('tutorial') ? 'guide.dock.transmission' : 'guide.dock.briefing') : name}</span>
+            {!answer && (content.progress || count > 1) && <span className="text-[12px] tracking-wider text-[#8a8f98]">{content.progress ?? t('guide.dock.count', { i: index + 1, n: count })}</span>}
+            <button type="button" onClick={() => setOpen(false)} className="ml-auto px-1 text-lg text-[#8a8f98] hover:text-white" aria-label={t('guide.dock.close')}>
               ×
             </button>
           </div>
-          {line.title && <div className={story ? 'paper-title mb-1 text-xl' : 'mb-1 font-semibold text-white'}>{line.title}</div>}
+          <div className="relative z-[1] px-5 pb-4 pt-3">
+          {line.title && <div className={story ? 'log-title mb-1.5 text-[24px]' : 'mb-1 font-semibold text-[#e8e0cc]'}>{line.title}</div>}
           <p aria-live="polite" className="min-h-[3.75rem]">
             {shown}
-            {typing && <span className={`ml-0.5 inline-block w-2 animate-pulse ${story ? 'text-[#b5452b]' : 'text-sky-300'}`}>▍</span>}
+            {typing && <span className="ml-0.5 inline-block w-2 animate-pulse text-[#d9b46a]">▍</span>}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {answer ? (
@@ -136,7 +129,7 @@ export function GuideDock() {
           </div>
           {content.questions && content.questions.length > 0 && (
             <div className="mt-2 border-t border-white/10 pt-2">
-              <div className="hud-label mb-1" style={{ color: GUIDE_ACCENT }}>
+              <div className="hud-label mb-1">
                 {t('guide.dock.ask')}
               </div>
               <div className="flex flex-wrap gap-1">
@@ -146,7 +139,7 @@ export function GuideDock() {
                     type="button"
                     aria-pressed={asked === i}
                     onClick={() => setAsked(i)}
-                    className={`rounded-full border px-2.5 py-0.5 text-[11px] ${asked === i ? 'border-sky-300 bg-sky-500/20 text-sky-100' : 'border-slate-700 text-slate-300 hover:border-sky-400'}`}
+                    className={`rounded-full border px-2.5 py-0.5 text-[11px] ${asked === i ? 'border-[#d9b46a] bg-[#d9b46a]/15 text-[#f1d9a6]' : 'border-[#3a3f47] text-[#c9c2b2] hover:border-[#d9b46a]'}`}
                   >
                     {q.label}
                   </button>
@@ -154,6 +147,7 @@ export function GuideDock() {
               </div>
             </div>
           )}
+          </div>
         </div>
       )}
     </div>
