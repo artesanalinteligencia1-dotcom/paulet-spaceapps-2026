@@ -37,6 +37,14 @@ export function roomCode(rand: () => number = Math.random): string {
   return Array.from({ length: 6 }, () => abc[Math.floor(rand() * abc.length)]).join('')
 }
 
+/** A room code typed by hand or pasted as the whole invitation link. */
+export function parseRoomCode(input: string): string | null {
+  const s = input.trim()
+  const fromLink = /[?&]room=([A-Za-z0-9]{6})/.exec(s)
+  const code = (fromLink ? fromLink[1] : s).toUpperCase()
+  return /^[A-Z0-9]{6}$/.test(code) ? code : null
+}
+
 export function newRoom(hostId: string, hostName: string, scenarioId: string, now = Date.now()): Room {
   const scenario = getScenario(scenarioId)
   return {
