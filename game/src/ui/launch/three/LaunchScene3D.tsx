@@ -33,12 +33,24 @@ interface Props {
   landed?: boolean
   /** a player-built rocket: drawn from its parts instead of the catalog shape of `launcherId` */
   rocket?: RocketDesign
+  /** switchable cameras and a second live view (flight HUD); without it the scene keeps its scripted camera */
+  views?: CameraViews
+}
+
+/** Cameras the player can switch between while the rocket flies. */
+export type CamView = 'chase' | 'ground' | 'onboard'
+
+/** A live camera choice for the main view and an optional picture-in-picture (CSS px from the bottom-left corner). */
+export interface CameraViews {
+  main: { current: CamView }
+  pip?: { current: CamView | null }
+  pipRect?: { left?: number; right?: number; bottom: number; widthFrac: number; aspect: number }
 }
 
 /** Booster-recovery inset, in CSS pixels from the bottom-right corner (LaunchSequence puts its labels on the same box). */
 export const LANDING_INSET = { right: 12, bottom: 64, widthFrac: 0.26, aspect: 0.6 }
 
-export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visual, landed = true, rocket: rocketDesign }: Props) {
+export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visual, landed = true, rocket: rocketDesign, views }: Props) {
   const host = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const el = host.current!
@@ -428,6 +440,37 @@ export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visu
     const sunSpace = new THREE.Vector3(-600, 900, 1400) // from behind the camera, so the spacecraft's visible side is lit
     const fogBase = new THREE.Color(L.fog)
     const OPEN_CAM = new THREE.Vector3(-70, 22, 130)
+    // switchable cameras: a tracking telephoto at the spectators' site, and a camera bolted to the upper stage
+    const GROUND_CAM = new THREE.Vector3(-320, 7, 640)
+    const pipCam = new THREE.PerspectiveCamera(50, 16 / 9, 0.5, 30000)
+    const chasePos = new THREE.Vector3()
+    const chaseTarget = new THREE.Vector3()
+    const aim = new THREE.Vector3()
+    const applyView = (cam: THREE.PerspectiveCamera, view: CamView, time: number, shake: number) => {
+      if (view === 'ground') {
+        aim.copy(rocket.position).addScaledVector(up, (h1 + h2) * 0.55)
+        const dist = GROUND_CAM.distanceTo(aim)
+        // a long lens that keeps the rocket about the same size as it climbs, like a real tracking camera
+        cam.fov = Math.min(40, Math.max(0.6, (2 * Math.atan(55 / dist) * 180) / Math.PI))
+        cam.position.copy(GROUND_CAM)
+        cam.lookAt(aim)
+      } else if (view === 'onboard') {
+        // on the upper stage, looking back down the body at the flame and the Earth falling away
+        cam.fov = 62
+        cam.position.copy(rocket.localToWorld(aim.set(R * 2.6, h1 + h2 * 0.8, R * 0.9)))
+        const j = 0.02 + shake * 0.08
+        cam.position.x += j * Math.sin(time * 83)
+        cam.position.z += j * Math.cos(time * 67)
+        cam.up.copy(up)
+        cam.lookAt(rocket.localToWorld(aim.set(R * 1.4, h1 - 420, R * 0.4)))
+        cam.up.set(0, 1, 0)
+      } else {
+        cam.fov = 38
+        cam.position.copy(chasePos)
+        cam.lookAt(chaseTarget)
+      }
+      cam.updateProjectionMatrix()
+    }
     const camPos = OPEN_CAM.clone()
     const camOff = OPEN_CAM.clone().sub(new THREE.Vector3(0, 4.8, 0))
     const up = new THREE.Vector3()
@@ -649,6 +692,9 @@ export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visu
       const sh = r.shake * 0.35
       camera.position.set(camPos.x + sh * Math.sin(time * 71), camPos.y + sh * Math.cos(time * 53), camPos.z)
       camera.lookAt(target)
+      chasePos.copy(camera.position)
+      chaseTarget.copy(target)
+      if (views && views.main.current !== 'chase') applyView(camera, views.main.current, time, r.shake)
 
       // sky: towards black with altitude, stars come out
       const fog = scene.fog as THREE.Fog
@@ -668,6 +714,29 @@ export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visu
       ground.visible = andes.visible = earthK < 0.3
       if (composer) composer.render(dt)
       else renderer.render(scene, camera)
+      if (views?.main.current && views.main.current !== 'chase') {
+        camera.fov = 38
+        camera.updateProjectionMatrix()
+      }
+
+      // a second live camera in a small window (flight HUD)
+      const pipView = views?.pip?.current
+      if (pipView) {
+        const pr = views!.pipRect ?? { left: 16, bottom: 16, widthFrac: 0.24, aspect: 0.56 }
+        const W = el.clientWidth
+        const w = Math.round(W * pr.widthFrac)
+        const h = Math.round(w * pr.aspect)
+        pipCam.aspect = w / h
+        applyView(pipCam, pipView, time, r.shake)
+        renderer.setScissorTest(true)
+        const px = pr.right !== undefined ? W - w - pr.right : (pr.left ?? 16)
+        renderer.setScissor(px, pr.bottom, w, h)
+        renderer.setViewport(px, pr.bottom, w, h)
+        renderer.clear()
+        renderer.render(scene, pipCam)
+        renderer.setScissorTest(false)
+        renderer.setViewport(0, 0, el.clientWidth, el.clientHeight)
+      }
 
       // booster-recovery inset: from MECO + 0.4 s for 6 s
       const lt = time - T.meco - 0.4
@@ -725,6 +794,6 @@ export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visu
       renderer.dispose()
       el.removeChild(renderer.domElement)
     }
-  }, [launcherId, light, T, tRef, failAt, visual, landed, rocketDesign])
+  }, [launcherId, light, T, tRef, failAt, visual, landed, rocketDesign, views])
   return <div ref={host} className="absolute inset-0" />
 }

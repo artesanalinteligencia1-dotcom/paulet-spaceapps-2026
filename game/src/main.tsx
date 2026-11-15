@@ -18,6 +18,8 @@ void setupOffline()
 const proto = new URLSearchParams(window.location.search).get('proto')
 const ProtoScreen = lazy(() => import('./ui/proto/ProtoScreen'))
 
+const FlightHud = lazy(() => import('./ui/proto/FlightHud'))
+
 const scene3d = new URLSearchParams(window.location.search).get('scene3d')
 const SceneDebug = lazy(() => import('./ui/launch/three/SceneDebug'))
 
@@ -26,6 +28,10 @@ createRoot(document.getElementById('root')!).render(
     {scene3d ? (
       <Suspense fallback={null}>
         <SceneDebug launcherId={scene3d} />
+      </Suspense>
+    ) : proto === 'flight' ? (
+      <Suspense fallback={null}>
+        <FlightHud />
       </Suspense>
     ) : proto === 'pixi' || proto === 'three' ? (
       <Suspense fallback={null}>
