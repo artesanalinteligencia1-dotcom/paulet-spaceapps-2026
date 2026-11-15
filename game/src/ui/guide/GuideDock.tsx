@@ -41,6 +41,8 @@ export function GuideDock() {
   const mood = line?.mood ?? content.mood
   const count = content.lines.length
   const badge = content.badge ?? 0
+  // story moments (the tutorial and each mission's briefing) open in Paulet's notebook (direction B)
+  const story = !answer && (content.id.startsWith('tutorial') || content.id.startsWith('briefing'))
   return (
     <div className="pointer-events-none absolute bottom-3 left-9 z-40 flex items-end gap-1">
       <button
@@ -62,12 +64,16 @@ export function GuideDock() {
         <div
           role="dialog"
           aria-label={name}
-          className="pointer-events-auto relative mb-6 w-[460px] rounded-md border bg-slate-950/95 p-3 text-sm leading-snug text-slate-100 shadow-2xl backdrop-blur"
-          style={{ borderColor: GUIDE_ACCENT }}
+          className={
+            story
+              ? 'paper pointer-events-auto relative mb-6 w-[540px] px-5 pb-4 pt-6 text-[15px] leading-relaxed'
+              : 'pointer-events-auto relative mb-6 w-[460px] rounded-xl border bg-[#0f141b]/95 p-4 text-sm leading-snug text-slate-100 shadow-2xl backdrop-blur'
+          }
+          style={story ? undefined : { borderColor: GUIDE_ACCENT }}
         >
-          <span className="absolute -left-[7px] bottom-8 h-3 w-3 rotate-45 border-b border-l bg-slate-950" style={{ borderColor: GUIDE_ACCENT }} aria-hidden="true" />
+          {!story && <span className="absolute -left-[7px] bottom-8 h-3 w-3 rotate-45 border-b border-l bg-[#0f141b]" style={{ borderColor: GUIDE_ACCENT }} aria-hidden="true" />}
           <div className="mb-1 flex items-center gap-2">
-            <span className="hud-label" style={{ color: GUIDE_ACCENT }}>
+            <span className="hud-label" style={story ? undefined : { color: GUIDE_ACCENT }}>
               {name}
             </span>
             {!answer && (content.progress || count > 1) && <span className="text-[11px] text-slate-500">{content.progress ?? t('guide.dock.count', { i: index + 1, n: count })}</span>}
@@ -75,10 +81,10 @@ export function GuideDock() {
               ×
             </button>
           </div>
-          {line.title && <div className="mb-1 font-semibold text-white">{line.title}</div>}
+          {line.title && <div className={story ? 'paper-title mb-1 text-xl' : 'mb-1 font-semibold text-white'}>{line.title}</div>}
           <p aria-live="polite" className="min-h-[3.75rem]">
             {shown}
-            {typing && <span className="ml-0.5 inline-block w-2 animate-pulse text-sky-300">▍</span>}
+            {typing && <span className={`ml-0.5 inline-block w-2 animate-pulse ${story ? 'text-[#b5452b]' : 'text-sky-300'}`}>▍</span>}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {answer ? (

@@ -99,7 +99,7 @@ export function App() {
             <div className="absolute inset-0 scale-110 blur-md">
               <MenuBackdrop />
             </div>
-            <div className="absolute inset-0 bg-slate-950/80" />
+            <div className="mc-grid absolute inset-0 opacity-[0.93]" />
           </div>
         )}
         {!booted ? (

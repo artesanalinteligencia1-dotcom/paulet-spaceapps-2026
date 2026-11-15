@@ -1,5 +1,6 @@
 import { useMsg } from '../i18n'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useChoreography, useCountUp } from './motion'
 import { audio, useMusic } from '../audio/audio'
 import { SpacecraftSprite } from './spacecraft/SpacecraftSprite'
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
@@ -77,8 +78,19 @@ export function ResultsScreen() {
     setBoard(list)
   }, [mission, score, scenario])
 
+  // the report arrives in order: the score card, the score counting up, each line filling, then the reasons
+  const root = useRef<HTMLElement>(null)
+  const total = useRef<HTMLDivElement>(null)
+  useCountUp(total, score.total, (n) => String(Math.round(n)), 0.35)
+  useChoreography(root, (tl) => {
+    tl.from('[data-score-card]', { y: 24, scale: 0.96, opacity: 0, duration: 0.6 })
+      .from('[data-score-line]', { x: -12, opacity: 0, stagger: 0.08, duration: 0.4 }, '<0.35')
+      .from('[data-score-bar]', { scaleX: 0, transformOrigin: 'left center', stagger: 0.08, duration: 0.8, ease: 'expo.out' }, '<')
+      .from('[data-cause]', { y: 18, opacity: 0, stagger: 0.12, duration: 0.5 }, '-=0.7')
+  })
+
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
+    <main ref={root} className="mx-auto max-w-6xl px-4 py-6">
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-semibold">
           {t('results.title', { name: tx(`scenario.${scenario.id}.name`, scenario.name) })}
@@ -93,16 +105,16 @@ export function ResultsScreen() {
         </p>
       )}
       <div className="mt-5 grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <section className={`rounded-2xl border-2 bg-slate-900/70 p-6 text-center ${RANK_STYLE[score.rank]}`}>
+        <section data-score-card className={`rounded-2xl border-2 bg-slate-900/70 p-6 text-center ${RANK_STYLE[score.rank]}`}>
           <div className="mx-auto mb-2 w-fit rounded-lg bg-slate-950/70 p-1">
             <SpacecraftSprite design={mission.design} size={84} />
           </div>
-          <div className="font-display text-6xl font-black">{score.total}</div>
+          <div ref={total} className="font-display text-7xl font-semibold tabular-nums">{score.total}</div>
           <div className="text-sm text-slate-400">{t('results.ofPoints')}</div>
           <div className="mt-2 text-2xl font-bold">{t(`results.rank.${score.rank}` as StringKey)}</div>
           <ul className="mt-5 space-y-2 text-left text-xs">
             {score.lines.map((l) => (
-              <li key={l.key}>
+              <li key={l.key} data-score-line>
                 <div className="flex justify-between">
                   <span className="text-slate-300">{msg(l.labelMsg)}</span>
                   <span className="font-mono text-slate-100">
@@ -110,7 +122,7 @@ export function ResultsScreen() {
                   </span>
                 </div>
                 <div className="mt-0.5 h-1.5 overflow-hidden rounded bg-slate-800">
-                  <div className="h-full bg-sky-500" style={{ width: `${(l.points / l.max) * 100}%` }} />
+                  <div data-score-bar className="h-full bg-sky-500" style={{ width: `${(l.points / l.max) * 100}%` }} />
                 </div>
                 <div className="mt-0.5 text-[11px] text-slate-500">{msg(l.detail)}</div>
               </li>
@@ -126,7 +138,7 @@ export function ResultsScreen() {
               {analysis.causes.map((c) => {
                 const m = CAUSE_TEXT[c.code]?.(c.params) ?? { title: c.code, why: '' }
                 return (
-                  <li key={c.code} className={`rounded-lg border p-3 ${c.impact >= 0 ? 'border-emerald-500/40' : 'border-rose-500/40'}`}>
+                  <li key={c.code} data-cause className={`rounded-lg border p-3 ${c.impact >= 0 ? 'border-emerald-500/40' : 'border-rose-500/40'}`}>
                     <div className="flex items-center gap-2">
                       <span className={c.impact >= 0 ? 'text-emerald-400' : 'text-rose-400'}>{c.impact >= 0 ? '▲' : '▼'}</span>
                       <span className="font-medium">{m.title}</span>

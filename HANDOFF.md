@@ -137,6 +137,10 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 | 2026-11-14 | **Ranking:** comparación lado a lado de dos diseños ("trade study", como el Mission Design Lab de NASA) + ranking por misión en el dispositivo, compartible con los retos por enlace; sin servidor | Respuesta del dueño; Relevance |
 | 2026-11-14 | **Valores de Goicochea visibles:** tres barras en vivo en el panel del diseño (rigor, audacia, servicio) y la carta a Paulet firmada con el valor que dominó | Respuesta del dueño; Creativity |
 | 2026-11-14 | **Diapositivas:** 1 título, equipo, integrantes y reto · 2 "Una promesa de 130 años" · 3 el juego en una imagen · 4 cómo negocia un equipo de 4 · 5 datos y recursos de NASA dentro del juego · 6 impacto (gratis, sin conexión, bilingüe) · 7 equipo, enlace y QR | Respuesta del dueño; Presentation |
+| 2026-11-14 | **Dirección visual: mezcla A + B.** "Mission control" (oscuro sobrio, cifras grandes, una acento naranja, etiquetas monoespaciadas) en el taller de diseño; "Paulet's notebook" (papel, tinta, serifa Fraunces, notas a mano, franja textil andina) en los momentos de historia: tutorial, sesión informativa y Carta a Paulet | Elegida por el dueño entre 3 prototipos (`game/proto-directions.html`); pedido 14 |
+| 2026-11-14 | **Kuntur: cóndor geométrico andino** (líneas planas y escalonadas inspiradas en el arte textil y de piedra andino), animado con GSAP | Respuesta del dueño |
+| 2026-11-14 | **Diapositiva 3: escena del equipo** (Goicochea, Chicho, Roberto y Franchesca, adultos, alrededor de la mesa con el juego), imagen con Gemini del dueño y marca "AI-generated" | Respuesta del dueño |
+| 2026-11-14 | **Tono de la Carta a Paulet: personal y luego técnica**: dos líneas emotivas de Goicochea y después el porqué técnico del resultado | Respuesta del dueño |
 
 ## 9. Hecho
 - [x] 2026-11-14 · Lectura de las guías de entrega y jurado, del reto, sus recursos y las Global Offers.
@@ -193,6 +197,17 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
       acepta pegar el enlace). `OnlineLobby` en `game/src/ui/online/OnlinePanel.tsx`, `parseRoomCode` en
       `game/src/online/room.ts`, prueba `game/tests/onlineLobby.test.ts`. Probado en el navegador sobre Firebase real con
       dos pestañas: sala de Storm Tracker creada desde el menú y segunda pestaña unida por código. 250 pruebas en verde.
+- [x] 2026-11-14 (noche) · **Nuevo aspecto visual, mezcla A + B** (pedidos 14 y 18b, primera parte). A "Mission control" en
+      todo el taller: fondo grafito con retícula, tarjetas de 16 px por cada sección (`Section` → `.mc-card`), etiquetas
+      monoespaciadas naranjas, encabezado con el nombre grande y pasos numerados 01–06, texto más grande en las pestañas,
+      barras redondeadas y cifras grandes (ciencia, probabilidad de éxito). B "Paulet's notebook" (`.paper`: papel, serifa
+      Fraunces, franja textil andina) en el globo de Kuntur durante el tutorial y la sesión informativa de cada misión.
+      **Kuntur redibujado como cóndor geométrico andino** (alas escalonadas, collar en zigzag, cresta escalonada) con GSAP:
+      planea en reposo, aletea al cambiar de ánimo y asiente al hablar. **Coreografía GSAP** (`game/src/ui/motion.ts`):
+      las tarjetas suben en cascada al cambiar de pestaña; en el informe, la tarjeta del puntaje entra, el puntaje cuenta
+      hacia arriba, las barras se llenan y las causas aparecen en orden. Todo se apaga con "movimiento reducido".
+      Fuentes nuevas (OFL): Fraunces, JetBrains Mono y Caveat cargadas en `main.tsx`. Revisado en el navegador (Earth
+      Watch); el informe animado no se revisó a ojo todavía. 250 pruebas en verde.
 
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
@@ -228,12 +243,12 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 12. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
 
 ### Pedidos del dueño tras probar el juego (2026-11-14, noche) — en sus palabras, resumidos
-14. [~] (2026-11-14: prototipo con 3 direcciones en `game/proto-directions.html`, abrir en `npm run dev` → `/proto-directions.html`; A Mission control, B Paulet's notebook, C Blueprint; falta que el dueño elija) **Más atractivo visualmente:** "el juego parece aún muy años 2000". Rediseño visual (decidir mostrando 2–3 variantes, PLAYBOOK regla 3.3).
+14. [~] (2026-11-14: el dueño eligió A + B entre 3 prototipos, `game/proto-directions.html`; aplicado al taller, tutorial, briefing, Kuntur e informe, ver §9; falta: menú, pantalla de misiones, lanzamiento y la Carta a Paulet en papel) **Más atractivo visualmente:** "el juego parece aún muy años 2000". Rediseño visual (decidir mostrando 2–3 variantes, PLAYBOOK regla 3.3).
 15. [~] (hecho en parte: franja de contexto, sesión por misión y preguntas; validar con el dueño) **Más contexto al elegir (de Carga útil a Revisión), sobre todo en la primera misión importante (Vigía de la Tierra / Earth Watch):** no quitar lo técnico, pero explicar qué elegir y para qué. El dueño no terminó Earth Watch porque no entendía de qué trataba y tuvo que probar hasta cumplir los requisitos.
 16. [~] (hecho sin IA: botón Atrás y preguntas; la IA queda como propuesta, ver Investigación) **Kuntur:** poder volver atrás en los pasos de la guía y poder preguntarle (hoy solo muestra mensajes). Propuesta del dueño (opcional): usar la API de una IA para que ayude en el juego. **Nada de proveedores chinos** (p. ej. DeepSeek): el concurso lo prohíbe.
 17. [x] (2026-11-14) **Multijugador también desde el inicio**, para jugar cualquier misión → hecho, ver §9.
 18. [x] Investigado (ver "Investigación: animación" abajo). Falta **aplicarlo** (punto 14 y 18b).
-18b. [ ] Aplicar la investigación: coreografía con GSAP en briefing, informe y transiciones; Kuntur animado con GSAP; escenas 3D con mejor luz e ilustración.
+18b. [~] (hecho: GSAP en pestañas, informe y Kuntur; falta: escenas 3D con mejor luz) Aplicar la investigación: coreografía con GSAP en briefing, informe y transiciones; Kuntur animado con GSAP; escenas 3D con mejor luz e ilustración.
 19. [~] (hecho en texto: tutorial con historia + sesión por misión; faltan imágenes o video con Gemini) **Tutorial al comienzo de cada misión** (o al menos la primera): cómo funciona el juego, qué son los inversionistas, cómo llegó Pedro ahí, quiénes son sus amigos, qué son las estrellas. Se pueden usar imágenes o videos con IA: el dueño tiene **Gemini Pro** (marca "AI-generated" visible).
 
 ### Investigación: animación y aspecto visual (2026-11-14)
@@ -257,11 +272,12 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
   guarde y llame al modelo, con las preguntas sin internet como respaldo. Declarar el uso de IA en la entrega.
 
 ## 11. Siguiente paso exacto
-1) **Aspecto visual** (puntos 14 y 18b): mostrar al dueño 2–3 direcciones visuales hechas en código, que elija una, y
-   aplicarla con las animaciones de la investigación (GSAP para coreografías y Kuntur, Motion para transiciones).
-2) Recursos de NASA dentro del juego (punto 6) y quitar la intro con el niño (punto 4).
-3) El dueño valida Vigía de la Tierra con el nuevo contexto y dicta mejoras.
-4) La otra cuenta despliega en Vercel (punto 3); diapositivas y página.
+1) Recursos de NASA dentro del juego (punto 6) y quitar la intro con el niño (punto 4).
+2) Carta a Paulet en el informe, en estilo cuaderno y con el tono decidido (personal y luego técnica), y barras de
+   valores (punto 5).
+3) Llevar la dirección A a la lista de misiones y a la pantalla de lanzamiento; luz de las escenas 3D (punto 18b).
+4) El dueño valida Vigía de la Tierra con el nuevo contexto y el nuevo aspecto, y dicta mejoras.
+5) La otra cuenta despliega en Vercel (punto 3); diapositivas (la 3 es la escena del equipo con Gemini) y página.
 
 ## 12. Dónde está cada cosa
 - Primera versión: repo `artesanalinteligencia1-dotcom/PP.game` (rama `cloud/fase-1`), clon `C:\PPgame\PP.game`,

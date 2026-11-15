@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useReveal } from './motion'
 import { useTeam } from '../store/team'
 import { useGuideContent } from '../store/guide'
 import { useSettings } from '../store/settings'
@@ -104,39 +105,41 @@ export function DesignScreen({ design }: { design: Design }) {
   const blocking = report.review.filter((r) => r.blocking).length
   useMusic('design')
   useDesignGuide(report, tab, setTab, scenario)
+  const body = useRef<HTMLElement>(null)
+  useReveal(body, tab)
   // team play: a new mission keeps the players and starts a fresh negotiation
   const ensureTeam = useTeam((s) => s.ensureFor)
   useEffect(() => ensureTeam(scenario.id), [ensureTeam, scenario.id])
 
   return (
     <div className="min-h-full">
-      <header className="sticky top-0 z-20 bg-slate-950/40 backdrop-blur-md">
-        <div className="mx-10 flex items-end gap-6 border-b border-white/15 pb-3 pt-5">
-          <div className="min-w-0">
+      <header className="sticky top-0 z-20 border-b border-white/[0.07] bg-[#0a0d12]/85 backdrop-blur-md">
+        <div className="mx-10 flex items-end gap-6 pb-0 pt-5">
+          <div className="min-w-0 pb-3">
             <button type="button" data-sound="back" onClick={exit} className="hud-label hover:text-white">
               {mode === 'campaign' ? t('design.back.career') : t('design.back.missions')}
               {mode === 'campaign' && <span className="ml-3 text-orange-300">{t('design.contract')}</span>}
             </button>
-            <h1 className="mt-1 truncate font-display text-3xl" title={tx(`scenario.${scenario.id}.tagline`, scenario.tagline)}>
-              {tx(`scenario.${scenario.id}.name`, scenario.name)} <span className="text-base text-white/50">· {tx(`scenario.${scenario.id}.tagline`, scenario.tagline)}</span>
-            </h1>
+            <h1 className="mt-1.5 truncate font-display text-[40px] leading-none">{tx(`scenario.${scenario.id}.name`, scenario.name)}</h1>
+            <p className="mt-1.5 truncate text-[15px] text-slate-400">{tx(`scenario.${scenario.id}.tagline`, scenario.tagline)}</p>
           </div>
-          <nav className="ml-auto flex shrink-0 gap-5" aria-label={t('design.steps')}>
-            {TABS.map((tabItem) => (
+          <nav className="ml-auto flex shrink-0 items-end gap-1" aria-label={t('design.steps')}>
+            {TABS.map((tabItem, i) => (
               <button
                 key={tabItem.id}
                 type="button"
                 onClick={() => setTab(tabItem.id)}
                 aria-current={tab === tabItem.id ? 'page' : undefined}
-                className={`whitespace-nowrap border-b-2 pb-1 text-sm transition focus:outline-none focus-visible:text-white ${
-                  tab === tabItem.id ? 'border-orange-400 text-white' : 'border-transparent text-white/55 hover:text-white'
+                className={`group whitespace-nowrap border-b-2 px-3 pb-3 pt-1 text-left transition focus:outline-none focus-visible:text-white ${
+                  tab === tabItem.id ? 'border-orange-400 text-white' : 'border-transparent text-white/50 hover:text-white'
                 }`}
               >
-                {t(tabItem.label)}
+                <span className={`block font-mono text-[10px] tracking-widest ${tab === tabItem.id ? 'text-orange-300' : 'text-white/30'}`}>{String(i + 1).padStart(2, '0')}</span>
+                <span className="text-sm">{t(tabItem.label)}</span>
                 {tabItem.id === 'review' && blocking > 0 && <span className="ml-1 rounded-full bg-rose-500 px-1.5 text-[10px] font-bold text-white">{blocking}</span>}
               </button>
             ))}
-            <button type="button" onClick={resetDesign} className="pb-1 text-xs text-white/40 hover:text-white">
+            <button type="button" onClick={resetDesign} className="pb-3 pl-3 text-xs text-white/35 hover:text-white">
               {t('design.reset')}
             </button>
           </nav>
@@ -147,7 +150,7 @@ export function DesignScreen({ design }: { design: Design }) {
           <div className="hud-panel sticky top-28 p-5">
             <p className="hud-label mb-3">{t('design.spacecraftBudgets')}</p>
             <div className="mb-3 flex items-center gap-3 border-b border-white/10 pb-3">
-              <div className="rounded-lg bg-slate-950/80 p-1" title={t('design.spacecraftTitle')}>
+              <div className="rounded-xl bg-black/40 p-1" title={t('design.spacecraftTitle')}>
                 <SpacecraftSprite design={design} size={92} />
               </div>
               <div className="text-xs text-slate-400">
@@ -158,7 +161,7 @@ export function DesignScreen({ design }: { design: Design }) {
             <Dashboard report={report} designKey={designKey} />
           </div>
         </aside>
-        <main className="min-w-0">
+        <main ref={body} className="design-body min-w-0">
           <TabContext tab={tab} report={report} />
           {tab === 'mission' && <MissionTab scenario={scenario} report={report} design={design} />}
           {tab === 'payload' && <PayloadTab design={design} scenario={scenario} report={report} />}
