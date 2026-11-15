@@ -146,6 +146,10 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 | 2026-11-15 | **Cabina de vuelo** en el lanzamiento real, con vuelo 4 veces más largo tras el despegue (ritmo 4), velocidades 1×/2×/4× y saltar | Pedido del dueño: ver todo el recorrido con varias cámaras |
 | 2026-11-15 | **Realismo 3D separado como tarea para Fable** (sesión aparte que comparte la carpeta; solo toca `game/src/ui/launch/three/*`) | Pedido del dueño: "lo que necesites a Fable sepáralo como tarea" |
 | 2026-11-15 | **Sin superposiciones:** cuadrícula fija para 1440×810, modales con fondo atenuado y una auditoría automática (`__overlapAudit()` en desarrollo) | Pedido del dueño: "revisa que no sobretoquen los objetos" |
+| 2026-11-15 | **Carta a Paulet como transmisión de consola:** se escribe en vivo con el estilo nuevo, firmada con el valor dominante y con los números debajo (sin voz, sin costo) | Respuesta del dueño |
+| 2026-11-15 | **Diapositiva 5: la vista Mapa del vuelo real** (Tierra Blue Marble/Black Marble, ruta desde Arequipa, órbita) con 3–4 etiquetas que señalan cada dato de NASA | Respuesta del dueño; Relevance |
+| 2026-11-15 | **Si la misión falla: carta + reintento.** Goicochea escribe igual a Paulet (qué aprendió) y Kuntur ofrece reintentar con la misma semilla cambiando lo que falló | Respuesta del dueño; Storytelling y Validity |
+| 2026-11-15 | **Nombre del proyecto en la entrega: "Paulet: A 130-Year Promise"** | Respuesta del dueño; conecta con el gancho de la diapositiva 2 |
 
 ## 9. Hecho
 - [x] 2026-11-14 · Lectura de las guías de entrega y jurado, del reto, sus recursos y las Global Offers.
@@ -321,7 +325,7 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 ## 11. Siguiente paso exacto
 1) **Recursos de NASA dentro del juego** (punto 6): pantalla "NASA resources" con enlaces y citas en contexto, incluida la
    Tierra de NASA Visible Earth. Es el criterio Relevance.
-2) **Carta a Paulet** y **barras de valores** (punto 5), en estilo de transmisión de consola.
+2) **Carta a Paulet** (transmisión de consola; si falla: carta + reintento con la misma semilla) y **barras de valores** (punto 5).
 3) Cuando la sesión de Fable termine: revisar su informe y su diff en `game/src/ui/launch/three/`, probar el despegue
    completo en las cuatro cámaras, correr `__overlapAudit()` y hacer push.
 4) Diapositivas (la 3 con la imagen del tutorial 1) y página del proyecto; la otra cuenta despliega en Vercel (punto 3).

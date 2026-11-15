@@ -1,5 +1,7 @@
 # Storytelling — Paulet Delta-V (resumen, 2026-11-15)
 
+Nombre del proyecto en la entrega: **Paulet: A 130-Year Promise**.
+
 Fuente: decisiones del dueño en `HANDOFF.md` §8. Explicación en español; las frases que van al juego y a la entrega,
 en inglés.
 
@@ -21,7 +23,8 @@ combustible líquido. ¿Qué haría falta para terminar hoy lo que empezó? El j
    persecución, a bordo, mapa del recorrido sobre imágenes de NASA) y un segundo visor.
 5. **La misión vuela y se evalúa:** simulación con semilla, puntaje 0–1000 y las tres causas de por qué funcionó o falló.
 6. **El cierre — "Carta a Paulet":** Goicochea escribe a la memoria de Paulet. Tono decidido: **dos líneas personales y
-   luego el porqué técnico**; los números van debajo; firma con el valor que dominó.
+   luego el porqué técnico**; los números van debajo; firma con el valor que dominó. Llega como transmisión de
+   consola. Si la misión falla, la carta cuenta qué se aprendió y Kuntur ofrece reintentar con la misma semilla.
 
 ## Personajes (todos adultos y ficticios)
 | Personaje | Rol | Qué aporta a la historia |
@@ -42,7 +45,7 @@ diseñas, y la carta final dice qué Goicochea fuiste y qué habría pensado Pau
 2. Hook — *"A 130-year promise"*
 3. The game in one image — the Goicochea team around the table (Gemini, visible "AI-generated" mark)
 4. How a team of four negotiates (budget split, role goals, vote and veto)
-5. NASA data and resources inside the game (Blue Marble / Black Marble, orbital mechanics, NASA guides)
+5. NASA data inside the game — the Map view of a real flight (Blue Marble / Black Marble, route from Arequipa, orbit) with labels
 6. Impact — free, offline, bilingual, for schools with little connectivity
 7. Team, link and QR
 
