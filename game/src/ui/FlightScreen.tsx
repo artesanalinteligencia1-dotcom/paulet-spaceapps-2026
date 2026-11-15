@@ -14,6 +14,7 @@ import { ALL_ROLES, useGame } from '../store/game'
 import { Disclaimer, Pill } from './components'
 import { ROLE_ICON } from './tabs/MissionTab'
 import { useT, useTx, type StringKey } from '../i18n'
+import { DataFlow, InstrumentCards, KunturAsks, SatelliteCam } from './flight/OpsPanels'
 
 const SPEEDS: [number, StringKey][] = [
   [4, 'flight.speed.month'],
@@ -171,10 +172,14 @@ export function FlightScreen() {
               <option value="bold">{t('flight.personality.bold')}</option>
             </select>
           </label>
+          <KunturAsks />
         </section>
 
         {/* Center: chart + log */}
         <section className="min-w-0 space-y-4">
+          {destination.body === 'earth' && <SatelliteCam mission={mission} playing={playing && !mission.pending} />}
+          <InstrumentCards mission={mission} />
+          <DataFlow mission={mission} />
           <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-2">
             <JourneyView mission={mission} playing={playing} />
           </div>
