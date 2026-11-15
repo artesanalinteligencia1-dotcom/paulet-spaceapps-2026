@@ -60,7 +60,7 @@ function Meter({
   return (
     <div title={tip} className="cursor-help">
       <div className="flex items-baseline justify-between gap-2 text-xs">
-        <span className="text-slate-300">{label}</span>
+        <span className="text-[13px] text-slate-400">{label}</span>
         <span className="flex items-baseline gap-1.5">
           {showDelta && (
             <span key={`${delta}`} className={`delta-flash font-mono text-[10px] ${delta > 0 ? 'text-sky-300' : 'text-fuchsia-300'}`}>
@@ -68,11 +68,11 @@ function Meter({
               {fmt(Math.abs(delta), DELTA_UNIT[deltaKey][1])} {DELTA_UNIT[deltaKey][0]}
             </span>
           )}
-          <span className={`font-mono ${SEV_TEXT[severity]}`}>{value}</span>
+          <span className={`font-mono text-[13px] ${severity === 'ok' ? 'text-slate-50' : SEV_TEXT[severity]}`}>{value}</span>
         </span>
       </div>
-      <div className="mt-1 h-1.5 overflow-hidden rounded bg-slate-800">
-        <div className={`h-full ${SEV_BG[severity]} transition-all duration-300`} style={{ width: `${pct}%` }} />
+      <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/[0.07]">
+        <div className={`h-full rounded-full ${severity === 'ok' ? 'bg-sky-400' : SEV_BG[severity]} transition-[width] duration-500 ease-out`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   )
@@ -180,9 +180,9 @@ export function Dashboard({ report, designKey }: { report: DesignReport; designK
         deltaKey="life"
       />
       <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-        <div className="rounded border border-slate-800 p-2" title={t('dashboard.science.tip')}>
-          <div className="text-slate-400">{t('dashboard.science.label')}</div>
-          <div className="font-mono text-lg text-violet-300">
+        <div className="rounded-xl bg-white/[0.03] p-3" title={t('dashboard.science.tip')}>
+          <div className="text-[11px] uppercase tracking-widest text-slate-500">{t('dashboard.science.label')}</div>
+          <div className="mt-0.5 font-display text-3xl font-semibold text-white">
             {fmt(science.perYear)}
             {deltas.science !== undefined && Math.abs(deltas.science) >= 0.5 && (
               <span key={deltas.science} className="delta-flash ml-1 text-[10px] text-sky-300">
@@ -192,9 +192,9 @@ export function Dashboard({ report, designKey }: { report: DesignReport; designK
             )}
           </div>
         </div>
-        <div className="rounded border border-slate-800 p-2" title={t('dashboard.risk.tip')}>
-          <div className="text-slate-400">{t('dashboard.risk.label')}</div>
-          <div className="font-mono text-lg text-sky-300">{fmt(risk.successProbability * 100)}%</div>
+        <div className="rounded-xl bg-white/[0.03] p-3" title={t('dashboard.risk.tip')}>
+          <div className="text-[11px] uppercase tracking-widest text-slate-500">{t('dashboard.risk.label')}</div>
+          <div className="mt-0.5 font-display text-3xl font-semibold text-white">{fmt(risk.successProbability * 100)}%</div>
         </div>
       </div>
     </div>

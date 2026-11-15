@@ -1,7 +1,9 @@
 // The robot guide, Kuntur: an SVG drawn in code (no image files) with five expressions. Chosen by the owner on
-// 2026-11-14 over two other looks (a sphere with an orbit halo, a CubeSat). Our own design: inspired by the idea of
+// 2026-11-14 over two other looks (a sphere with an orbit halo, a CubeSat); redrawn the same day as a geometric Andean condor. Our own design: inspired by the idea of
 // a helpful mission robot, not by any existing character.
-import type { CSSProperties, ReactNode } from 'react'
+import { useGSAP } from '@gsap/react'
+import { gsap } from 'gsap'
+import { useRef, type CSSProperties, type ReactNode } from 'react'
 
 export type GuideMood = 'idle' | 'happy' | 'thinking' | 'worried' | 'explaining'
 export const GUIDE_MOODS: GuideMood[] = ['idle', 'happy', 'thinking', 'worried', 'explaining']
@@ -82,49 +84,68 @@ function Svg({ size, title, still, mood, children }: { size: number; title?: str
   )
 }
 
-/** Kuntur: a small flying drone shaped after the Andean condor, with solar-panel wings and the bird's white collar. */
+/** Kuntur, a geometric Andean condor (chosen by the owner on 2026-11-14): flat stepped shapes after Andean textile
+ * and stone patterns — stepped wing feathers, the white collar as a zigzag, a stepped crest — around a small screen
+ * face that keeps the five expressions. GSAP glides the wings while idle and flaps them when the mood changes. */
 export function Kuntur({ mood, talking, size = 200, still, title }: RobotProps) {
-  const wing = { idle: 0, happy: -24, thinking: 22, worried: -36, explaining: -8 }[mood]
-  const panel = (side: 1 | -1) => {
-    const sx = 100 + side * 30
-    const tip = 100 + side * 92
+  const left = useRef<SVGGElement>(null)
+  const right = useRef<SVGGElement>(null)
+  const head = useRef<SVGGElement>(null)
+  const wing = { idle: 0, happy: -18, thinking: 14, worried: -26, explaining: -6 }[mood]
+  useGSAP(() => {
+    if (still || !left.current || !right.current) return
+    const glide = gsap.timeline({ repeat: -1, yoyo: true, defaults: { duration: 1.7, ease: 'sine.inOut' } })
+    glide.to(left.current, { rotation: 5, svgOrigin: '80 104' }, 0).to(right.current, { rotation: -5, svgOrigin: '120 104' }, 0)
+    return () => glide.kill()
+  }, [still])
+  useGSAP(() => {
+    if (still || !left.current || !right.current) return
+    gsap.fromTo(left.current, { rotation: -28 }, { rotation: 0, svgOrigin: '80 104', duration: 0.6, ease: 'back.out(2.4)' })
+    gsap.fromTo(right.current, { rotation: 28 }, { rotation: 0, svgOrigin: '120 104', duration: 0.6, ease: 'back.out(2.4)' })
+  }, [mood, still])
+  useGSAP(() => {
+    if (still || !head.current) return
+    if (!talking) return void gsap.to(head.current, { rotation: 0, svgOrigin: '100 92', duration: 0.3 })
+    const nod = gsap.to(head.current, { rotation: 4, svgOrigin: '100 92', duration: 0.32, repeat: -1, yoyo: true, ease: 'sine.inOut' })
+    return () => nod.kill()
+  }, [talking, still])
+  // a wing: dark upper edge, stepped trailing edge (the Andean step), a white band of secondary feathers
+  const wingShape = (side: 1 | -1) => {
+    const x = (d: number) => 100 + side * d
+    const outline = [[20, 96], [56, 84], [92, 88], [90, 96], [80, 96], [80, 103], [68, 103], [68, 110], [54, 110], [54, 117], [40, 117], [40, 122], [20, 122]]
+    const band = [[24, 104], [64, 100], [64, 106], [52, 106], [52, 112], [38, 112], [38, 116], [24, 116]]
+    const pts = (p: number[][]) => p.map(([dx, y]) => `${x(dx)},${y}`).join(' ')
     return (
-      <g style={hinge(sx, 108, side * wing)}>
-        <g className={still || mood !== 'explaining' ? undefined : side === 1 ? 'guide-flap-r' : 'guide-flap-l'} style={{ transformOrigin: `${sx}px 108px` }}>
-          <path d={`M${sx} 100 L${tip} 92 L${tip - side * 6} 118 L${sx} 122 Z`} fill="#1e3a8a" stroke="#7dd3fc" strokeWidth={1.5} />
-          {[0.25, 0.5, 0.75].map((f) => (
-            <line key={f} x1={sx + (tip - sx) * f} y1={100 - 8 * f} x2={sx + (tip - side * 6 - sx) * f} y2={122 - 4 * f} stroke="#60a5fa" strokeWidth={1} opacity={0.7} />
-          ))}
-          <line x1={sx} y1={111} x2={tip - side * 3} y2={105} stroke="#60a5fa" strokeWidth={1} opacity={0.7} />
-          {/* the condor's "fingers": primary feathers as three thin panel tips */}
-          {[0, 1, 2].map((i) => (
-            <rect key={i} x={side === 1 ? tip - 4 + i * 5 : tip - 6 - i * 5} y={90 + i * 7} width={10} height={4} rx={2} fill="#334155" stroke="#7dd3fc" strokeWidth={0.8} transform={`rotate(${side * (8 + i * 10)} ${tip} ${96 + i * 7})`} />
-          ))}
+      <g style={hinge(x(20), 104, side * wing)}>
+        <g ref={side === -1 ? left : right}>
+          <polygon points={pts(outline)} fill="#111827" stroke="#7dd3fc" strokeWidth={1.4} strokeLinejoin="round" />
+          <polygon points={pts(band)} fill="#e5e7eb" />
+          <polygon points={pts([[56, 84], [92, 88], [88, 91], [58, 89]])} fill="#fb923c" opacity={0.85} />
         </g>
       </g>
     )
   }
   return (
     <Svg size={size} title={title} still={still} mood={mood}>
-      <defs>
-        <radialGradient id="kuntur-jet">
-          <stop offset="0" stopColor="#fdba74" stopOpacity="0.9" />
-          <stop offset="1" stopColor="#f97316" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <ellipse cx={100} cy={162} rx={20} ry={14} fill="url(#kuntur-jet)" className={still ? undefined : 'guide-glow'} />
-      {panel(-1)}
-      {panel(1)}
-      <path d="M78 112 Q100 168 122 112 Z" fill="#111827" stroke="#7dd3fc" strokeWidth={1.5} />
-      <path d="M92 148 L100 160 L108 148 Z" fill="#334155" />
-      <ellipse cx={100} cy={100} rx={30} ry={10} fill="#e5e7eb" />
-      <ellipse cx={100} cy={98} rx={30} ry={6} fill="#f8fafc" />
-      {/* crest: the condor's comb, as an orange sensor */}
-      <path d="M92 46 Q100 32 108 46 Z" fill="#f97316" />
-      <rect x={70} y={44} width={60} height={50} rx={22} fill="#0f172a" stroke="#7dd3fc" strokeWidth={2} />
-      <rect x={77} y={54} width={46} height={30} rx={13} fill="#020617" />
-      <Face mood={mood} talking={talking} x1={89} x2={111} y={66} r={4.5} color="#7dd3fc" still={still} mouthY={78} />
-      <Thought mood={mood} x={134} y={44} color="#7dd3fc" still={still} />
+      <polygon points="100,172 92,160 108,160" fill="#fb923c" opacity={0.75} className={still ? undefined : 'guide-glow'} />
+      {wingShape(-1)}
+      {wingShape(1)}
+      {/* body and stepped tail */}
+      <polygon points="82,104 118,104 114,136 106,146 94,146 86,136" fill="#111827" stroke="#7dd3fc" strokeWidth={1.4} strokeLinejoin="round" />
+      <polygon points="90,146 110,146 110,152 104,152 104,158 96,158 96,152 90,152" fill="#1f2937" stroke="#7dd3fc" strokeWidth={1.2} />
+      <path d="M94 116 L100 110 L106 116 L100 122 Z M94 128 L100 122 L106 128 L100 134 Z" fill="#fb923c" opacity={0.9} />
+      {/* the white collar, as a zigzag */}
+      <polygon points="76,104 82,96 88,102 94,96 100,102 106,96 112,102 118,96 124,104 118,110 82,110" fill="#f8fafc" />
+      <g ref={head}>
+        {/* stepped crest */}
+        <polygon points="88,48 88,42 94,42 94,36 106,36 106,42 112,42 112,48" fill="#ea580c" />
+        <polygon points="80,58 88,48 112,48 120,58 120,82 112,92 88,92 80,82" fill="#0f172a" stroke="#7dd3fc" strokeWidth={2} strokeLinejoin="round" />
+        <rect x={86} y={55} width={28} height={27} rx={5} fill="#020617" />
+        <Face mood={mood} talking={talking} x1={94} x2={106} y={65} r={3.4} color="#7dd3fc" still={still} mouthY={75} />
+        {/* hooked beak */}
+        <polygon points="95,88 105,88 103,96 100,99 97,96" fill="#fde68a" />
+      </g>
+      <Thought mood={mood} x={128} y={40} color="#7dd3fc" still={still} />
     </Svg>
   )
 }
