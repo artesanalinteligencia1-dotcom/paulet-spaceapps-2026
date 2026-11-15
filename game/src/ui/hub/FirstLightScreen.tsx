@@ -7,6 +7,7 @@ import { fmt } from '../../i18n/en'
 import { randomSeed, useGame } from '../../store/game'
 import { Disclaimer, Pill } from '../components'
 import { SoundingSequence } from './SoundingSequence'
+import { RealStoryButton } from '../video/RealStory'
 import { useT, useTx } from '../../i18n'
 
 const OPTIONS = ['magnetometer', 'particle_detector']
@@ -123,6 +124,7 @@ export function FirstLightScreen() {
               <p className="mt-2 text-xs text-slate-400">
                 {rich(t('firstLight.lesson'))}
               </p>
+              <RealStoryButton id="first_light" className="mt-3 w-full" />
               {campaign ? (
                 <button
                   type="button"

@@ -11,6 +11,7 @@ import { useOnline } from '../store/online'
 import { resultsLines, resultsMood } from './guide/lines'
 import { TeamResults } from './team/TeamResults'
 import { LetterToPaulet } from './results/LetterToPaulet'
+import { RealStoryButton } from './video/RealStory'
 import { evaluateDesign } from '../engine/evaluate'
 import { goicocheaValues } from '../engine/values'
 import { analyseMission } from '../engine/report'
@@ -136,6 +137,7 @@ export function ResultsScreen() {
         </section>
 
         <section className="min-w-0 space-y-5">
+          <RealStoryButton id={scenario.id} />
           <LetterToPaulet outcome={good ? 'ok' : score.rank === 'Partial' ? 'partial' : 'fail'} causes={analysis.causes} values={values} missionName={tx(`scenario.${scenario.id}.name`, scenario.name)} onRetry={backToDesign} />
           <div>
             <h2 className="hud-label">{t('results.whyTitle')}</h2>

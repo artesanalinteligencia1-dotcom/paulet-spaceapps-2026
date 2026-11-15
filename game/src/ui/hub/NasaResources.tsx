@@ -2,14 +2,32 @@
 import { NASA_SOURCES, type SourceKind } from '../../engine/nasaSources'
 import { useT, type StringKey } from '../../i18n'
 import { useSettings } from '../../store/settings'
+import { useState } from 'react'
+import { ACT_FILMS, REAL_STORIES, RealStoryPlayer, readyFilms } from '../video/RealStory'
 
 const GROUPS: SourceKind[] = ['data', 'method', 'challenge', 'reading']
 
 export function NasaResources() {
   const t = useT()
   const lang = useSettings((s) => s.language) === 'es' ? 'es' : 'en'
+  const [film, setFilm] = useState<string | null>(null)
+  const films = readyFilms([...ACT_FILMS, ...REAL_STORIES])
   return (
     <div className="space-y-6">
+      {films.length > 0 && (
+        <section data-box="nasa-films" className="hud-panel px-5 py-4">
+          <h2 className="hud-label">{t('video.gallery')}</h2>
+          <p className="mt-1 text-[13px] text-[#8a8f98]">{t('video.galleryIntro')}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {films.map((id) => (
+              <button key={id} type="button" className="btn-secondary px-3 py-1 text-[13px]" onClick={() => setFilm(id)}>
+                ▶ {t(`video.name.${id}` as StringKey)}
+              </button>
+            ))}
+          </div>
+          {film && <RealStoryPlayer id={film} onClose={() => setFilm(null)} />}
+        </section>
+      )}
       <div className="hud-panel px-5 py-4">
         <p className="text-[15px] leading-relaxed text-[#e8e0cc]">{t('nasa.intro')}</p>
         <p className="mt-1 text-[13px] text-[#8a8f98]">{t('nasa.offline')}</p>

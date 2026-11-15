@@ -20,3 +20,7 @@ media/mission-videos/*/*.mp4
 media/act-videos/*.mp4
 media/act-videos/*/*.mp4
 !media/act-videos/main/veo/*.mp4
+media/mission-videos/*/review/
+media/act-videos/*/review/
+media/act-videos/*/*.mp4
+!media/act-videos/main/veo/*.mp4
