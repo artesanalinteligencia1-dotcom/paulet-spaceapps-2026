@@ -46,20 +46,23 @@ export interface AscentState {
  * through the cloud deck (≈ 650 m) around MECO, black sky by SECO.
  */
 export function ascentAt(t: number, T: Timeline): AscentState {
-  const tf = Math.max(0, t - T.liftoff)
+  // the choreography is written for pace 1; a longer flight replays it in slow time after liftoff
+  const P = T.pace ?? 1
+  const tf = Math.max(0, t - T.liftoff) / P
+  const span = (T.seco - T.liftoff) / P
   const alt = 6 * tf * tf + 8 * tf * tf * tf
-  const pitch = 0.5 * clamp((tf - 1.5) / (T.seco - T.liftoff - 1.5)) ** 1.3
+  const pitch = 0.5 * clamp((tf - 1.5) / (span - 1.5)) ** 1.3
   const down = alt * Math.sin(pitch) * 0.6
   const stage: 1 | 2 = t < T.meco ? 1 : 2
   let thrust = 0
   if (t >= T.ignition && t < T.meco) thrust = clamp((t - T.ignition) / (T.liftoff - T.ignition) + 0.15)
-  else if (t >= T.meco + 0.5 && t < T.seco) thrust = clamp((t - T.meco - 0.5) / 0.4)
-  const shake = t < T.ignition ? 0 : t < T.liftoff + 1.5 ? 1 - clamp((t - T.liftoff) / 1.5) * 0.7 : 0.3 * clamp(1 - (t - T.liftoff - 1.5) / 2.5)
-  const q0 = T.maxQ - 0.3
-  const q1 = T.meco - 0.4
+  else if (t >= T.meco + 0.5 * P && t < T.seco) thrust = clamp((t - T.meco - 0.5 * P) / (0.4 * P))
+  const shake = t < T.ignition ? 0 : tf < 1.5 ? 1 - clamp(tf / 1.5) * 0.7 : 0.3 * clamp(1 - (tf - 1.5) / 2.5)
+  const q0 = T.maxQ - 0.3 * P
+  const q1 = T.meco - 0.4 * P
   const vapor = t > q0 && t < q1 ? Math.sin(((t - q0) / (q1 - q0)) * Math.PI) : 0
   const arms = clamp((t - (T.ignition - 3)) / 1.5)
-  const fairing = clamp((t - T.fairing) / 1.4)
+  const fairing = clamp((t - T.fairing) / (1.4 * Math.sqrt(P)))
   const space = clamp((alt - 500) / 2600)
   return { alt, down, pitch, thrust, stage, shake, vapor, arms, fairing, space }
 }
