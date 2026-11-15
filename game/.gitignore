@@ -166,3 +166,6 @@ credentials/
 # Public web config of the Firebase project (it ships inside the game anyway); the database rules protect the data.
 !.env.production
 !.env.example
+
+# Mission and act videos shipped with the game (lazy-loaded, not precached)
+!public/videos/*.mp4
