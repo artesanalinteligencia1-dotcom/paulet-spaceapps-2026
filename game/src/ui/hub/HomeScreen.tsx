@@ -103,6 +103,7 @@ export function HomeScreen() {
               {item(t('home.free'), () => go('free'), t('home.free.hint'))}
               {item(t('home.online'), () => setOnline(true), t('home.online.hint'))}
               {item(t('home.learn'), () => openLearn('orbit'), t('home.learn.hint'))}
+              {item(t('home.nasa'), () => openLearn('nasa'), t('home.nasa.hint'))}
               {item(t('home.extras'), () => setExtras(true), t('home.extras.hint'))}
               {item(t('home.settings'), () => openSettings(true), t('home.settings.hint'))}
               {canQuit && item(t('home.quit'), () => void quitGame())}

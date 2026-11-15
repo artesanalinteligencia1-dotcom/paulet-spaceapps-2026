@@ -8,8 +8,20 @@ import { CR3BPView, VIEW_WIDE } from '../threebody/CR3BPView'
 import { useGame } from '../../store/game'
 import { Disclaimer, Slider } from '../components'
 import { useT, type StringKey } from '../../i18n'
+import { SourceNote } from '../SourceNote'
+import { NasaResources } from './NasaResources'
+
+/** NASA sources behind each lesson (shown under it). */
+const LESSON_SOURCES: Record<string, string[]> = {
+  orbit: ['jpl-basics', 'nssdca-earth'],
+  budgets: ['se-handbook'],
+  rocket: ['glenn-rocket-eq', 'glenn-isp'],
+  staging: ['glenn-staging', 'glenn-rocket-eq'],
+  chaos: ['jpl-basics'],
+}
 
 const TABS: { id: string; labelKey: StringKey }[] = [
+  { id: 'nasa', labelKey: 'learn.tab.nasa' },
   { id: 'orbit', labelKey: 'learn.tab.orbit' },
   { id: 'budgets', labelKey: 'learn.tab.budgets' },
   { id: 'rocket', labelKey: 'learn.tab.rocket' },
@@ -361,6 +373,8 @@ export function LearnScreen() {
         {tab === 'staging' && <StagingLesson />}
         {tab === 'chaos' && <ChaosLesson />}
         {tab === 'paulet' && <PauletLesson />}
+        {tab === 'nasa' && <NasaResources />}
+        {LESSON_SOURCES[tab] && <SourceNote ids={LESSON_SOURCES[tab]} className="mt-6" />}
       </div>
       <p className="mt-6 text-xs text-slate-500">{t('learn.educational')}</p>
       <div className="mt-2">

@@ -35,7 +35,7 @@ export function OrbitTab({ design, report }: { design: Design; report: DesignRep
   const [lo, hi] = orbit.altitudeKm
   return (
     <div>
-      <Section title={t('orbit.title')} hint={t('orbit.hint')}>
+      <Section id="orbit" title={t('orbit.title')} hint={t('orbit.hint')}>
         <Grid>
           {orbits.map((o) => (
             <OptionCard
@@ -157,11 +157,11 @@ export function OrbitTab({ design, report }: { design: Design; report: DesignRep
         </Section>
       )}
       {orbit.surface && (
-        <Section title={t('orbit.landing.title')} hint={t('orbit.landing.hint')}>
+        <Section id="landing" title={t('orbit.landing.title')} hint={t('orbit.landing.hint')}>
           <LandingPanel design={design} report={report} />
         </Section>
       )}
-      <Section title={t('orbit.launcher.title')} hint={t('orbit.launcher.hint')}>
+      <Section id="launcher" title={t('orbit.launcher.title')} hint={t('orbit.launcher.hint')}>
         <Grid>
           {[...launchers, own.launcher].map((l) => {
             const isOwn = l.id === CUSTOM_LAUNCHER_ID

@@ -3,8 +3,10 @@ import type { DesignReport } from '../../engine/types'
 import { useT, type StringKey } from '../../i18n'
 import type { TabId } from '../../store/game'
 import { REQUIREMENT_TAB, requirementLine } from '../guide/lines'
+import { sourcesForTab } from '../../engine/nasaSources'
+import { SourceNote } from '../SourceNote'
 
-export function TabContext({ tab, report }: { tab: TabId; report: DesignReport }) {
+export function TabContext({ tab, report, scenarioId }: { tab: TabId; report: DesignReport; scenarioId: string }) {
   const t = useT()
   const asks = report.requirements.filter((q) => REQUIREMENT_TAB[q.kind] === tab)
   return (
@@ -26,6 +28,7 @@ export function TabContext({ tab, report }: { tab: TabId; report: DesignReport }
           ))}
         </div>
       )}
+      <SourceNote ids={sourcesForTab(tab, scenarioId)} className="mt-2" />
     </div>
   )
 }

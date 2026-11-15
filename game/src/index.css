@@ -207,6 +207,11 @@ body {
 .hud .design-body .text-sm { font-size: 15px; line-height: 1.55; }
 .hud .design-body input[type='range'] { accent-color: var(--c-gold); }
 
+/* "Show me": the section that fixes the problem pulses in gold */
+.focus-pulse { animation: focus-pulse 0.95s ease-in-out 3; }
+@keyframes focus-pulse { 50% { box-shadow: 0 0 0 2px var(--c-gold), 0 0 30px rgb(217 180 106 / 0.45); } }
+.reduce-motion .focus-pulse { animation: none; box-shadow: 0 0 0 2px var(--c-gold); }
+
 /* ---------- Flight deck (src/ui/flight) ---------- */
 .deck-font { font-family: var(--font-hud); }
 .deck-bar { background: rgb(14 16 19 / 0.94); border-bottom: 1px solid var(--c-line); }

@@ -55,7 +55,7 @@ export function SpacecraftTab({ design, report }: { design: Design; report: Desi
           />
         </div>
       </Section>
-      <Section title={t('spacecraft.battery.title')} hint={t('spacecraft.battery.hint')}>
+      <Section id="battery" title={t('spacecraft.battery.title')} hint={t('spacecraft.battery.hint')}>
         <Grid>
           {batteries.map((b) => (
             <OptionCard
@@ -163,7 +163,7 @@ export function SpacecraftTab({ design, report }: { design: Design; report: Desi
           ))}
         </Grid>
       </Section>
-      <Section title={t('spacecraft.life.title')} hint={t('spacecraft.life.hint')}>
+      <Section id="life" title={t('spacecraft.life.title')} hint={t('spacecraft.life.hint')}>
         <Slider
           label={t('spacecraft.life.planned')}
           value={design.designLifeYears}

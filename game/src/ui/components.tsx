@@ -10,9 +10,9 @@ export const SEV_BORDER: Record<Severity, string> = {
   error: 'border-rose-500/60',
 }
 
-export function Section({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
+export function Section({ title, hint, children, id }: { title: string; hint?: string; children: ReactNode; id?: string }) {
   return (
-    <section className="mc-card mb-5" data-reveal>
+    <section className="mc-card mb-5" data-reveal data-focus={id}>
       <h3 className="hud-label">{title}</h3>
       {hint && <p className="mt-1.5 max-w-3xl text-sm text-slate-400">{hint}</p>}
       <div className="mt-3">{children}</div>

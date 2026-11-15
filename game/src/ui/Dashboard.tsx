@@ -3,6 +3,8 @@ import type { DesignReport, Severity } from '../engine/types'
 import { fmt } from '../i18n/en'
 import { SEV_BG, SEV_TEXT } from './components'
 import { useT, type StringKey } from '../i18n'
+import type { GoicocheaValues } from '../engine/values'
+import { ValuesBars } from './ValuesBars'
 
 type DeltaKey = 'mass' | 'power' | 'data' | 'cost' | 'schedule' | 'life' | 'science'
 
@@ -78,7 +80,7 @@ function Meter({
   )
 }
 
-export function Dashboard({ report, designKey }: { report: DesignReport; designKey: string }) {
+export function Dashboard({ report, designKey, values }: { report: DesignReport; designKey: string; values?: GoicocheaValues }) {
   const prev = useRef<Record<DeltaKey, number> | null>(null)
   const [deltas, setDeltas] = useState<Partial<Record<DeltaKey, number>>>({})
   const t = useT()
@@ -103,7 +105,7 @@ export function Dashboard({ report, designKey }: { report: DesignReport; designK
   const factorText = t(factorKey)
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <div className="flex items-center justify-between">
         <h2 className="hud-label">{t('dashboard.resources')}</h2>
         <span className={`text-xs font-semibold ${errors ? 'text-rose-400' : warns ? 'text-amber-400' : 'text-emerald-400'}`}>
@@ -180,9 +182,9 @@ export function Dashboard({ report, designKey }: { report: DesignReport; designK
         deltaKey="life"
       />
       <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-        <div className="rounded-xl bg-white/[0.03] p-3" title={t('dashboard.science.tip')}>
+        <div className="rounded-xl bg-white/[0.03] px-3 py-2" title={t('dashboard.science.tip')}>
           <div className="text-[11px] uppercase tracking-widest text-slate-500">{t('dashboard.science.label')}</div>
-          <div className="mt-0.5 font-display text-3xl font-semibold text-white">
+          <div className="font-display text-2xl font-semibold text-white">
             {fmt(science.perYear)}
             {deltas.science !== undefined && Math.abs(deltas.science) >= 0.5 && (
               <span key={deltas.science} className="delta-flash ml-1 text-[10px] text-sky-300">
@@ -192,11 +194,16 @@ export function Dashboard({ report, designKey }: { report: DesignReport; designK
             )}
           </div>
         </div>
-        <div className="rounded-xl bg-white/[0.03] p-3" title={t('dashboard.risk.tip')}>
+        <div className="rounded-xl bg-white/[0.03] px-3 py-2" title={t('dashboard.risk.tip')}>
           <div className="text-[11px] uppercase tracking-widest text-slate-500">{t('dashboard.risk.label')}</div>
-          <div className="mt-0.5 font-display text-3xl font-semibold text-white">{fmt(risk.successProbability * 100)}%</div>
+          <div className="font-display text-2xl font-semibold text-white">{fmt(risk.successProbability * 100)}%</div>
         </div>
       </div>
+      {values && (
+        <div className="border-t border-white/10 pt-2.5">
+          <ValuesBars values={values} />
+        </div>
+      )}
     </div>
   )
 }

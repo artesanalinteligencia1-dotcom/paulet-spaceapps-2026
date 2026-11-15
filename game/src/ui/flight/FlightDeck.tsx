@@ -315,7 +315,7 @@ export function FlightDeck(p: FlightDeckProps) {
               {view === 'map' && (
                 <div data-map className="pointer-events-none">
                   <EarthGlobe size={300} target={target} light={p.light} live={live} />
-                  <p className="mt-1 text-center text-[12px] uppercase tracking-wider text-[#8a8f98]">NASA Blue Marble · Black Marble · orbit height exaggerated</p>
+                  <p className="mt-1 text-center text-[12px] uppercase tracking-wider text-[#8a8f98]">Earth: NASA Blue Marble & Black Marble · μ and radius: NASA NSSDCA · orbit height ×2.5</p>
                 </div>
               )}
               {p.countdown !== null && (

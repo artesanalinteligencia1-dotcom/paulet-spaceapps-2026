@@ -36,7 +36,7 @@ export function CommsTab({ design, report }: { design: Design; report: DesignRep
           ))}
         </Grid>
       </Section>
-      <Section title={t('comms.antenna')}>
+      <Section id="antenna" title={t('comms.antenna')}>
         <Grid>
           {antennas.map((a) => (
             <OptionCard

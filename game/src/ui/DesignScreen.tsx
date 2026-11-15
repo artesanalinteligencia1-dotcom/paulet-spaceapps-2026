@@ -8,6 +8,7 @@ import { TabContext } from './tabs/TabContext'
 import { useMusic } from '../audio/audio'
 import { SpacecraftSprite } from './spacecraft/SpacecraftSprite'
 import { evaluateDesign } from '../engine/evaluate'
+import { goicocheaValues } from '../engine/values'
 import { getScenario } from '../engine/catalog'
 import type { Design } from '../engine/types'
 import { useGame, type TabId } from '../store/game'
@@ -84,11 +85,29 @@ function useDesignGuide(report: ReturnType<typeof evaluateDesign>, tab: TabId, s
             title: h.title,
             text: h.text,
             mood: h.mood,
-            action: h.tab ? { label: t('guide.hint.show', { tab: t(TABS.find((x) => x.id === h.tab)!.label) }), run: () => setTab(h.tab!) } : undefined,
+            action: h.tab
+              ? { label: t('guide.hint.show', { tab: t(TABS.find((x) => x.id === h.tab)!.label) }), run: () => (setTab(h.tab!), pointAt(h.focus)) }
+              : h.focus
+                ? { label: t('guide.hint.where'), run: () => pointAt(h.focus) }
+                : undefined,
           })),
           questions,
         },
   )
+}
+
+/** After "Show me": scroll to the section that fixes the problem and make it pulse, so the next step is obvious. */
+function pointAt(focus?: string) {
+  if (!focus) return
+  window.setTimeout(() => {
+    const el = document.querySelector<HTMLElement>(`[data-focus="${focus}"]`)
+    if (!el) return
+    el.scrollIntoView({ block: 'center', behavior: document.querySelector('.reduce-motion') ? 'auto' : 'smooth' })
+    el.classList.remove('focus-pulse')
+    void el.offsetWidth
+    el.classList.add('focus-pulse')
+    window.setTimeout(() => el.classList.remove('focus-pulse'), 3000)
+  }, 550)
 }
 
 export function DesignScreen({ design }: { design: Design }) {
@@ -102,6 +121,7 @@ export function DesignScreen({ design }: { design: Design }) {
   const scenario = getScenario(design.scenarioId)
   const designKey = JSON.stringify(design)
   const report = useMemo(() => evaluateDesign(design, scenario), [design, scenario])
+  const values = useMemo(() => goicocheaValues(design, report, scenario), [design, report, scenario])
   const blocking = report.review.filter((r) => r.blocking).length
   useMusic('design')
   useDesignGuide(report, tab, setTab, scenario)
@@ -147,22 +167,25 @@ export function DesignScreen({ design }: { design: Design }) {
       </header>
       <div className="ml-[136px] mr-10 grid gap-8 pb-24 pt-6 grid-cols-[minmax(0,1fr)_380px]">
         <aside className="order-last">
-          <div className="hud-panel sticky top-28 p-5">
-            <p className="hud-label mb-3">{t('design.spacecraftBudgets')}</p>
-            <div className="mb-3 flex items-center gap-3 border-b border-white/10 pb-3">
-              <div className="rounded-xl bg-black/40 p-1" title={t('design.spacecraftTitle')}>
-                <SpacecraftSprite design={design} size={92} />
+          {/* fits the stage above the corner buttons; the meters scroll inside if a mission needs more rows */}
+          <div className="hud-panel sticky top-28 flex max-h-[586px] flex-col p-4">
+            <p className="hud-label mb-2 shrink-0">{t('design.spacecraftBudgets')}</p>
+            <div className="mb-2 flex shrink-0 items-center gap-3 border-b border-white/10 pb-2">
+              <div className="rounded-xl bg-black/40 p-0.5" title={t('design.spacecraftTitle')}>
+                <SpacecraftSprite design={design} size={58} />
               </div>
-              <div className="text-xs text-slate-400">
+              <div className="min-w-0 text-xs text-slate-400">
                 <div className="font-display text-sm font-semibold text-slate-200">{t('design.spacecraftHeading')}</div>
-                {t('design.spacecraftDesc')}
+                <div className="line-clamp-2">{t('design.spacecraftDesc')}</div>
               </div>
             </div>
-            <Dashboard report={report} designKey={designKey} />
+            <div className="stage-scroll -mr-2 min-h-0 overflow-y-auto pr-2">
+              <Dashboard report={report} designKey={designKey} values={values} />
+            </div>
           </div>
         </aside>
         <main ref={body} className="design-body min-w-0">
-          <TabContext tab={tab} report={report} />
+          <TabContext tab={tab} report={report} scenarioId={scenario.id} />
           {tab === 'mission' && <MissionTab scenario={scenario} report={report} design={design} />}
           {tab === 'payload' && <PayloadTab design={design} scenario={scenario} report={report} />}
           {tab === 'spacecraft' && <SpacecraftTab design={design} report={report} />}

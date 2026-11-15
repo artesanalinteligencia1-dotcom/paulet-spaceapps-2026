@@ -122,7 +122,7 @@ export function App() {
             {!reduce && <div key={`wipe-${screen}`} className="screen-wipe pointer-events-none absolute inset-x-0 top-0 z-30 h-[2px]" aria-hidden="true" />}
             {/* sound and settings: in a corner, except on the flight deck, which has them in its header */}
             {screen !== 'launch' && (
-            <div className="absolute bottom-4 right-4 z-40 flex gap-2">
+            <div data-box="corner-buttons" className="absolute bottom-4 right-4 z-40 flex gap-2">
               <SoundToggle />
               <button
                 type="button"

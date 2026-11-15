@@ -19,6 +19,26 @@ const TAB_BY_RESOURCE: Record<ResourceKey, TabId> = {
   science: 'payload',
   risk: 'review',
 }
+/** The section of the tab where a problem is fixed (Section `id`), so "Show me" can point at it. */
+const FOCUS_BY_PREFIX: [string, string][] = [
+  ['EDL_', 'landing'],
+  ['MARS_WINDOW_', 'orbit'],
+  ['LAUNCHER_', 'launcher'],
+  ['RIDESHARE_', 'launcher'],
+  ['MASS_', 'launcher'],
+  ['TCM_', 'orbit'],
+  ['LOW_SUN_', 'orbit'],
+  ['OXYGEN_', 'cargo'],
+  ['NO_PAYLOAD', 'instruments'],
+  ['POINTING_', 'instruments'],
+  ['ANTENNA_', 'antenna'],
+  ['DISH_', 'antenna'],
+  ['NO_STATIONS', 'antenna'],
+  ['NO_DEEP_STATION', 'antenna'],
+  ['DATA_', 'antenna'],
+]
+export const focusFor = (code: string) => FOCUS_BY_PREFIX.find(([p]) => code.startsWith(p))?.[1]
+
 const TAB_BY_PREFIX: [string, TabId][] = [
   ['EDL_', 'orbit'],
   ['MARS_WINDOW_', 'orbit'],
@@ -54,6 +74,8 @@ export function orderedIssues(report: DesignReport, tab: TabId): ReviewItem[] {
 export interface HintLine {
   title: string
   text: string
+  /** the Section to point at once the tab is open */
+  focus?: string
   mood: GuideMood
   tab: TabId | null
 }
@@ -70,13 +92,14 @@ export function designHints(report: DesignReport, tab: TabId): HintLine[] {
   if (issues.length === 0) return [{ title: t('guide.hint.allGood.title'), text: t('guide.hint.allGood.text'), mood: 'happy', tab: null }]
   return issues.map((item) => {
     const m = message(item)
-    const lever = m.levers?.[0]
+    const [lever, other] = m.levers ?? []
     const where = tabFor(item)
     return {
       title: m.title,
-      text: lever ? `${m.why} ${t('guide.hint.try', { lever })}` : m.why,
+      text: lever ? `${m.why} ${other ? t('guide.hint.try2', { lever, other }) : t('guide.hint.try', { lever })}` : m.why,
       mood: item.blocking ? 'worried' : 'explaining',
       tab: where === tab ? null : where,
+      focus: focusFor(item.code),
     }
   })
 }

@@ -10,6 +10,9 @@ import { BOARD_KEY, loadBoard, type BoardEntry } from '../store/leaderboard'
 import { useOnline } from '../store/online'
 import { resultsLines, resultsMood } from './guide/lines'
 import { TeamResults } from './team/TeamResults'
+import { LetterToPaulet } from './results/LetterToPaulet'
+import { evaluateDesign } from '../engine/evaluate'
+import { goicocheaValues } from '../engine/values'
 import { analyseMission } from '../engine/report'
 import { scoreMission, type Rank } from '../engine/score'
 import { CAUSE_TEXT, END_REASON_LABEL, REQUIREMENT_LABEL, fmt, localName } from '../i18n/en'
@@ -42,6 +45,7 @@ export function ResultsScreen() {
   const score = useMemo(() => scoreMission(mission, scenario), [mission, scenario])
   const verdict = challenge ? challengeVerdict(challenge, mission.scenarioId, mission.seed, score.total) : null
   const analysis = useMemo(() => analyseMission(mission, score, scenario), [mission, score, scenario])
+  const values = useMemo(() => goicocheaValues(mission.design, evaluateDesign(mission.design, scenario), scenario), [mission.design, scenario])
   // Kuntur explains the result, opening by itself once per flight.
   useGuideContent({
     id: `results-${mission.seed}-${score.total}`,
@@ -132,6 +136,7 @@ export function ResultsScreen() {
         </section>
 
         <section className="min-w-0 space-y-5">
+          <LetterToPaulet outcome={good ? 'ok' : score.rank === 'Partial' ? 'partial' : 'fail'} causes={analysis.causes} values={values} missionName={tx(`scenario.${scenario.id}.name`, scenario.name)} onRetry={backToDesign} />
           <div>
             <h2 className="hud-label">{t('results.whyTitle')}</h2>
             <ol className="mt-2 space-y-2">
@@ -159,9 +164,9 @@ export function ResultsScreen() {
                   <XAxis dataKey="week" tick={{ fill: '#94a3b8', fontSize: 10 }} />
                   <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
                   <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155', fontSize: 12 }} labelFormatter={(w) => t('results.chartWeek', { week: String(w) })} />
-                  <Line isAnimationActive={false} type="monotone" dataKey="science" stroke="#a78bfa" dot={false} strokeWidth={2} />
-                  <Line isAnimationActive={false} type="monotone" dataKey="battery" stroke="#38bdf8" dot={false} />
-                  <Line isAnimationActive={false} type="monotone" dataKey="backlogGb" stroke="#f472b6" dot={false} />
+                  <Line isAnimationActive={false} type="monotone" dataKey="science" name={t('results.chart.science')} stroke="#a78bfa" dot={false} strokeWidth={2} />
+                  <Line isAnimationActive={false} type="monotone" dataKey="battery" name={t('results.chart.battery')} stroke="#38bdf8" dot={false} />
+                  <Line isAnimationActive={false} type="monotone" dataKey="backlogGb" name={t('results.chart.backlog')} stroke="#f472b6" dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

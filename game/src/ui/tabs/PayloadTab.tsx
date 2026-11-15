@@ -25,7 +25,7 @@ export function PayloadTab({ design, scenario, report }: { design: Design; scena
   return (
     <div>
       {cargoReq && (
-        <Section title={t('payload.cargo')} hint={t('payload.cargo.hint')}>
+        <Section id="cargo" title={t('payload.cargo')} hint={t('payload.cargo.hint')}>
           <Slider
             label={t('payload.cargo.mass')}
             value={design.cargoKg ?? 0}
@@ -42,6 +42,7 @@ export function PayloadTab({ design, scenario, report }: { design: Design; scena
         {t('payload.openLab')}
       </button>
       <Section
+        id="instruments"
         title={t('payload.instruments')}
         hint={t('payload.instruments.hint')}
       >
