@@ -46,7 +46,7 @@ export function terrainHeight(x: number, z: number) {
 
 export function makeTerrain(groundColor: number) {
   const soil = soilTexture()
-  soil.repeat.set(1600, 1600)
+  soil.repeat.set(520, 520)
   // the flat floor: a large plane with soft colour patches
   const floorGeo = new THREE.PlaneGeometry(44000, 44000, 90, 90)
   floorGeo.rotateX(-Math.PI / 2)
@@ -66,8 +66,8 @@ export function makeTerrain(groundColor: number) {
   floor.receiveShadow = true
 
   // the mountains: a polar grid from 1.8 km to 18 km, finer near the inner edge
-  const NA = 260
-  const NR = 80
+  const NA = 440
+  const NR = 120
   const r0 = 1800
   const r1 = 18000
   const verts: number[] = []

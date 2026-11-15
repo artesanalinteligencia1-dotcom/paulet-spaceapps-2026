@@ -108,6 +108,7 @@ uniform float uTime;
 uniform float uClouds;
 uniform float uLights;
 uniform float uCloudScale;
+uniform float uHaze;
 varying vec2 vUv;
 varying vec3 vN;
 varying vec3 vObj;
@@ -119,7 +120,7 @@ float cloudsAt(vec3 p) {
   // more cloud near the equator and at mid-latitudes, clear subtropical deserts
   float lat = abs(p.y);
   float belt = 0.55 + 0.25 * smoothstep(0.0, 0.15, lat) - 0.2 * smoothstep(0.2, 0.45, lat) * (1.0 - smoothstep(0.5, 0.75, lat)) + 0.15 * smoothstep(0.6, 0.85, lat);
-  return smoothstep(0.62 - 0.12 * belt, 0.82 - 0.1 * belt, c) * uClouds;
+  return smoothstep(0.66 - 0.1 * belt, 0.84 - 0.08 * belt, c) * uClouds;
 }
 void main() {
   vec3 N = normalize(vN);
@@ -136,21 +137,21 @@ void main() {
   vec3 col = day * (0.012 + 1.05 * max(mu, 0.0)) * (1.0 - 0.45 * sh * lit);
   // sun glint on the water
   vec3 H = normalize(uSun + V);
-  float spec = pow(max(dot(N, H), 0.0), 90.0) * 1.6 + pow(max(dot(N, H), 0.0), 12.0) * 0.06;
+  float spec = pow(max(dot(N, H), 0.0), 260.0) * 0.55 + pow(max(dot(N, H), 0.0), 40.0) * 0.035;
   col += vec3(1.0, 0.86, 0.66) * spec * water * (1.0 - cl) * smoothstep(0.0, 0.15, mu);
   // clouds: bright on the day side, faintly blue in twilight
-  vec3 cloudCol = vec3(1.0) * (0.02 + 1.15 * max(mu, 0.0)) + vec3(0.25, 0.12, 0.05) * smoothstep(-0.1, 0.05, mu) * (1.0 - smoothstep(0.05, 0.25, mu));
-  col = mix(col, cloudCol, cl * 0.92);
+  vec3 cloudCol = vec3(1.0) * (0.015 + 1.1 * max(mu, 0.0)) + vec3(0.12, 0.05, 0.02) * smoothstep(-0.06, 0.04, mu) * (1.0 - smoothstep(0.04, 0.2, mu));
+  col = mix(col, cloudCol, cl * 0.85);
   // warm band along the terminator
   float twi = smoothstep(-0.12, 0.0, mu) * (1.0 - smoothstep(0.0, 0.22, mu));
-  col += vec3(0.32, 0.1, 0.03) * twi * 0.25;
+  col += vec3(0.32, 0.12, 0.04) * twi * 0.06;
   // city lights on the night side, dimmed under clouds
   float dark = 1.0 - smoothstep(-0.06, 0.1, mu);
   col += pow(night, vec3(1.3)) * vec3(1.0, 0.72, 0.42) * 2.4 * dark * (1.0 - cl * 0.8) * uLights;
   // atmosphere seen through: blue haze towards the limb on the lit side
-  float fres = pow(1.0 - max(dot(N, V), 0.0), 2.5);
+  float fres = pow(1.0 - max(dot(N, V), 0.0), 5.0);
   float aLit = smoothstep(-0.2, 0.35, mu);
-  col = mix(col, uAtmo * (0.25 + 1.1 * aLit), clamp(fres * 0.85, 0.0, 1.0) * aLit) + uAtmo * 0.035 * aLit;
+  col = mix(col, uAtmo * (0.2 + 0.9 * aLit), clamp(fres * uHaze, 0.0, 1.0) * aLit) + uAtmo * 0.02 * aLit;
   gl_FragColor = vec4(col, uOpacity);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -209,7 +210,7 @@ export interface RealEarth {
  * A real Earth of radius `R` (world units). `atmosphere` is the height of the glowing shell in units of R (≈ 0.02).
  * `cloudScale` is the noise frequency of the clouds over the unit sphere (higher = smaller clouds).
  */
-export function makeRealEarth(tex: { day: THREE.Texture; night: THREE.Texture }, R: number, opts: { segments?: number; atmosphere?: number; cloudScale?: number } = {}): RealEarth {
+export function makeRealEarth(tex: { day: THREE.Texture; night: THREE.Texture }, R: number, opts: { segments?: number; atmosphere?: number; cloudScale?: number; haze?: number } = {}): RealEarth {
   const seg = opts.segments ?? 160
   const top = R * (1 + (opts.atmosphere ?? 0.022))
   const atmoColor = new THREE.Color(0.32, 0.56, 1.0)
@@ -224,6 +225,7 @@ export function makeRealEarth(tex: { day: THREE.Texture; night: THREE.Texture },
     uClouds: { value: 1 },
     uLights: { value: 1 },
     uCloudScale: { value: opts.cloudScale ?? 7 },
+    uHaze: { value: opts.haze ?? 0.7 },
   }
   const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: SURFACE_VS, fragmentShader: SURFACE_FS, transparent: true })
   const surface = new THREE.Mesh(new THREE.SphereGeometry(R, seg, seg / 2), mat)

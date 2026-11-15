@@ -7,7 +7,8 @@ import { soundingTimeline } from '../../hub/soundingProfile'
 import { spacecraftVisual } from '../../spacecraft/visual'
 import { makeTimeline } from '../LaunchSequence'
 import type { SceneryStyle } from '../LaunchScenery'
-import LaunchScene3D from './LaunchScene3D'
+import LaunchScene3D, { type CamView, type CameraViews } from './LaunchScene3D'
+import type { OrbitTarget } from './earth3d'
 import SoundingScene3D from './SoundingScene3D'
 
 /**
@@ -17,12 +18,17 @@ import SoundingScene3D from './SoundingScene3D'
  * and radio antennas). `?scene3d=paulet&t=12` shows the Paulet-1 prologue instead (`&fail=1` for a failed flight).
  * `?scene3d=custom` launches the rocket on the workbench (Rocket Engineer pad); `&preset=light|medium|reusable_medium|heavy`
  * launches that starting design instead.
+ * Cameras: `&view=chase|ground|onboard|payload|orbit` for the main view, `&pip=<view>` for a second view in the corner,
+ * `&orbit=leo|sso|gto|tli|tmi` for the target (route direction and ring), `&pace=4` for the flight deck's longer flight,
+ * `&switch=orbit@15` to change the main camera at t = 15 s (checks the blends and crossfades).
  */
 export default function SceneDebug({ launcherId }: { launcherId: string }) {
   const params = new URLSearchParams(window.location.search)
   const light = (['dawn', 'day', 'night'].includes(params.get('pad') ?? '') ? params.get('pad') : 'day') as SceneryStyle
   const start = Number(params.get('t') ?? 0)
-  const T = useMemo(() => makeTimeline(10), [])
+  const T = useMemo(() => makeTimeline(10, Number(params.get('pace') ?? 1)), [])
+  const views = useMemo<CameraViews | undefined>(() => (params.has('view') || params.has('pip') ? { main: { current: (params.get('view') ?? 'chase') as CamView }, pip: { current: (params.get('pip') as CamView | null) ?? null }, pipRect: { right: 24, bottom: 24, widthFrac: 0.26, aspect: 0.56 } } : undefined), [])
+  const orbit = useMemo(() => (params.has('orbit') ? { target: params.get('orbit') as OrbitTarget } : undefined), [])
   const ST = useMemo(() => soundingTimeline(10), [])
   const sounding = useMemo(() => ({ ...flySounding(['magnetometer'], 3), failed: params.has('fail') }), [])
   const visual = useMemo(() => {
@@ -43,15 +49,18 @@ export default function SceneDebug({ launcherId }: { launcherId: string }) {
     const tick = (now: number) => {
       tRef.current += (now - prev) / 1000
       prev = now
+      const sw = params.get('switch')?.split('@')
+      if (sw && views && tRef.current >= Number(sw[1])) views.main.current = sw[0] as CamView
       if (tRef.current > (launcherId === 'paulet' ? ST.end + 2 : T.seco + 6)) tRef.current = start
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [T, ST, start, launcherId])
   return (
     <div className="fixed inset-0 bg-black">
-      {launcherId === 'paulet' ? <SoundingScene3D T={ST} tRef={tRef} result={sounding} /> : <LaunchScene3D launcherId={launcherId} light={light} T={T} tRef={tRef} failAt={params.has('fail') ? Number(params.get('fail')) : null} visual={visual} landed={params.get('landed') !== '0'} rocket={rocket} />}
+      {launcherId === 'paulet' ? <SoundingScene3D T={ST} tRef={tRef} result={sounding} /> : <LaunchScene3D launcherId={launcherId} light={light} T={T} tRef={tRef} failAt={params.has('fail') ? Number(params.get('fail')) : null} visual={visual} landed={params.get('landed') !== '0'} rocket={rocket} views={views} orbit={orbit} />}
     </div>
   )
 }

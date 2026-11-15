@@ -36,7 +36,7 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
     vec3 s = texture2D(inputBuffer, vec2(0.5, 0.5)).rgb + texture2D(inputBuffer, vec2(0.25, 0.3)).rgb + texture2D(inputBuffer, vec2(0.75, 0.3)).rgb
            + texture2D(inputBuffer, vec2(0.25, 0.75)).rgb + texture2D(inputBuffer, vec2(0.75, 0.75)).rgb + texture2D(inputBuffer, uv).rgb * 2.0;
     float glow = smoothstep(0.35, 1.2, dot(s / 7.0, vec3(0.333)) * 1.6);
-    col += texture2D(uDirt, uv).rgb * uOnboard * (0.05 + 0.5 * glow) * vec3(1.0, 0.93, 0.85);
+    col += texture2D(uDirt, uv).rgb * uOnboard * (0.006 + 0.22 * glow) * vec3(1.0, 0.93, 0.85);
     float v = smoothstep(0.78, 0.18, length(c * vec2(1.0, 0.78)) * 1.12);
     col *= mix(1.0, v, uOnboard * 0.9);
   }

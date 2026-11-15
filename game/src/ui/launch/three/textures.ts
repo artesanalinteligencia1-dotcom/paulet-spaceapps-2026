@@ -125,7 +125,7 @@ export function soilTexture() {
     for (let i = 0; i < S; i++) {
       const big = fbm(i / S * 4, j / S * 4, 4, 3, 4)
       const fine = hash(i, j, 9)
-      const v = 0.72 + (big - 0.5) * 0.55 + (fine - 0.5) * 0.18
+      const v = 0.8 + (big - 0.5) * 0.22 + (fine - 0.5) * 0.14
       const k = (j * S + i) * 4
       img.data[k] = Math.min(255, v * 238)
       img.data[k + 1] = Math.min(255, v * 228)

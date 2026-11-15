@@ -256,7 +256,7 @@ export function buildPadComplex(opts: { R: number; RH: number; light: 'dawn' | '
 
   // ---- lightning protection: four masts with catenary wires ----
   const mastH = top + 22
-  const masts = [V(-56, 0, -46), V(46, 0, -46), V(46, 0, 46), V(-56, 0, 46)]
+  const masts = [V(-58, 0, -50), V(48, 0, -50), V(50, 0, 48), V(-84, 0, 38)] // the front-left one stays out of the opening shot
   for (const m of masts) {
     near.put(M.steel, new THREE.CylinderGeometry(0.3, 0.75, mastH, 10), m.x, mastH / 2, m.z)
     near.box(M.concrete, 3, 1.2, 3, m.x, 0.6, m.z)
@@ -344,7 +344,7 @@ export function buildPadComplex(opts: { R: number; RH: number; light: 'dawn' | '
 
   // ---- flood lights around the pad ----
   const spots: THREE.SpotLight[] = []
-  for (const [x, z] of [[-62, 52], [52, 52], [-62, -52], [52, -52]]) {
+  for (const [x, z] of [[-88, 26], [56, 56], [-64, -56], [56, -56]]) {
     far.put(M.steel, new THREE.CylinderGeometry(0.35, 0.6, 30, 8), x, 15, z)
     const face = Math.atan2(-x, -z)
     far.box(M.dark, 4.6, 2.6, 0.8, x, 30.5, z, face)

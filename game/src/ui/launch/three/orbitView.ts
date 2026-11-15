@@ -127,10 +127,12 @@ export function makeOrbitView(tex: { day: THREE.Texture; night: THREE.Texture },
   for (let i = 0; i <= 256; i++) ring.push(trackPoint(r0.site, r0.head, r0.ang + (i / 256) * Math.PI * 2).multiplyScalar(ringR))
 
   const lines: LineMaterial[] = []
+  const widths = new Map<LineMaterial, number>()
   const lineMat = (color: THREE.Color, width: number, o: { dashed?: boolean; opacity?: number; additive?: boolean } = {}) => {
     const m = new LineMaterial({ color: 0xffffff, linewidth: width, dashed: !!o.dashed, dashSize: 1.6, gapSize: 1.2, transparent: true, opacity: o.opacity ?? 1, depthWrite: false })
     m.color.copy(color)
     if (o.additive) m.blending = THREE.AdditiveBlending
+    widths.set(m, width)
     lines.push(keep(m))
     return m
   }
@@ -185,8 +187,8 @@ export function makeOrbitView(tex: { day: THREE.Texture; night: THREE.Texture },
     scene.add(s)
     return s
   }
-  const rocketGlow = sprite(orange.clone().multiplyScalar(3), 0.07)
-  const rocketCore = sprite(new THREE.Color(4, 3.6, 3), 0.022)
+  const rocketGlow = sprite(orange.clone().multiplyScalar(3), 0.04)
+  const rocketCore = sprite(new THREE.Color(4, 3.6, 3), 0.014)
   const siteDot = sprite(cyan.clone().multiplyScalar(2.5), 0.03)
   siteDot.position.copy(r0.site).multiplyScalar(RG * 1.003)
 
@@ -231,7 +233,7 @@ export function makeOrbitView(tex: { day: THREE.Texture; night: THREE.Texture },
       rocketGlow.position.copy(r.pos)
       rocketCore.position.copy(r.pos)
       const pulse = 0.8 + 0.2 * Math.sin(t * 5)
-      rocketGlow.scale.setScalar(0.07 * pulse)
+      rocketGlow.scale.setScalar(0.04 * pulse)
       const before = t < T.liftoff
       rocketGlow.visible = rocketCore.visible = true
       // flown ascent and its ground track
@@ -256,7 +258,12 @@ export function makeOrbitView(tex: { day: THREE.Texture; night: THREE.Texture },
       earth.update(t)
     },
     frame: (cam, k, width, height) => {
-      for (const m of lines) m.resolution.set(width, height)
+      // line widths in pixels, thinner in a small window
+      const ws = Math.max(0.45, Math.min(1.2, height / 760))
+      for (const m of lines) {
+        m.resolution.set(width, height)
+        m.linewidth = (widths.get(m) ?? 1) * ws
+      }
       cam.aspect = width / height
       const e = easeInOut(k)
       // near: right behind the rocket, a little above, looking ahead along the route
@@ -265,7 +272,7 @@ export function makeOrbitView(tex: { day: THREE.Texture; night: THREE.Texture },
       const nearLook = state.pos.clone().addScaledVector(state.dir, 2).addScaledVector(up, -0.3)
       // far: the whole globe and the orbit ring, seen from above the route and a little off the orbit plane
       const mid = state.site.clone().add(state.pos.clone().normalize()).normalize()
-      const farDir = mid.clone().multiplyScalar(1).addScaledVector(normal, 0.62).addScaledVector(sun, 0.18).normalize()
+      const farDir = mid.clone().addScaledVector(normal, 0.28).normalize()
       const fov = 38
       const vfov = (fov * Math.PI) / 180
       const hfov = 2 * Math.atan(Math.tan(vfov / 2) * cam.aspect)
@@ -283,7 +290,7 @@ export function makeOrbitView(tex: { day: THREE.Texture; night: THREE.Texture },
       cam.lookAt(nearLook.lerp(farLook, e))
       cam.updateProjectionMatrix()
       // the marker reads larger up close, smaller far away
-      rocketCore.scale.setScalar(0.022 - 0.006 * e)
+      rocketCore.scale.setScalar(0.016 - 0.005 * e)
     },
     dispose: () => disposables.forEach((d) => d.dispose()),
   }

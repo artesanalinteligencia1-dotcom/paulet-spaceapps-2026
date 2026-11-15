@@ -51,7 +51,7 @@ void main() {
   float flick = 0.85 + 0.15 * h11(floor(uTime * 30.0) + floor(vS * 12.0));
   vec3 col = mix(uTail, uMid, exp(-vS * 3.0));
   col = mix(col, uCore, exp(-vS * 9.0) * uHot);
-  float I = (along * core * (1.0 - 0.75 * uExpand) + dia * core * 2.4) * uThrottle * flick;
+  float I = (along * core * (1.0 - 0.5 * uExpand) + dia * core * 2.4) * uThrottle * flick;
   gl_FragColor = vec4(col * I, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -111,7 +111,7 @@ export function makePlume(): Plume {
       ou.uLen.value = len
       ou.uR.value = r * (1 + expand * 0.4)
       ou.uExpand.value = expand
-      ou.uThrottle.value = throttle * (upper ? 0.35 : 0.55 + 0.25 * (1 - expand))
+      ou.uThrottle.value = throttle * (upper ? 0.55 : 0.55 + 0.25 * (1 - expand))
       ou.uTime.value = time
       const k = upper ? 1 : expand * 0.6
       iu.uCore.value.copy(seaInner.core).lerp(vacInner.core, k)
@@ -266,8 +266,10 @@ export function makeSmoke(max = 2600) {
   }
 
   const add = (p: Partial<P> & { x: number; y: number; z: number; size: number; max: number }) => {
-    if (ps.length >= max) return
-    ps.push({ vx: 0, vy: 0, vz: 0, grow: 0, life: 0, a0: 0.6, heat: 0, cool: 1, drag: 0.5, lift: 0, rot: 0, spin: 0, r: 1, g: 1, b: 1, tile: 0, fixed: false, d: 0, ...p })
+    if (ps.length >= max) return null
+    const q: P = { vx: 0, vy: 0, vz: 0, grow: 0, life: 0, a0: 0.6, heat: 0, cool: 1, drag: 0.5, lift: 0, rot: 0, spin: 0, r: 1, g: 1, b: 1, tile: 0, fixed: false, d: 0, ...p }
+    ps.push(q)
+    return q
   }
   const tmp = new THREE.Vector3()
   return {
@@ -313,7 +315,7 @@ export function makeSmoke(max = 2600) {
       for (const p of ps) {
         if (p.d < -p.size) continue // behind the camera
         const k = p.life / p.max
-        const fade = p.fixed ? 1 : (1 - k) * (1 - k) * Math.min(1, k / 0.06)
+        const fade = p.fixed ? 1 : (1 - k) * (1 - k) * Math.min(1, p.life / 0.2)
         iPos.array[n * 3] = p.x
         iPos.array[n * 3 + 1] = p.y
         iPos.array[n * 3 + 2] = p.z
