@@ -75,7 +75,8 @@ export function FlightDeck(p: FlightDeckProps) {
 
   // the 3D scene reads the chosen cameras from `views`
   p.views.main.current = view === 'map' || !p.use3D ? 'chase' : view
-  if (p.views.pip) p.views.pip.current = !p.use3D ? null : view === 'map' ? (pip ?? 'chase') : pip
+  // on the map (the far view) the small window keeps the rocket itself in sight
+  if (p.views.pip) p.views.pip.current = !p.use3D ? null : view === 'map' ? 'chase' : pip
 
   // keys 1–4 switch the main camera
   useEffect(() => {
@@ -136,7 +137,7 @@ export function FlightDeck(p: FlightDeckProps) {
         velLive: tm.tapeV,
         qLive: fmtNum(tm.qNum, 1),
         gLive: fmtNum(tm.gNum, 1),
-        pipLabel: landing ? 'Booster recovery' : viewRef.current === 'map' ? (pipName ?? 'chase') : (pipName ?? ''),
+        pipLabel: landing ? 'Booster recovery' : viewRef.current === 'map' ? 'chase' : (pipName ?? ''),
         pipStatus: landing ? (landingT < 3.2 ? (landingT > 1.4 ? 'Landing burn' : 'Descending') : p.boosterLanded ? 'Landed on the drone ship' : 'Booster lost') : '',
       }
       el.querySelectorAll<HTMLElement>('[data-k]').forEach((n) => {
