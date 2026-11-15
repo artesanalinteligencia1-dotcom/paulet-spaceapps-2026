@@ -17,21 +17,27 @@ import { useT, useTx, t, type StringKey } from '../../i18n'
 const LaunchScene3D = lazy(() => import('./three/LaunchScene3D'))
 
 /** Timeline in seconds after pressing Launch. `count` = seconds of countdown before ignition (10 with the voice, 3 without). */
-export function makeTimeline(count: number) {
+/**
+ * The launch clock (seconds after pressing Launch). `pace` stretches everything after liftoff: 1 is the original short
+ * flight (1 s ≈ 1 min of real ascent); the flight deck uses a longer pace so every camera has time to follow the rocket.
+ * The countdown and the "Liftoff!" call keep their real length.
+ */
+export function makeTimeline(count: number, pace = 1) {
   const ignition = count
   const liftoff = count + 1.5
   return {
     count,
+    pace,
     ignition,
     liftoff,
     farewell: liftoff + 2.7, // after the 2.5 s "Liftoff! We have liftoff!" line
-    maxQ: liftoff + 1.6,
-    boosterSep: liftoff + 2.4,
-    meco: liftoff + 3.6,
-    fairing: liftoff + 5.2,
-    seco: liftoff + 7.6,
-    deploy: liftoff + 8.6,
-    end: liftoff + 10.2,
+    maxQ: liftoff + 1.6 * pace,
+    boosterSep: liftoff + 2.4 * pace,
+    meco: liftoff + 3.6 * pace,
+    fairing: liftoff + 5.2 * pace,
+    seco: liftoff + 7.6 * pace,
+    deploy: liftoff + 8.6 * pace,
+    end: liftoff + 10.2 * pace,
   }
 }
 export type Timeline = ReturnType<typeof makeTimeline>
@@ -68,9 +74,9 @@ function clamp(x: number, a = 0, b = 1) {
 
 export function failureTime(seed: number, T: Timeline): { at: number; text: string } {
   const k = seed % 3
-  if (k === 0) return { at: T.liftoff + 1.9, text: t('launch.fail.engineAnomaly') }
+  if (k === 0) return { at: T.liftoff + 1.9 * T.pace, text: t('launch.fail.engineAnomaly') }
   if (k === 1) return { at: T.meco, text: t('launch.fail.stageSeparation') }
-  return { at: T.liftoff + 6.3, text: t('launch.fail.secoEarly') }
+  return { at: T.liftoff + 6.3 * T.pace, text: t('launch.fail.secoEarly') }
 }
 
 export const rocketHeight = (id: string) => (id === 'light' ? 150 : id === 'heavy' ? 230 : 200)
@@ -248,7 +254,7 @@ export function LaunchSequence({ design, running, failed, seed, onDone, skipTo, 
   const velKms = flying ? vOrbit * p ** 1.8 : 0
   const dvSpent = flying ? velKms + 1.5 * clamp(p * 1.4) : 0
   // Before liftoff the clock follows the voiced countdown (T−0 = ignition); after liftoff it shows compressed mission time.
-  const met = flying ? (t - T.liftoff) * MET_FACTOR : t - T.ignition
+  const met = flying ? ((t - T.liftoff) * MET_FACTOR) / T.pace : t - T.ignition
   const rise = flying ? Math.min(170, 1400 * p * p) : 0
   const worldShift = flying ? Math.max(0, 1400 * p * p - 170) : 0
   // Sky darkening follows the camera (ground leaving the frame), not the HUD altitude, so the dawn sky lasts while the Andes are visible.

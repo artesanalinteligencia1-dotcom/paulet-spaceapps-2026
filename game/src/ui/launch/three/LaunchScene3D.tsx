@@ -45,6 +45,8 @@ export interface CameraViews {
   main: { current: CamView }
   pip?: { current: CamView | null }
   pipRect?: { left?: number; right?: number; bottom: number; widthFrac: number; aspect: number }
+  /** a box of the HUD the second view is drawn into (it wins over `pipRect`); the booster landing also plays there */
+  pipEl?: { current: HTMLElement | null }
 }
 
 /** Booster-recovery inset, in CSS pixels from the bottom-right corner (LaunchSequence puts its labels on the same box). */
@@ -446,6 +448,23 @@ export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visu
     const chasePos = new THREE.Vector3()
     const chaseTarget = new THREE.Vector3()
     const aim = new THREE.Vector3()
+    /** Where the second view goes, in canvas pixels from the bottom-left corner. */
+    const pipBox = (): { x: number; y: number; w: number; h: number } | null => {
+      const box = views?.pipEl?.current
+      if (box) {
+        const a = box.getBoundingClientRect()
+        const c = el.getBoundingClientRect()
+        if (a.width < 8 || a.height < 8 || c.width < 8) return null
+        // the game stage is scaled with CSS zoom: client rects are zoomed, the renderer works in layout pixels
+        const k = el.clientWidth / c.width
+        return { x: Math.round((a.left - c.left) * k), y: Math.round((c.bottom - a.bottom) * k), w: Math.round(a.width * k), h: Math.round(a.height * k) }
+      }
+      if (!views?.pipRect) return views?.pip ? { x: 16, y: 16, w: Math.round(el.clientWidth * 0.24), h: Math.round(el.clientWidth * 0.24 * 0.56) } : null
+      const pr = views.pipRect
+      const w = Math.round(el.clientWidth * pr.widthFrac)
+      const h = Math.round(w * pr.aspect)
+      return { x: pr.right !== undefined ? el.clientWidth - w - pr.right : (pr.left ?? 16), y: pr.bottom, w, h }
+    }
     const applyView = (cam: THREE.PerspectiveCamera, view: CamView, time: number, shake: number) => {
       if (view === 'ground') {
         aim.copy(rocket.position).addScaledVector(up, (h1 + h2) * 0.55)
@@ -719,19 +738,17 @@ export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visu
         camera.updateProjectionMatrix()
       }
 
-      // a second live camera in a small window (flight HUD)
+      // a second live camera in a small window (flight HUD); the booster landing takes it over while it happens
+      const box = pipBox()
+      const lt0 = time - T.meco - 0.4
+      const landingNow = !!recovery && !exploded && lt0 >= 0 && lt0 < 6.1
       const pipView = views?.pip?.current
-      if (pipView) {
-        const pr = views!.pipRect ?? { left: 16, bottom: 16, widthFrac: 0.24, aspect: 0.56 }
-        const W = el.clientWidth
-        const w = Math.round(W * pr.widthFrac)
-        const h = Math.round(w * pr.aspect)
-        pipCam.aspect = w / h
+      if (box && pipView && !(landingNow && views?.pipEl)) {
+        pipCam.aspect = box.w / box.h
         applyView(pipCam, pipView, time, r.shake)
         renderer.setScissorTest(true)
-        const px = pr.right !== undefined ? W - w - pr.right : (pr.left ?? 16)
-        renderer.setScissor(px, pr.bottom, w, h)
-        renderer.setViewport(px, pr.bottom, w, h)
+        renderer.setScissor(box.x, box.y, box.w, box.h)
+        renderer.setViewport(box.x, box.y, box.w, box.h)
         renderer.clear()
         renderer.render(scene, pipCam)
         renderer.setScissorTest(false)
@@ -756,12 +773,18 @@ export default function LaunchScene3D({ launcherId, light, T, tRef, failAt, visu
         ;(blast.material as THREE.SpriteMaterial).opacity = Math.max(0, 1 - bk / 1.5)
         cam.lookAt(0, 14 + Math.min(st.y, 60) * 0.5, 0)
         const W = el.clientWidth
-        const w = Math.round(W * LANDING_INSET.widthFrac)
-        const h = Math.round(w * LANDING_INSET.aspect)
-        const x = W - w - LANDING_INSET.right
+        const hud = views?.pipEl ? box : null
+        const w = hud ? hud.w : Math.round(W * LANDING_INSET.widthFrac)
+        const h = hud ? hud.h : Math.round(w * LANDING_INSET.aspect)
+        const x = hud ? hud.x : W - w - LANDING_INSET.right
+        const y = hud ? hud.y : LANDING_INSET.bottom
+        if (hud) {
+          cam.aspect = w / h
+          cam.updateProjectionMatrix()
+        }
         renderer.setScissorTest(true)
-        renderer.setScissor(x, LANDING_INSET.bottom, w, h)
-        renderer.setViewport(x, LANDING_INSET.bottom, w, h)
+        renderer.setScissor(x, y, w, h)
+        renderer.setViewport(x, y, w, h)
         renderer.clear() // the composer turns the renderer's own clearing off
         renderer.render(ls, cam)
         renderer.setScissorTest(false)
