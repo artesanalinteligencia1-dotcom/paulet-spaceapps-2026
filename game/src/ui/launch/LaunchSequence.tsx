@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { getOrbit } from '../../engine/catalog'
 import { resolveLauncher } from '../../engine/launch'
 import { CUSTOM_LAUNCHER_ID } from '../../engine/rocket'
@@ -10,6 +10,9 @@ import { spacecraftVisual } from '../spacecraft/visual'
 import { AndesBackdrop, CloudDeck, EarthLimb, HighClouds, LaunchPad, OceanWithShip, SceneryLight, SkyBackdrop, Stars, launchWindowStyle, useSceneryStyle } from './LaunchScenery'
 import { LANDING_TOUCH, LAUNCHERS_3D, boosterLandingAt } from './three/ascent'
 import { webglAvailable } from './three/support'
+import type { CameraViews } from './three/LaunchScene3D'
+import { FlightDeck } from '../flight/FlightDeck'
+import { flightTarget } from '../flight/telemetry'
 import { useT, useTx, t, type StringKey } from '../../i18n'
 
 // The Three.js scene is a separate chunk; the SVG scene below stays as the fallback (reduced motion, no WebGL,
@@ -66,7 +69,17 @@ interface Props {
   seed: number
   onDone: (o: LaunchOutcome) => void
   skipTo?: boolean
+  /** full-screen flight deck (HUD, live cameras, longer flight) instead of the framed scene */
+  deck?: boolean
+  /** deck only: the readiness card before launch, the outcome card after it, and the header actions */
+  prelaunch?: ReactNode
+  outcome?: ReactNode
+  onSkip?: () => void
+  onBack?: () => void
 }
+
+/** On the flight deck the ascent after liftoff lasts four times longer, so every camera can follow it. */
+export const DECK_PACE = 4
 
 function clamp(x: number, a = 0, b = 1) {
   return Math.max(a, Math.min(b, x))
@@ -169,7 +182,7 @@ export function Rocket({ launcherId, t, failAt, v, T }: { launcherId: string; t:
   )
 }
 
-export function LaunchSequence({ design, running, failed, seed, onDone, skipTo, boosterLanded }: Props) {
+export function LaunchSequence({ design, running, failed, seed, onDone, skipTo, boosterLanded, deck = false, prelaunch, outcome, onSkip, onBack }: Props) {
   const tText = useT()
   const tx = useTx()
   const launcher = useMemo(() => resolveLauncher(design), [design])
@@ -185,14 +198,22 @@ export function LaunchSequence({ design, running, failed, seed, onDone, skipTo, 
   const fired = useRef<Set<string>>(new Set())
   const done = useRef(false)
   const voice = hasVoice('count_10') && hasVoice('ignition')
-  const T = useMemo(() => makeTimeline(voice ? 10 : 3), [voice])
+  const T = useMemo(() => makeTimeline(voice ? 10 : 3, deck ? DECK_PACE : 1), [voice, deck])
   const fail = useMemo(() => (failed ? failureTime(seed, T) : null), [failed, seed, T])
   const farewell = FAREWELLS[farewellIndex(seed)]
   const reduced = useReducedMotion()
   const light = useSceneryStyle(launchWindowStyle(orbit.launchTarget))
   const use3D = !reduced && (LAUNCHERS_3D.has(launcher.id) || !!ownRocket) && webglAvailable()
   const tRef = useRef(0)
-  tRef.current = t
+  if (!running || skipTo) tRef.current = t
+  // flight deck: the clock can run faster (sounds are rescheduled so they stay in time) and the cameras live in `views`
+  const [speed, setSpeed] = useState(1)
+  const clock = useRef({ wall0: 0, t0: 0, speed: 1 })
+  const cuesRef = useRef<Cue[]>([])
+  const cancelRef = useRef<() => void>(() => {})
+  const views = useMemo<CameraViews>(() => ({ main: { current: 'chase' }, pip: { current: 'ground' }, pipEl: { current: null } }), [])
+  // with the 3D scene on the deck, React only needs the clock ten times a second (the scene and HUD read tRef)
+  const perFrame = !(deck && use3D)
 
   const parking = orbit.body === 'earth' && orbit.launchTarget !== 'gto' ? Math.min(orbit.defaultAltitudeKm, design.altitudeKm) : 200
   const vOrbit = Math.sqrt(MU / (RE + parking))
@@ -202,12 +223,15 @@ export function LaunchSequence({ design, running, failed, seed, onDone, skipTo, 
   useEffect(() => {
     if (!running) return
     if (skipTo) {
-      setT(fail ? fail.at + 1.5 : T.end)
+      const end = fail ? fail.at + 1.5 : T.end
+      tRef.current = end
+      setT(end)
       return
     }
-    if (start.current === null) start.current = performance.now()
-    const t0 = start.current
-    const elapsed = (performance.now() - t0) / 1000
+    if (start.current === null) {
+      start.current = performance.now()
+      clock.current = { wall0: start.current, t0: 0, speed: clock.current.speed }
+    }
     const cues: Cue[] = []
     if (voice) {
       for (let k = 0; k < T.count; k++) cues.push({ at: k, voice: `count_${T.count - k}` })
@@ -216,20 +240,41 @@ export function LaunchSequence({ design, running, failed, seed, onDone, skipTo, 
     cues.push({ at: T.ignition, sfx: 'liftoff' })
     if (sideBoosters) cues.push({ at: T.boosterSep, sfx: 'staging' })
     cues.push({ at: T.meco, sfx: 'staging' }, { at: T.fairing, sfx: 'fairing' }, { at: T.deploy, sfx: 'deploy' }, { at: T.end, sfx: 'orbit' })
-    const kept = fail ? [...cues.filter((c) => c.at <= fail.at), { at: fail.at, sfx: 'explosion' as const }] : cues
-    const cancel = audio.schedule(kept.map((c) => ({ ...c, at: c.at - elapsed })))
+    cuesRef.current = fail ? [...cues.filter((c) => c.at <= fail.at), { at: fail.at, sfx: 'explosion' as const }] : cues
+    const c0 = clock.current
+    const tNow = c0.t0 + ((performance.now() - c0.wall0) / 1000) * c0.speed
+    cancelRef.current = audio.schedule(cuesRef.current.map((c) => ({ ...c, at: (c.at - tNow) / c0.speed })))
     let raf = 0
+    let shown = -1
     const tick = (now: number) => {
-      const tt = (now - t0) / 1000
-      setT(tt)
+      const c = clock.current
+      const tt = c.t0 + ((now - c.wall0) / 1000) * c.speed
+      tRef.current = tt
+      const q = Math.floor(tt * 10)
+      if (perFrame || q !== shown) {
+        shown = q
+        setT(tt)
+      }
       if (tt < (fail ? fail.at + 2 : T.end + 0.2)) raf = requestAnimationFrame(tick)
+      else setT(tt)
     }
     raf = requestAnimationFrame(tick)
     return () => {
       cancelAnimationFrame(raf)
-      cancel()
+      cancelRef.current()
     }
-  }, [running, skipTo, fail, T, voice, seed, sideBoosters])
+  }, [running, skipTo, fail, T, voice, seed, sideBoosters, perFrame])
+
+  /** Time warp on the deck: the clock and every pending sound move to the new rate from now on. */
+  const changeSpeed = (s: number) => {
+    const now = performance.now()
+    const c = clock.current
+    const tt = c.t0 + ((now - c.wall0) / 1000) * c.speed
+    clock.current = { wall0: now, t0: tt, speed: s }
+    setSpeed(s)
+    cancelRef.current()
+    cancelRef.current = audio.schedule(cuesRef.current.filter((x) => x.at > tt).map((x) => ({ ...x, at: (x.at - tt) / s })))
+  }
 
   // Music changes and completion.
   useEffect(() => {
@@ -302,11 +347,13 @@ export function LaunchSequence({ design, running, failed, seed, onDone, skipTo, 
     return `T${sign}${String(Math.floor(a / 60)).padStart(2, '0')}:${String(a % 60).padStart(2, '0')}`
   }
 
+  const target = useMemo(() => flightTarget(orbit.launchTarget, parking, { sideBoosters, landing: !!launcher.landing }), [orbit.launchTarget, parking, sideBoosters, launcher.landing])
+
   return (
-    <div className="relative h-[480px] overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
+    <div className={deck ? 'absolute inset-0 overflow-hidden bg-black' : 'relative h-[480px] overflow-hidden rounded-xl border border-slate-800 bg-slate-950'}>
       {use3D && (
         <Suspense fallback={null}>
-          <LaunchScene3D launcherId={launcher.id} light={light} T={T} tRef={tRef} failAt={fail?.at ?? null} visual={v} landed={boosterLanded !== false} rocket={ownRocket} />
+          <LaunchScene3D launcherId={launcher.id} light={light} T={T} tRef={tRef} failAt={fail?.at ?? null} visual={v} landed={boosterLanded !== false} rocket={ownRocket} views={deck ? views : undefined} />
         </Suspense>
       )}
       <svg viewBox="0 0 800 480" className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid slice" role="img" aria-label={tText('launch.aria', { launcher: launcherName })}>
@@ -358,26 +405,27 @@ export function LaunchSequence({ design, running, failed, seed, onDone, skipTo, 
             <SpacecraftDrawing v={v} deployed={t >= T.deploy + 0.5} />
           </g>
         )}
-        {/* countdown digit */}
-        {running && t < T.ignition && (
+        {/* countdown digit (the deck draws its own) */}
+        {!deck && running && t < T.ignition && (
           <text x="400" y="200" textAnchor="middle" fontSize="110" fontWeight="800" fill="#fff" style={{ fontFamily: 'var(--font-display)' }}>
             {Math.max(1, Math.ceil(T.ignition - t))}
           </text>
         )}
-        {running && t >= T.ignition && t < T.liftoff && (
+        {!deck && running && t >= T.ignition && t < T.liftoff && (
           <text x="400" y="190" textAnchor="middle" fontSize="64" fontWeight="800" fill="#fbbf24" letterSpacing="6" style={{ fontFamily: 'var(--font-display)' }}>
             {tText('launch.ignition')}
           </text>
         )}
       </svg>
-      {launcher.landing && running && !exploded && t >= T.meco + 0.4 && t < T.meco + 6.5 && (
+      {!deck && launcher.landing && running && !exploded && t >= T.meco + 0.4 && t < T.meco + 6.5 && (
         use3D ? (
           <BoosterLandingLabels t={t - T.meco - 0.4} landed={boosterLanded !== false} />
         ) : (
           <BoosterLanding t={t - T.meco - 0.4} landed={boosterLanded !== false} />
         )
       )}
-      {/* HUD */}
+      {/* HUD (the framed scene; the deck has its own) */}
+      {!deck && (
       <div className="pointer-events-none absolute left-3 top-3 rounded-lg bg-slate-950/70 px-3 py-2 font-mono text-[11px] leading-5 text-slate-200 backdrop-blur">
         <div className="font-display text-xs font-semibold text-sky-300">{launcherName}</div>
         <div>{running ? fmtMet(met) : fmtMet(-T.ignition)}</div>
@@ -386,16 +434,44 @@ export function LaunchSequence({ design, running, failed, seed, onDone, skipTo, 
         <div>{tText('launch.hud.dv', { dv: dvSpent.toFixed(2) })}</div>
         <div className="text-slate-400">{stage}</div>
       </div>
-      {running && !exploded && t >= T.farewell && t < T.farewell + 3.2 && (
+      )}
+      {!deck && running && !exploded && t >= T.farewell && t < T.farewell + 3.2 && (
         <div className="absolute inset-x-0 top-20 text-center" aria-live="polite">
           <span className="rounded-lg bg-slate-950/70 px-4 py-2 font-display text-xl font-semibold text-amber-200 shadow-lg">“{tText(farewell)}”</span>
           <div className="mt-1 text-xs text-slate-300">{tText('launch.hud.missionControl')}</div>
         </div>
       )}
-      {running && (
+      {!deck && running && (
         <div className="absolute inset-x-3 bottom-3 rounded-lg bg-slate-950/75 px-3 py-2 text-sm text-slate-100 backdrop-blur" aria-live="polite">
           {caption}
         </div>
+      )}
+      {deck && (
+        <FlightDeck
+          T={T}
+          tRef={tRef}
+          running={running}
+          use3D={use3D}
+          views={views}
+          target={target}
+          light={light}
+          launcherName={launcherName}
+          orbitName={tx(`component.${orbit.id}.name`, orbit.name)}
+          failAt={fail?.at ?? null}
+          failText={fail?.text ?? null}
+          boosterLanded={launcher.landing ? (boosterLanded ?? null) : null}
+          caption={caption}
+          farewell={running && !exploded && t >= T.farewell && t < T.farewell + 3.2 ? tText(farewell) : null}
+          countdown={running && t < T.ignition ? Math.max(1, Math.ceil(T.ignition - t)) : null}
+          ignition={running && t >= T.ignition && t < T.liftoff}
+          speed={speed}
+          canWarp={running && !exploded && t >= T.liftoff + 3}
+          onSpeed={changeSpeed}
+          onSkip={running ? onSkip : undefined}
+          onBack={running ? undefined : onBack}
+          prelaunch={prelaunch}
+          outcome={outcome}
+        />
       )}
     </div>
   )
