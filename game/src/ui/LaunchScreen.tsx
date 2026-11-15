@@ -7,7 +7,6 @@ import { resolveLauncher } from '../engine/launch'
 import { evaluateDesign } from '../engine/evaluate'
 import { fmt } from '../i18n/en'
 import { randomSeed, useGame } from '../store/game'
-import { Disclaimer } from './components'
 import { LaunchSequence, type LaunchOutcome } from './launch/LaunchSequence'
 import { SpacecraftSprite } from './spacecraft/SpacecraftSprite'
 import { useT, useTx } from '../i18n'
@@ -53,106 +52,87 @@ export function LaunchScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoLaunch, phase])
 
-  return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <button type="button" onClick={backToDesign} className="text-sm text-slate-400 hover:text-slate-100" disabled={phase === 'flying'}>
-          {t('launch.backToDesign')}
-        </button>
-        <span className="text-xs text-slate-500">{t('launch.seedRule')}</span>
-      </div>
+  const ready = (
+    <div className="deck-panel w-[660px]">
+      <header className="deck-head">
+        <h2>{t('launch.title', { name: tx(`scenario.${scenario.id}.name`, scenario.name) })}</h2>
+        <span className="text-[12px] uppercase tracking-[0.14em] text-[#8a8f98]">{t('launch.seedRule')}</span>
+      </header>
       {challenge && challenge.scenarioId === design.scenarioId && (
-        <p className={`mt-3 rounded-lg border p-2 text-sm ${challenge.seed === seed ? 'border-violet-400/50 text-violet-200' : 'border-amber-400/50 text-amber-200'}`}>
+        <p className={`mx-3 mt-2 border px-2 py-1 text-sm ${challenge.seed === seed ? 'border-violet-400/50 text-violet-200' : 'border-amber-400/50 text-amber-200'}`}>
           {challenge.seed === seed ? t('challenge.active', { name: challenge.name || t('challenge.anon'), score: challenge.score }) : t('challenge.seedChanged', { seed: challenge.seed })}
         </p>
       )}
-      <h1 className="mt-3 text-2xl font-semibold">
-        {t('launch.title', { name: tx(`scenario.${scenario.id}.name`, scenario.name) })}
-      </h1>
-      <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <LaunchSequence design={design} running={phase !== 'ready'} failed={failed} seed={seed} onDone={onDone} skipTo={skip} boosterLanded={mission?.boosterLanded ?? null} />
-        <aside className="space-y-4">
-          <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 text-sm">
-            <h2 className="text-sm font-semibold">{t('launch.fairingPayload')}</h2>
-            <div className="mt-2 flex items-center gap-3">
-              <div className="rounded-lg bg-slate-950/70 p-1">
-                <SpacecraftSprite design={design} size={96} deployed={false} />
-              </div>
-              <dl className="grid flex-1 grid-cols-2 gap-y-1 text-xs">
-                <dt className="text-slate-400">{t('launch.wetMass')}</dt>
-                <dd>{fmt(report.mass.wetKg)} kg</dd>
-                <dt className="text-slate-400">{t('launch.capacity')}</dt>
-                <dd>{fmt(report.mass.capacityKg)} kg</dd>
-                <dt className="text-slate-400">{t('launch.target')}</dt>
-                <dd>{tx(`component.${orbit.id}.name`, orbit.name)}</dd>
-              </dl>
-            </div>
-            <dl className="mt-3 grid grid-cols-2 gap-y-1 text-xs">
-              <dt className="text-slate-400">{t('launch.launcher')}</dt>
-              <dd>{tx(`component.${launcher.id}.name`, launcher.name)}</dd>
-              <dt className="text-slate-400">{t('launch.reliability')}</dt>
-              <dd>{fmt(launcher.reliability * 100)}%</dd>
-              <dt className="text-slate-400">{t('dashboard.risk.label')}</dt>
-              <dd>{fmt(report.risk.successProbability * 100)}%</dd>
-              <dt className="text-slate-400">{t('launch.plannedLife')}</dt>
-              <dd>{fmt(design.designLifeYears, 1)} yr</dd>
-            </dl>
-          </div>
-          <label className="block rounded-xl border border-slate-800 bg-slate-900/70 p-4 text-sm">
-            <span className="font-semibold">{t('launch.missionSeed')}</span>
-            <div className="mt-2 flex gap-2">
-              <input
-                type="number"
-                className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 font-mono"
-                value={seed}
-                disabled={phase !== 'ready'}
-                onChange={(e) => setSeed(Number(e.target.value))}
-              />
-              <button
-                type="button"
-                className="rounded border border-slate-700 px-2 text-xs hover:border-slate-400"
-                disabled={phase !== 'ready'}
-                onClick={() => setSeed(randomSeed())}
-                aria-label={t('launch.randomSeed')}
-              >
-                🎲
-              </button>
-            </div>
-            <span className="mt-1 block text-[11px] text-slate-500">{t('launch.shareSeedHint')}</span>
-          </label>
-          {phase === 'ready' && (
-            <button
-              type="button"
-              onClick={go}
-              className="font-display w-full btn-primary px-4 py-4 text-lg "
-            >
-              {t('launch.launchBtn')}
-            </button>
-          )}
-          {phase === 'flying' && (
-            <button type="button" onClick={() => setSkip(true)} className="w-full rounded-xl border border-slate-700 px-4 py-3 text-sm text-slate-300">
-              {t('launch.skipAnimation')}
-            </button>
-          )}
-          {phase === 'success' && (
-            <button
-              type="button"
-              onClick={startFlight}
-              className="font-display w-full rounded-xl bg-emerald-600 px-4 py-4 text-lg font-bold text-white hover:bg-emerald-500"
-            >
-              {t('launch.startMission')}
-            </button>
-          )}
-          {phase === 'failure' && (
-            <button type="button" onClick={showResults} className="w-full rounded-xl bg-slate-700 px-4 py-4 font-semibold text-white hover:bg-slate-600">
-              {t('launch.seeReport')}
-            </button>
-          )}
-        </aside>
+      <div className="flex items-center gap-4 px-3 py-2">
+        <div className="shrink-0 rounded bg-black/40 p-1">
+          <SpacecraftSprite design={design} size={64} deployed={false} />
+        </div>
+        <dl className="grid flex-1 grid-cols-4 gap-x-3 gap-y-0.5 text-[14px]">
+          <dt className="text-[#8a8f98]">{t('launch.wetMass')}</dt>
+          <dd>{fmt(report.mass.wetKg)} kg</dd>
+          <dt className="text-[#8a8f98]">{t('launch.capacity')}</dt>
+          <dd>{fmt(report.mass.capacityKg)} kg</dd>
+          <dt className="text-[#8a8f98]">{t('launch.reliability')}</dt>
+          <dd>{fmt(launcher.reliability * 100)}%</dd>
+          <dt className="text-[#8a8f98]">{t('dashboard.risk.label')}</dt>
+          <dd>{fmt(report.risk.successProbability * 100)}%</dd>
+          <dt className="text-[#8a8f98]">{t('launch.target')}</dt>
+          <dd className="truncate">{tx(`component.${orbit.id}.name`, orbit.name)}</dd>
+          <dt className="text-[#8a8f98]">{t('launch.plannedLife')}</dt>
+          <dd>{fmt(design.designLifeYears, 1)} yr</dd>
+        </dl>
       </div>
-      <div className="mt-6">
-        <Disclaimer />
+      <div className="flex items-center gap-2 border-t border-[#3a3f47] px-3 py-2">
+        <label className="flex items-center gap-2 text-[13px] uppercase tracking-wider text-[#8a8f98]">
+          {t('launch.missionSeed')}
+          <input type="number" className="w-28 border border-[#3a3f47] bg-[#0d0f12] px-2 py-1 font-mono text-[#e8e0cc]" value={seed} onChange={(e) => setSeed(Number(e.target.value))} />
+        </label>
+        <button type="button" className="deck-btn" onClick={() => setSeed(randomSeed())} aria-label={t('launch.randomSeed')}>
+          🎲
+        </button>
+        <button type="button" onClick={go} className="btn-primary ml-auto px-8 py-2.5 text-xl">
+          {t('launch.launchBtn')}
+        </button>
       </div>
+    </div>
+  )
+
+  const outcome =
+    phase === 'success' ? (
+      <div className="deck-panel flex w-[560px] items-center gap-4 px-4 py-3">
+        <div>
+          <div className="text-[13px] uppercase tracking-[0.16em] text-[#d9b46a]">{t('launch.stage.orbit')}</div>
+          <div className="text-[22px]">{tx(`scenario.${scenario.id}.name`, scenario.name)}</div>
+        </div>
+        <button type="button" onClick={startFlight} className="btn-primary ml-auto px-6 py-3 text-lg">
+          {t('launch.startMission')}
+        </button>
+      </div>
+    ) : phase === 'failure' ? (
+      <div className="deck-panel flex w-[560px] items-center gap-4 px-4 py-3">
+        <div className="text-[18px] uppercase tracking-[0.12em] text-[#ff3d7f]">Vehicle lost</div>
+        <button type="button" onClick={showResults} className="btn-secondary ml-auto px-6 py-3 text-lg">
+          {t('launch.seeReport')}
+        </button>
+      </div>
+    ) : undefined
+
+  return (
+    <main className="absolute inset-0 overflow-hidden">
+      <LaunchSequence
+        deck
+        design={design}
+        running={phase !== 'ready'}
+        failed={failed}
+        seed={seed}
+        onDone={onDone}
+        skipTo={skip}
+        boosterLanded={mission?.boosterLanded ?? null}
+        prelaunch={ready}
+        outcome={outcome}
+        onSkip={() => setSkip(true)}
+        onBack={backToDesign}
+      />
     </main>
   )
 }

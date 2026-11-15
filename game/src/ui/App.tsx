@@ -95,7 +95,7 @@ export function App() {
       <div className={`hud relative h-full ${reduce ? 'reduce-motion' : ''}`}>
         {/* The launch site, blurred and darkened, sits behind every screen except the menu (which shows it sharp). */}
         {booted && screen !== 'home' && (
-          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
             <div className="absolute inset-0 scale-110 blur-md">
               <MenuBackdrop />
             </div>
@@ -109,6 +109,8 @@ export function App() {
             <div key={screen} className="stage-scroll screen-in relative h-full overflow-y-auto">
               <CurrentScreen />
             </div>
+            {/* sound and settings: in a corner, except on the flight deck, which has them in its header */}
+            {screen !== 'launch' && (
             <div className="absolute bottom-4 right-4 z-40 flex gap-2">
               <SoundToggle />
               <button
@@ -121,6 +123,7 @@ export function App() {
                 ⚙
               </button>
             </div>
+            )}
             <GuideDock />
             <JoinRoom />
             {settingsOpen && <SettingsPanel onClose={() => openSettings(false)} />}

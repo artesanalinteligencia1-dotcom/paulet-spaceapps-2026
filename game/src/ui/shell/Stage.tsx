@@ -26,7 +26,7 @@ export function Stage({ children }: { children: ReactNode }) {
     <div className="fixed inset-0 grid place-items-center overflow-hidden bg-black">
       <div
         id="stage"
-        className="stage relative overflow-hidden bg-[#020617]"
+        className="stage relative overflow-clip bg-[#020617]"
         style={{ width: STAGE_W, height: STAGE_H, zoom: scale }}
         onPointerOver={(e) => {
           if (!uiSounds || e.pointerType !== 'mouse') return
