@@ -228,7 +228,7 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 12. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
 
 ### Pedidos del dueño tras probar el juego (2026-11-14, noche) — en sus palabras, resumidos
-14. [ ] **Más atractivo visualmente:** "el juego parece aún muy años 2000". Rediseño visual (decidir mostrando 2–3 variantes, PLAYBOOK regla 3.3).
+14. [~] (2026-11-14: prototipo con 3 direcciones en `game/proto-directions.html`, abrir en `npm run dev` → `/proto-directions.html`; A Mission control, B Paulet's notebook, C Blueprint; falta que el dueño elija) **Más atractivo visualmente:** "el juego parece aún muy años 2000". Rediseño visual (decidir mostrando 2–3 variantes, PLAYBOOK regla 3.3).
 15. [~] (hecho en parte: franja de contexto, sesión por misión y preguntas; validar con el dueño) **Más contexto al elegir (de Carga útil a Revisión), sobre todo en la primera misión importante (Vigía de la Tierra / Earth Watch):** no quitar lo técnico, pero explicar qué elegir y para qué. El dueño no terminó Earth Watch porque no entendía de qué trataba y tuvo que probar hasta cumplir los requisitos.
 16. [~] (hecho sin IA: botón Atrás y preguntas; la IA queda como propuesta, ver Investigación) **Kuntur:** poder volver atrás en los pasos de la guía y poder preguntarle (hoy solo muestra mensajes). Propuesta del dueño (opcional): usar la API de una IA para que ayude en el juego. **Nada de proveedores chinos** (p. ej. DeepSeek): el concurso lo prohíbe.
 17. [x] (2026-11-14) **Multijugador también desde el inicio**, para jugar cualquier misión → hecho, ver §9.
