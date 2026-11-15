@@ -5,7 +5,7 @@
 > fecha, actualiza "Pendiente" y "Siguiente paso exacto", y haz commit.
 > Explicaciones al dueño en español; código, textos del juego y entrega en inglés.
 
-Última actualización: 2026-11-14 (noche, 2.ª sesión).
+Última actualización: 2026-11-15 (madrugada).
 
 ---
 
@@ -141,6 +141,11 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 | 2026-11-14 | **Kuntur: cóndor geométrico andino** (líneas planas y escalonadas inspiradas en el arte textil y de piedra andino), animado con GSAP | Respuesta del dueño |
 | 2026-11-14 | **Diapositiva 3: escena del equipo** (Goicochea, Chicho, Roberto y Franchesca, adultos, alrededor de la mesa con el juego), imagen con Gemini del dueño y marca "AI-generated" | Respuesta del dueño |
 | 2026-11-14 | **Tono de la Carta a Paulet: personal y luego técnica**: dos líneas emotivas de Goicochea y después el porqué técnico del resultado | Respuesta del dueño |
+| 2026-11-15 | **Estilo de consola de control** (imagen de referencia del dueño): paneles grafito con franja de título, crema y dorado, naranja para rutas y botones, magenta solo para alarmas, Barlow Condensed y el logo PAULET (E de tres barras). Reemplaza la mezcla A + B | Pedido del dueño: "que el videojuego se vea como la imagen de la izquierda" |
+| 2026-11-15 | **Adiós a las hojas blancas:** los momentos de historia (tutorial, sesión informativa, intro y, cuando exista, la carta) son "transmisiones" del mismo estilo de consola | El dueño: "no tienen nada que ver con el diseño del juego" |
+| 2026-11-15 | **Cabina de vuelo** en el lanzamiento real, con vuelo 4 veces más largo tras el despegue (ritmo 4), velocidades 1×/2×/4× y saltar | Pedido del dueño: ver todo el recorrido con varias cámaras |
+| 2026-11-15 | **Realismo 3D separado como tarea para Fable** (sesión aparte que comparte la carpeta; solo toca `game/src/ui/launch/three/*`) | Pedido del dueño: "lo que necesites a Fable sepáralo como tarea" |
+| 2026-11-15 | **Sin superposiciones:** cuadrícula fija para 1440×810, modales con fondo atenuado y una auditoría automática (`__overlapAudit()` en desarrollo) | Pedido del dueño: "revisa que no sobretoquen los objetos" |
 
 ## 9. Hecho
 - [x] 2026-11-14 · Lectura de las guías de entrega y jurado, del reto, sus recursos y las Global Offers.
@@ -223,6 +228,25 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
       ascenso a ~200 km (solo para mostrar). Probado en el navegador en las cuatro vistas. **Falta la aprobación del dueño**
       para integrarlo al juego. **Tutoriales de medios** en `docs/tutoriales/` (imágenes con Gemini, video con Veo, texturas
       de NASA Blue/Black Marble, montaje con HyperFrames).
+- [x] 2026-11-15 · **Texturas reales de NASA** (descargadas con permiso del dueño): Blue Marble NG julio 2004 y Black Marble
+      2016, reducidas en `game/src/assets/textures/` (1,5 MB; fuentes en `SOURCES.md`), en el caché sin conexión.
+- [x] 2026-11-15 · **Cabina de vuelo en el lanzamiento real** (`game/src/ui/flight/`): telemetría hacia la órbita de cada
+      misión (altitud, velocidad orbital √(μ/r), inclinación y rumbo desde Arequipa por trigonometría esférica), cargas
+      del ascenso, gráficas, propulsión y etapas, eventos (con aterrizaje del propulsor y fallas), cintas de actitud,
+      cámaras Ground/Chase/Onboard/Map (teclas 1–4) con interferencia al cambiar, segundo visor en vivo (ahí se ve el
+      aterrizaje del propulsor), mapa del recorrido sobre la Tierra de NASA (día/noche, terminador del amanecer) y
+      tarjetas de preparación y de resultado. Vuelo con ritmo 4 y velocidades 1×/2×/4× que reprograman los sonidos.
+      Probado de punta a punta con Earth Watch: llega a 700 km y 7 508 m/s.
+- [x] 2026-11-15 · **Estilo de consola en todo el juego** (logo PAULET en inicio y menú, paneles con franja de título,
+      Barlow Condensed), **tarjetas de transmisión** en vez de papel, **intro sobre la plataforma 3D real** con texto que
+      se decodifica y despegue final, **transiciones** entre pantallas (Motion) y modales.
+- [x] 2026-11-15 · **Auditoría de superposiciones** (`game/src/ui/dev/overlapAudit.ts`): menú, taller (6 pestañas × 4
+      posiciones de scroll), lanzamiento (antes, durante y al final), intro, learn, rocket, astro y sala en línea: 0
+      superposiciones y 0 textos desbordados. Corregido además un desplazamiento de toda la pantalla (fondo al 110 %).
+- [x] 2026-11-15 · **Sesión aparte para Fable** ("Fable: realistic 3D launch scene and orbit view"): Tierra con texturas
+      NASA en 3D, vista que se aleja hasta la órbita, llama y humo realistas, luz y cámaras. Comparte la carpeta; hace
+      commits solo de `game/src/ui/launch/three/*` y no hace push (lo hace la sesión principal).
+- [x] 2026-11-15 · **Resumen de storytelling** en `docs/storytelling.md`.
 
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
@@ -258,7 +282,7 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 12. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
 
 ### Pedidos del dueño tras probar el juego (2026-11-14, noche) — en sus palabras, resumidos
-14. [~] (2026-11-14: el dueño eligió A + B entre 3 prototipos, `game/proto-directions.html`; aplicado al taller, tutorial, briefing, Kuntur e informe, ver §9; falta: menú, pantalla de misiones, lanzamiento y la Carta a Paulet en papel) **Más atractivo visualmente:** "el juego parece aún muy años 2000". Rediseño visual (decidir mostrando 2–3 variantes, PLAYBOOK regla 3.3).
+14. [~] (2026-11-15: estilo de consola aplicado a inicio, menú, taller, lanzamiento, intro y Kuntur; falta revisar a ojo informe, campaña y lista de misiones) **Más atractivo visualmente:** "el juego parece aún muy años 2000". Rediseño visual (decidir mostrando 2–3 variantes, PLAYBOOK regla 3.3).
 15. [~] (hecho en parte: franja de contexto, sesión por misión y preguntas; validar con el dueño) **Más contexto al elegir (de Carga útil a Revisión), sobre todo en la primera misión importante (Vigía de la Tierra / Earth Watch):** no quitar lo técnico, pero explicar qué elegir y para qué. El dueño no terminó Earth Watch porque no entendía de qué trataba y tuvo que probar hasta cumplir los requisitos.
 16. [~] (hecho sin IA: botón Atrás y preguntas; la IA queda como propuesta, ver Investigación) **Kuntur:** poder volver atrás en los pasos de la guía y poder preguntarle (hoy solo muestra mensajes). Propuesta del dueño (opcional): usar la API de una IA para que ayude en el juego. **Nada de proveedores chinos** (p. ej. DeepSeek): el concurso lo prohíbe.
 17. [x] (2026-11-14) **Multijugador también desde el inicio**, para jugar cualquier misión → hecho, ver §9.
@@ -266,10 +290,13 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 18b. [~] (hecho: GSAP en pestañas, informe y Kuntur; falta: escenas 3D con mejor luz) Aplicar la investigación: coreografía con GSAP en briefing, informe y transiciones; Kuntur animado con GSAP; escenas 3D con mejor luz e ilustración.
 19. [~] (hecho en texto: tutorial con historia + sesión por misión; faltan imágenes o video con Gemini) **Tutorial al comienzo de cada misión** (o al menos la primera): cómo funciona el juego, qué son los inversionistas, cómo llegó Pedro ahí, quiénes son sus amigos, qué son las estrellas. Se pueden usar imágenes o videos con IA: el dueño tiene **Gemini Pro** (marca "AI-generated" visible).
 
-20. [~] (prototipo hecho, ver §9) **Reestructuración del vuelo con referencias del dueño (2026-11-14):** HUD como su imagen 1 (logo
+20. [~] (integrado al juego el 2026-11-15, ver §9; el realismo 3D lo hace la sesión de Fable) **Reestructuración del vuelo con referencias del dueño (2026-11-14):** HUD como su imagen 1 (logo
     PAULET, telemetría, propulsión) con los visores laterales de su imagen 2 (gráficas, barras de calor, alertas); abajo a
     la izquierda y el centro, rediseñados; recorrido completo del cohete con cámaras en vivo (suelo, seguimiento, a bordo,
     mapa) y visor pequeño. Mantener original: instrumentos aeroespaciales reales, sin copiar la interfaz de otro juego.
+
+21. [ ] Traducir al español las etiquetas fijas de la cabina (hoy en inglés técnico: "Orbital telemetry", etc.).
+22. [ ] Revisar a ojo el informe animado y la pantalla de operaciones de vuelo (`FlightScreen`) con el nuevo estilo.
 
 ### Investigación: animación y aspecto visual (2026-11-14)
 - **Mantener Three.js + postprocessing** para las escenas 3D (ya instalados). Mejorar luz, materiales e ilustración antes
@@ -292,12 +319,11 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
   guarde y llame al modelo, con las preguntas sin internet como respaldo. Declarar el uso de IA en la entrega.
 
 ## 11. Siguiente paso exacto
-1) **El dueño revisa el prototipo `?proto=flight`** (`npm run dev` → `http://localhost:5174/?proto=flight`, teclas 1–4) y da luz
-   verde. Luego, de golpe: alargar el ascenso (hoy ~10 s; propuesta ~60–90 s con velocidad 1×/2×/4× y saltar),
-   integrar el HUD en `LaunchScreen`/`LaunchSequence` (subtítulos y sonidos siguen la línea de tiempo), pulir la cámara a
-   bordo y la de tierra en el espacio, Tierra con texturas de NASA (tutorial 3) y llevar el mismo marco a `FlightScreen`.
-2) Recursos de NASA dentro del juego (punto 6).
-3) Carta a Paulet en estilo cuaderno (punto 5).
+1) **Recursos de NASA dentro del juego** (punto 6): pantalla "NASA resources" con enlaces y citas en contexto, incluida la
+   Tierra de NASA Visible Earth. Es el criterio Relevance.
+2) **Carta a Paulet** y **barras de valores** (punto 5), en estilo de transmisión de consola.
+3) Cuando la sesión de Fable termine: revisar su informe y su diff en `game/src/ui/launch/three/`, probar el despegue
+   completo en las cuatro cámaras, correr `__overlapAudit()` y hacer push.
 4) Diapositivas (la 3 con la imagen del tutorial 1) y página del proyecto; la otra cuenta despliega en Vercel (punto 3).
 
 ## 12. Dónde está cada cosa
