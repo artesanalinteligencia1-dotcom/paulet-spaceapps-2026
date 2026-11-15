@@ -213,6 +213,16 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
       páginas del cuaderno de Paulet (estilo B) con GSAP, Kuntur entra volando al final. Sin personas en pantalla. Textos
       `intro.scene.*` e `intro.hand.*` (inglés y español). **Ojo:** el video viejo sigue en el historial de git; si el repo se
       hace público, decidir si se limpia el historial o se entrega otro enlace.
+- [x] 2026-11-14 (noche) · **Prototipo del nuevo HUD de vuelo** (pedido 20), `?proto=flight` (`game/src/ui/proto/FlightHud.tsx`,
+      `flightTelemetry.ts`, logo `game/src/ui/brand/PauletLogo.tsx`): marco grafito con el logo PAULET (E de tres barras),
+      MET y fase, pausa/velocidad; paneles "Orbital telemetry" (con globo), "Ascent loads" (barras de calor), gráficas en
+      vivo, "Propulsion & staging" (medidores Δv por etapa y propelente), registro de eventos; actitud con escalera de
+      cabeceo y cintas de velocidad/altitud; **cámaras en vivo** Ground (teleobjetivo que sigue al cohete), Chase, Onboard
+      (cámara en la etapa superior mirando hacia abajo) y Map (globo con trayectoria desde Arequipa y órbitas), más un
+      **visor pequeño con una segunda cámara** (`LaunchScene3D` acepta `views`). Telemetría con cifras realistas de un
+      ascenso a ~200 km (solo para mostrar). Probado en el navegador en las cuatro vistas. **Falta la aprobación del dueño**
+      para integrarlo al juego. **Tutoriales de medios** en `docs/tutoriales/` (imágenes con Gemini, video con Veo, texturas
+      de NASA Blue/Black Marble, montaje con HyperFrames).
 
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
@@ -256,6 +266,11 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 18b. [~] (hecho: GSAP en pestañas, informe y Kuntur; falta: escenas 3D con mejor luz) Aplicar la investigación: coreografía con GSAP en briefing, informe y transiciones; Kuntur animado con GSAP; escenas 3D con mejor luz e ilustración.
 19. [~] (hecho en texto: tutorial con historia + sesión por misión; faltan imágenes o video con Gemini) **Tutorial al comienzo de cada misión** (o al menos la primera): cómo funciona el juego, qué son los inversionistas, cómo llegó Pedro ahí, quiénes son sus amigos, qué son las estrellas. Se pueden usar imágenes o videos con IA: el dueño tiene **Gemini Pro** (marca "AI-generated" visible).
 
+20. [~] (prototipo hecho, ver §9) **Reestructuración del vuelo con referencias del dueño (2026-11-14):** HUD como su imagen 1 (logo
+    PAULET, telemetría, propulsión) con los visores laterales de su imagen 2 (gráficas, barras de calor, alertas); abajo a
+    la izquierda y el centro, rediseñados; recorrido completo del cohete con cámaras en vivo (suelo, seguimiento, a bordo,
+    mapa) y visor pequeño. Mantener original: instrumentos aeroespaciales reales, sin copiar la interfaz de otro juego.
+
 ### Investigación: animación y aspecto visual (2026-11-14)
 - **Mantener Three.js + postprocessing** para las escenas 3D (ya instalados). Mejorar luz, materiales e ilustración antes
   que cambiar de motor. React Three Fiber solo si se reescriben las escenas (no antes del cierre).
@@ -277,12 +292,13 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
   guarde y llame al modelo, con las preguntas sin internet como respaldo. Declarar el uso de IA en la entrega.
 
 ## 11. Siguiente paso exacto
-1) Recursos de NASA dentro del juego (punto 6).
-2) Carta a Paulet en el informe, en estilo cuaderno y con el tono decidido (personal y luego técnica), y barras de
-   valores (punto 5).
-3) Llevar la dirección A a la lista de misiones y a la pantalla de lanzamiento; luz de las escenas 3D (punto 18b).
-4) El dueño valida Vigía de la Tierra con el nuevo contexto y el nuevo aspecto, y dicta mejoras.
-5) La otra cuenta despliega en Vercel (punto 3); diapositivas (la 3 es la escena del equipo con Gemini) y página.
+1) **El dueño revisa el prototipo `?proto=flight`** (`npm run dev` → `http://localhost:5174/?proto=flight`, teclas 1–4) y da luz
+   verde. Luego, de golpe: alargar el ascenso (hoy ~10 s; propuesta ~60–90 s con velocidad 1×/2×/4× y saltar),
+   integrar el HUD en `LaunchScreen`/`LaunchSequence` (subtítulos y sonidos siguen la línea de tiempo), pulir la cámara a
+   bordo y la de tierra en el espacio, Tierra con texturas de NASA (tutorial 3) y llevar el mismo marco a `FlightScreen`.
+2) Recursos de NASA dentro del juego (punto 6).
+3) Carta a Paulet en estilo cuaderno (punto 5).
+4) Diapositivas (la 3 con la imagen del tutorial 1) y página del proyecto; la otra cuenta despliega en Vercel (punto 3).
 
 ## 12. Dónde está cada cosa
 - Primera versión: repo `artesanalinteligencia1-dotcom/PP.game` (rama `cloud/fase-1`), clon `C:\PPgame\PP.game`,
