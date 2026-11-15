@@ -114,7 +114,7 @@ export function DesignScreen({ design }: { design: Design }) {
   return (
     <div className="min-h-full">
       <header className="sticky top-0 z-20 border-b border-white/[0.07] bg-[#0a0d12]/85 backdrop-blur-md">
-        <div className="mx-10 flex items-end gap-6 pb-0 pt-5">
+        <div className="ml-[136px] mr-10 flex items-end gap-6 pb-0 pt-5">
           <div className="min-w-0 pb-3">
             <button type="button" data-sound="back" onClick={exit} className="hud-label hover:text-white">
               {mode === 'campaign' ? t('design.back.career') : t('design.back.missions')}
@@ -145,7 +145,7 @@ export function DesignScreen({ design }: { design: Design }) {
           </nav>
         </div>
       </header>
-      <div className="mx-10 grid gap-8 py-6 grid-cols-[minmax(0,1fr)_380px]">
+      <div className="ml-[136px] mr-10 grid gap-8 pb-24 pt-6 grid-cols-[minmax(0,1fr)_380px]">
         <aside className="order-last">
           <div className="hud-panel sticky top-28 p-5">
             <p className="hud-label mb-3">{t('design.spacecraftBudgets')}</p>

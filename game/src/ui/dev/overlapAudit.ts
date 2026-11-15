@@ -48,11 +48,14 @@ export function overlapAudit(root: Element | null = document.getElementById('sta
   if (!root) return { overlaps: [], escapes: [] }
   const boxes = [...root.querySelectorAll(BOXES)].filter(shown)
   const overlaps: Hit[] = []
+  // a modal over a dimmed stage covers the screen on purpose: only overlaps on the same layer count
+  const modal = root.querySelector('[data-modal], [aria-modal="true"]')
   for (let i = 0; i < boxes.length; i++)
     for (let j = i + 1; j < boxes.length; j++) {
       const a = boxes[i]
       const b = boxes[j]
       if (a.contains(b) || b.contains(a)) continue
+      if (modal && modal.contains(a) !== modal.contains(b)) continue
       const ra = visibleRect(a)
       const rb = visibleRect(b)
       if (!ra || !rb) continue
