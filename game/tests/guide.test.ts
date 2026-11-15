@@ -113,7 +113,7 @@ describe('texts', () => {
   it('every tutorial step has its title and text in both languages', () => {
     const E = en as Record<string, string>
     const S = es as Record<string, string>
-    expect(TUTORIAL.length).toBe(8)
+    expect(TUTORIAL.length).toBe(11)
     for (const s of TUTORIAL) for (const f of ['title', 'text']) {
       expect(E[`guide.tutorial.${s.id}.${f}`], s.id).toBeTruthy()
       expect(S[`guide.tutorial.${s.id}.${f}`], s.id).toBeTruthy()

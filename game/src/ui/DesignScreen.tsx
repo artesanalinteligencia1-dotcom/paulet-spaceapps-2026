@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTeam } from '../store/team'
 import { useGuideContent } from '../store/guide'
 import { useSettings } from '../store/settings'
-import { TUTORIAL, designHints, designMood } from './guide/lines'
+import { TUTORIAL, designHints, designMood, missionBriefing, questionsFor } from './guide/lines'
+import { TabContext } from './tabs/TabContext'
 import { useMusic } from '../audio/audio'
 import { SpacecraftSprite } from './spacecraft/SpacecraftSprite'
 import { evaluateDesign } from '../engine/evaluate'
@@ -29,10 +30,11 @@ const TABS: { id: TabId; label: StringKey }[] = [
 ]
 
 /** Kuntur on the design screen: the first-mission tutorial once, then hints about the review. */
-function useDesignGuide(report: ReturnType<typeof evaluateDesign>, tab: TabId, setTab: (t: TabId) => void) {
+function useDesignGuide(report: ReturnType<typeof evaluateDesign>, tab: TabId, setTab: (t: TabId) => void, scenario: ReturnType<typeof getScenario>) {
   const t = useT()
   const guideOn = useSettings((s) => s.guide)
   const tutorialDone = useSettings((s) => s.tutorialDone)
+  const briefed = useSettings((s) => s.briefed)
   const setSetting = useSettings((s) => s.set)
   const [step, setStep] = useState(0)
   const tutorial = guideOn && !tutorialDone
@@ -44,6 +46,13 @@ function useDesignGuide(report: ReturnType<typeof evaluateDesign>, tab: TabId, s
   const s = TUTORIAL[Math.min(step, TUTORIAL.length - 1)]
   const last = step >= TUTORIAL.length - 1
   const hints = designHints(report, tab)
+  // the first time each mission opens (after the tutorial), Kuntur says what it is really about
+  const briefing = !tutorial && guideOn && !briefed.includes(scenario.id)
+  const tabLabel = (id: TabId) => t(TABS.find((x) => x.id === id)!.label)
+  const questions = questionsFor(scenario, report, tab).map((q) => ({
+    label: q.label,
+    answer: { title: q.label, text: q.text, mood: 'explaining' as const, action: q.tab ? { label: t('guide.hint.show', { tab: tabLabel(q.tab) }), run: () => setTab(q.tab!) } : undefined },
+  }))
   const issues = report.review.filter((i) => i.severity !== 'ok').length
   useGuideContent(
     tutorial
@@ -55,6 +64,16 @@ function useDesignGuide(report: ReturnType<typeof evaluateDesign>, tab: TabId, s
           progress: t('guide.dock.count', { i: step + 1, n: TUTORIAL.length }),
           primary: { label: last ? t('guide.tutorial.go') : t('guide.tutorial.next'), run: () => (last ? finish() : go(step + 1)) },
           secondary: last ? undefined : { label: t('guide.tutorial.skip'), run: finish },
+          back: step > 0 ? { label: t('guide.tutorial.back'), run: () => go(step - 1) } : undefined,
+        }
+      : briefing
+      ? {
+          id: 'briefing-' + scenario.id,
+          mood: 'explaining',
+          forceOpen: true,
+          lines: missionBriefing(scenario, report).map((l) => ({ title: l.title, text: l.text, mood: l.mood })),
+          primary: { label: t('guide.brief.ok'), run: () => setSetting('briefed', [...briefed, scenario.id]) },
+          questions,
         }
       : {
           id: 'design',
@@ -66,6 +85,7 @@ function useDesignGuide(report: ReturnType<typeof evaluateDesign>, tab: TabId, s
             mood: h.mood,
             action: h.tab ? { label: t('guide.hint.show', { tab: t(TABS.find((x) => x.id === h.tab)!.label) }), run: () => setTab(h.tab!) } : undefined,
           })),
+          questions,
         },
   )
 }
@@ -83,7 +103,7 @@ export function DesignScreen({ design }: { design: Design }) {
   const report = useMemo(() => evaluateDesign(design, scenario), [design, scenario])
   const blocking = report.review.filter((r) => r.blocking).length
   useMusic('design')
-  useDesignGuide(report, tab, setTab)
+  useDesignGuide(report, tab, setTab, scenario)
   // team play: a new mission keeps the players and starts a fresh negotiation
   const ensureTeam = useTeam((s) => s.ensureFor)
   useEffect(() => ensureTeam(scenario.id), [ensureTeam, scenario.id])
@@ -139,6 +159,7 @@ export function DesignScreen({ design }: { design: Design }) {
           </div>
         </aside>
         <main className="min-w-0">
+          <TabContext tab={tab} report={report} />
           {tab === 'mission' && <MissionTab scenario={scenario} report={report} design={design} />}
           {tab === 'payload' && <PayloadTab design={design} scenario={scenario} report={report} />}
           {tab === 'spacecraft' && <SpacecraftTab design={design} report={report} />}

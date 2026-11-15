@@ -16,10 +16,12 @@ export interface Settings {
   guide: boolean
   /** The first-mission tutorial has been seen (or skipped). */
   tutorialDone: boolean
+  /** Missions whose plain-words briefing Kuntur already gave. */
+  briefed: string[]
 }
 
 const KEY = 'ppgame.settings.v1'
-export const DEFAULT_SETTINGS: Settings = { padLight: 'auto', motion: 'system', language: 'en', languageChosen: false, uiSounds: true, guide: true, tutorialDone: false }
+export const DEFAULT_SETTINGS: Settings = { padLight: 'auto', motion: 'system', language: 'en', languageChosen: false, uiSounds: true, guide: true, tutorialDone: false, briefed: [] }
 
 function read(): Settings {
   try {
@@ -33,6 +35,7 @@ function read(): Settings {
       uiSounds: v.uiSounds !== false,
       guide: v.guide !== false,
       tutorialDone: v.tutorialDone === true,
+      briefed: Array.isArray(v.briefed) ? v.briefed.filter((x): x is string => typeof x === 'string') : [],
     }
   } catch {
     return { ...DEFAULT_SETTINGS }
@@ -47,9 +50,9 @@ export const useSettings = create<SettingsStore>((set, get) => ({
   ...(typeof window !== 'undefined' ? read() : DEFAULT_SETTINGS),
   set: (key, value) => {
     set({ [key]: value } as Partial<SettingsStore>)
-    const { padLight, motion, language, languageChosen, uiSounds, guide, tutorialDone } = get()
+    const { padLight, motion, language, languageChosen, uiSounds, guide, tutorialDone, briefed } = get()
     try {
-      localStorage.setItem(KEY, JSON.stringify({ padLight, motion, language, languageChosen, uiSounds, guide, tutorialDone }))
+      localStorage.setItem(KEY, JSON.stringify({ padLight, motion, language, languageChosen, uiSounds, guide, tutorialDone, briefed }))
     } catch {
       /* ignore */
     }

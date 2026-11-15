@@ -1,9 +1,10 @@
 // What Kuntur says: pure functions from the design review and the mission analysis to lines, so they can be tested.
 import type { Cause } from '../../engine/report'
 import type { Rank } from '../../engine/score'
-import type { DesignReport, ResourceKey, ReviewItem } from '../../engine/types'
-import { t } from '../../i18n'
-import { CAUSE_TEXT, message } from '../../i18n/en'
+import type { DesignReport, Requirement, RequirementResult, ResourceKey, ReviewItem, Scenario } from '../../engine/types'
+import { instruments } from '../../engine/catalog/components'
+import { t, type StringKey } from '../../i18n'
+import { CAUSE_TEXT, REQUIREMENT_LABEL, fmt, localName, message } from '../../i18n/en'
 import type { TabId } from '../../store/game'
 import type { GuideMood } from './robots'
 
@@ -101,6 +102,9 @@ export function resultsLines(causes: Cause[]): HintLine[] {
 
 export const TUTORIAL: { id: string; tab: TabId; mood: GuideMood }[] = [
   { id: 'welcome', tab: 'mission', mood: 'happy' },
+  { id: 'story', tab: 'mission', mood: 'explaining' },
+  { id: 'friends', tab: 'mission', mood: 'happy' },
+  { id: 'investors', tab: 'mission', mood: 'explaining' },
   { id: 'mission', tab: 'mission', mood: 'explaining' },
   { id: 'payload', tab: 'payload', mood: 'explaining' },
   { id: 'spacecraft', tab: 'spacecraft', mood: 'explaining' },
@@ -109,3 +113,88 @@ export const TUTORIAL: { id: string; tab: TabId; mood: GuideMood }[] = [
   { id: 'review', tab: 'review', mood: 'thinking' },
   { id: 'end', tab: 'review', mood: 'happy' },
 ]
+
+/** The tab where each kind of requirement is met. */
+export const REQUIREMENT_TAB: Record<Requirement['kind'], TabId> = {
+  instrumentAny: 'payload',
+  scienceAtLeast: 'payload',
+  cargoAtLeast: 'payload',
+  oxygenKgAtLeast: 'payload',
+  orbitIn: 'orbit',
+  altitudeAtMost: 'orbit',
+  dvAtMost: 'orbit',
+  ellipseKmAtMost: 'orbit',
+  arrivalByMonth: 'orbit',
+  lifeYears: 'spacecraft',
+  propulsionAny: 'spacecraft',
+  dataDeliveredGbDay: 'comms',
+  withinBudget: 'mission',
+  costAtMost: 'mission',
+  onSchedule: 'payload',
+}
+
+/** Scenarios with a plain-words briefing (what it is really about, and where to start). */
+export const BRIEFED_SCENARIOS = ['earth_watch', 'andean_eye', 'station_resupply', 'storm_tracker', 'lunar_pathfinder', 'lagrange_observatory', 'mars_orbiter', 'mars_stranded', 'mars_oxygen', 'sandbox']
+
+export const requirementLine = (q: RequirementResult) => {
+  const target = typeof q.target === 'number' ? fmt(q.target, 1) : localName(String(q.target))
+  return `${q.met ? '✔' : '○'} ${REQUIREMENT_LABEL[q.kind]} ${target}`
+}
+
+const briefWhat = (scenario: Scenario) =>
+  BRIEFED_SCENARIOS.includes(scenario.id) ? t(('brief.' + scenario.id + '.what') as StringKey) : t(('scenario.' + scenario.id + '.objective') as StringKey)
+
+/** The briefing Kuntur gives the first time a mission opens: what it is about, what to deliver, where to start. */
+export function missionBriefing(scenario: Scenario, report: DesignReport): HintLine[] {
+  const name = t(('scenario.' + scenario.id + '.name') as StringKey)
+  const must = report.requirements.filter((q) => !q.optional).map(requirementLine).join(' · ')
+  const known = BRIEFED_SCENARIOS.includes(scenario.id)
+  return [
+    { title: t('guide.brief.what', { mission: name }), text: briefWhat(scenario), mood: 'explaining', tab: null },
+    { title: t('guide.brief.deliver'), text: must, mood: 'thinking', tab: null },
+    { title: t('guide.brief.start'), text: known ? t(('brief.' + scenario.id + '.how') as StringKey) : t('guide.brief.startGeneric'), mood: 'happy', tab: 'payload' },
+  ]
+}
+
+export interface Question {
+  id: string
+  label: string
+  text: string
+  tab: TabId | null
+}
+
+/** Questions the player can ask Kuntur on each tab; the answers are worked out from the mission and the design. */
+export function questionsFor(scenario: Scenario, report: DesignReport, tab: TabId): Question[] {
+  const q = (id: string, text: string, tabTo: TabId | null = null): Question => ({ id, label: t(('guide.q.' + id) as StringKey), text, tab: tabTo })
+  const list: Question[] = [q('what', briefWhat(scenario))]
+  const next = designHints(report, tab)[0]
+  list.push(q('next', next.title + '. ' + next.text, next.tab))
+  if (tab === 'mission' || tab === 'review') list.push(q('investors', t('guide.a.investors')))
+  if (tab === 'payload') {
+    list.push(q('stars', t('guide.a.stars')))
+    const need = report.requirements.find((r) => r.kind === 'instrumentAny' && !r.optional)
+    const top = [...instruments]
+      .filter((i) => (scenario.relevance[i.id] ?? 0) >= 0.8)
+      .sort((a, b) => (scenario.relevance[b.id] ?? 0) - (scenario.relevance[a.id] ?? 0))
+      .slice(0, 3)
+      .map((i) => localName(i.name))
+    list.push(q('pick', need ? t('guide.a.pick', { need: localName(String(need.target)), top: top.join(', ') || '—' }) : t('guide.a.pickCargo')))
+    list.push(q('duty', t('guide.a.duty')))
+  }
+  if (tab === 'spacecraft') {
+    list.push(q('power', t('guide.a.power', { gen: fmt(report.power.avgGenEolW), need: fmt(report.power.avgLoadW), ecl: fmt(report.power.eclipseFraction * 100), dod: fmt(report.power.dodNominal * 100), limit: fmt(report.power.dodLimit * 100) })))
+    list.push(q('life', t('guide.a.life', { life: fmt(report.life.lifeYears, 1), need: fmt(report.life.requiredYears, 1), factor: t(('lifeFactor.' + report.life.limitingFactor) as StringKey) })))
+  }
+  if (tab === 'orbit') {
+    const orbitReq = report.requirements.find((r) => r.kind === 'orbitIn' && !r.optional)
+    list.push(q('orbit', orbitReq ? t('guide.a.orbit', { orbits: localName(String(orbitReq.target)) }) : t('guide.a.orbitFree')))
+    list.push(q('launcher', t('guide.a.launcher', { wet: fmt(report.mass.wetKg), cap: fmt(report.mass.capacityKg) })))
+  }
+  if (tab === 'comms') {
+    const dataReq = report.requirements.find((r) => r.kind === 'dataDeliveredGbDay' && !r.optional)
+    list.push(q('data', dataReq ? t('guide.a.data', { need: fmt(Number(dataReq.target), 1), now: fmt(report.data.deliveredGbDay, 1), made: fmt(report.data.generatedGbDay, 1) }) : t('guide.a.dataFree', { now: fmt(report.data.deliveredGbDay, 1) })))
+    list.push(q('stations', t('guide.a.stations')))
+  }
+  if (tab === 'review') list.push(q('colors', t('guide.a.colors')))
+  return list
+}
