@@ -162,3 +162,7 @@ credentials/
 !src/assets/video/*.mp4
 *.vercel
 .vercel/
+
+# Public web config of the Firebase project (it ships inside the game anyway); the database rules protect the data.
+!.env.production
+!.env.example

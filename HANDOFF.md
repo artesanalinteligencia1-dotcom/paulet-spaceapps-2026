@@ -182,10 +182,29 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
 2. [ ] Pedir ofertas: Miro Templates, GitHub Copilot Free; Google Cloud si haremos ranking o tiempo real.
-3. [ ] **Enlace público (lo hace el dueño, Claude no tiene sesión en Vercel):** vercel.com → Add New → Project → importar `paulet-spaceapps-2026` (dar acceso de GitHub si lo pide) → **Root Directory: `game`** (Vite se detecta solo) → Environment Variables: las 5 `VITE_FIREBASE_*` de `game/.env.local` → Deploy. Luego probar en ventana privada y con dos dispositivos reales (sala en línea). Alternativa: `npx vercel login` en la terminal del dueño y Claude despliega.
+3. [ ] **Enlace público en Vercel — TAREA PARA LA OTRA CUENTA DE CLAUDE** (la que tiene el conector de Vercel; esta no tiene sesión):
+   1. Crear un proyecto nuevo en Vercel desde el repo de GitHub `artesanalinteligencia1-dotcom/paulet-spaceapps-2026`
+      (rama `main`). **Root Directory: `game`.** Framework: Vite (se detecta solo); build `npm run build`; salida `dist`.
+   2. No hace falta poner variables: la configuración pública de Firebase va en `game/.env.production` (en el repo).
+   3. Desplegar a producción y anotar la URL aquí en §1 y §12. Nombre sugerido del proyecto: `paulet-spaceapps-2026`.
+   4. Probar en ventana privada: menú, una misión libre completa, el modo equipo y una **sala en línea con dos
+      dispositivos** (o dos navegadores): crear sala, unirse por enlace, votar, "Launch together".
+   5. Probar en el teléfono. Si el dominio es nuevo, pedir la clasificación de FortiGuard (§3).
+   6. No tocar el proyecto de Vercel de la primera versión (`paulet-andes-to-orbit`, rama `main` de PP.game).
 4. [ ] **Intro actual con Goicochea niño: no puede ir en la entrega** (regla de menores de 18). Hasta tener la nueva toma, quitarla o saltarla en la versión del concurso.
 5. [ ] Historia en el juego (los personajes ya están en el panel del equipo): barras de valores, carta a Paulet en el informe, intro nueva.
-6. [ ] Recursos de NASA dentro del juego: barra CML, segmentos de misión, "misión real más parecida", escenario CubeSat; validar Δv con GMAT.
+6. [ ] **Recursos de NASA referenciados DENTRO del juego** (pedido del dueño, 2026-11-14; criterio Relevance):
+   - Una pantalla o tarjeta "NASA resources" (desde el menú y desde Learn) que cite cada fuente con enlace y diga qué
+     parte del juego se apoya en ella: NASA Glenn *Beginner's Guide to Rockets* (ecuación del cohete, Isp, etapas),
+     JPL *Basics of Space Flight* (órbitas, ventanas a Marte), NSSDCA *Mars Fact Sheet*, *NASA Systems Engineering
+     Handbook* (márgenes, revisiones), páginas de Mars Reconnaissance Orbiter (aerofrenado), Curiosity/Perseverance y
+     Phoenix (aterrizaje), MOXIE (oxígeno), JPL Concept Maturity Levels, *Design and Develop Science Missions*
+     (segmentos), Mission Design Lab (trade study), GMAT, CubeSat 101, NASA Mission Viz.
+   - Citas en contexto: un "Source: NASA …" pequeño en cada panel que use esos números (Orbit & Launch, ruta a Marte,
+     aterrizaje, planta de oxígeno, lecciones, trade study, revisión de diseño).
+   - Lo que ya estaba previsto: barra de madurez CML 1–4 (JPL), los cuatro segmentos de una misión, "la misión real de
+     NASA más parecida a tu diseño" en el informe, escenario CubeSat para Cadete, validar Δv con GMAT.
+   - Sin logos ni insignias de NASA (solo texto y enlaces).
 7. [ ] Nueva toma de la intro sin el niño; marca "AI-generated" en imágenes y videos generados.
 8. [ ] Quitar cualquier logo o identificador de NASA de los recursos reutilizados.
 9. [ ] Diapositivas (7) en inglés: título/equipo/integrantes/reto · problema · historia · cómo se juega · equipo de 4 · datos de NASA · futuro + enlace/QR.
@@ -194,7 +213,7 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 12. [ ] Hacer público el repo/enlace que se entregue y descargar el certificado de participación.
 
 ## 11. Siguiente paso exacto
-El dueño prueba el juego como jurado (local: `cd game && npm run dev`, o el enlace de Vercel cuando lo despliegue) y dicta sus mejoras; se anotan aquí como pendientes. En paralelo: desplegar (§10, punto 3), resolver la intro con el niño (punto 4), historia en el juego (barras de valores, carta a Paulet), recursos de NASA dentro del juego, diapositivas y página del proyecto.
+1) El dueño prueba el juego en http://localhost:5174 (en su PC: `cd C:\PPgame\paulet-spaceapps-2026\game` y `npm run dev -- --port 5174`) y dicta sus mejoras; anotarlas aquí. 2) La otra cuenta de Claude despliega en Vercel (§10, punto 3). 3) Recursos de NASA dentro del juego (punto 6). 4) Quitar la intro con el niño (punto 4).
 
 ## 12. Dónde está cada cosa
 - Primera versión: repo `artesanalinteligencia1-dotcom/PP.game` (rama `cloud/fase-1`), clon `C:\PPgame\PP.game`,
