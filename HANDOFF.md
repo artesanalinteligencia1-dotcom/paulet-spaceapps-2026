@@ -5,7 +5,7 @@
 > fecha, actualiza "Pendiente" y "Siguiente paso exacto", y haz commit.
 > Explicaciones al dueño en español; código, textos del juego y entrega en inglés.
 
-Última actualización: 2026-11-14 (noche).
+Última actualización: 2026-11-14 (noche, 2.ª sesión).
 
 ---
 
@@ -188,6 +188,11 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
       probabilidad de éxito), con el mejor en verde y "mejor en n". Ranking de los 5 mejores vuelos por misión en el
       dispositivo, visible en la pestaña Mission y en resultados, con quién voló (solo, equipo de n o los nombres de la
       sala). 247 pruebas en verde.
+- [x] 2026-11-14 (noche) · **"Play online" desde el menú principal** (pedido 17): ventana con nombre, **crear sala eligiendo
+      cualquiera de las 10 misiones** (entra directo al diseño compartido) o **unirse con el código de 6 letras** (también
+      acepta pegar el enlace). `OnlineLobby` en `game/src/ui/online/OnlinePanel.tsx`, `parseRoomCode` en
+      `game/src/online/room.ts`, prueba `game/tests/onlineLobby.test.ts`. Probado en el navegador sobre Firebase real con
+      dos pestañas: sala de Storm Tracker creada desde el menú y segunda pestaña unida por código. 250 pruebas en verde.
 
 ## 10. Pendiente (en orden)
 1. [ ] Confirmar el evento local, que todos estén inscritos ahí (no en espera) y la hora exacta de cierre.
@@ -226,7 +231,7 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
 14. [ ] **Más atractivo visualmente:** "el juego parece aún muy años 2000". Rediseño visual (decidir mostrando 2–3 variantes, PLAYBOOK regla 3.3).
 15. [~] (hecho en parte: franja de contexto, sesión por misión y preguntas; validar con el dueño) **Más contexto al elegir (de Carga útil a Revisión), sobre todo en la primera misión importante (Vigía de la Tierra / Earth Watch):** no quitar lo técnico, pero explicar qué elegir y para qué. El dueño no terminó Earth Watch porque no entendía de qué trataba y tuvo que probar hasta cumplir los requisitos.
 16. [~] (hecho sin IA: botón Atrás y preguntas; la IA queda como propuesta, ver Investigación) **Kuntur:** poder volver atrás en los pasos de la guía y poder preguntarle (hoy solo muestra mensajes). Propuesta del dueño (opcional): usar la API de una IA para que ayude en el juego. **Nada de proveedores chinos** (p. ej. DeepSeek): el concurso lo prohíbe.
-17. [ ] **Multijugador también desde el inicio**, para jugar cualquier misión.
+17. [x] (2026-11-14) **Multijugador también desde el inicio**, para jugar cualquier misión → hecho, ver §9.
 18. [x] Investigado (ver "Investigación: animación" abajo). Falta **aplicarlo** (punto 14 y 18b).
 18b. [ ] Aplicar la investigación: coreografía con GSAP en briefing, informe y transiciones; Kuntur animado con GSAP; escenas 3D con mejor luz e ilustración.
 19. [~] (hecho en texto: tutorial con historia + sesión por misión; faltan imágenes o video con Gemini) **Tutorial al comienzo de cada misión** (o al menos la primera): cómo funciona el juego, qué son los inversionistas, cómo llegó Pedro ahí, quiénes son sus amigos, qué son las estrellas. Se pueden usar imágenes o videos con IA: el dueño tiene **Gemini Pro** (marca "AI-generated" visible).
@@ -252,10 +257,11 @@ La tarjeta, si se usa, la ingresa el dueño en la página del proveedor; nunca C
   guarde y llame al modelo, con las preguntas sin internet como respaldo. Declarar el uso de IA en la entrega.
 
 ## 11. Siguiente paso exacto
-1) **Multijugador desde el inicio** (pedido 17): en el menú principal, "Play online" → crear sala eligiendo cualquier misión (nombre + misión) o unirse con un código; hoy la sala solo se crea desde la pestaña Mission de una misión (`game/src/ui/online/OnlinePanel.tsx`, `game/src/store/online.ts`, menú en `game/src/ui/hub/HomeScreen.tsx`).
-2) El dueño valida Vigía de la Tierra con el nuevo contexto y dicta mejoras.
-3) Aspecto visual y animaciones (puntos 14 y 18b), decidiendo por variantes.
-4) La otra cuenta despliega en Vercel (punto 3); recursos de NASA dentro del juego (punto 6); quitar la intro con el niño (punto 4); diapositivas y página.
+1) **Aspecto visual** (puntos 14 y 18b): mostrar al dueño 2–3 direcciones visuales hechas en código, que elija una, y
+   aplicarla con las animaciones de la investigación (GSAP para coreografías y Kuntur, Motion para transiciones).
+2) Recursos de NASA dentro del juego (punto 6) y quitar la intro con el niño (punto 4).
+3) El dueño valida Vigía de la Tierra con el nuevo contexto y dicta mejoras.
+4) La otra cuenta despliega en Vercel (punto 3); diapositivas y página.
 
 ## 12. Dónde está cada cosa
 - Primera versión: repo `artesanalinteligencia1-dotcom/PP.game` (rama `cloud/fase-1`), clon `C:\PPgame\PP.game`,

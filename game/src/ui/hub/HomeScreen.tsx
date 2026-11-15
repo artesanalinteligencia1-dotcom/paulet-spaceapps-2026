@@ -11,6 +11,7 @@ import { AndesBackdrop, LaunchPad, SceneryLight, SkyBackdrop, Stars } from '../l
 import { Rocket, makeTimeline } from '../launch/LaunchSequence'
 import { spacecraftVisual } from '../spacecraft/visual'
 import { ProfileDialog } from './ProfileDialog'
+import { OnlineLobby } from '../online/OnlinePanel'
 
 export function MenuBackdrop() {
   const v = useMemo(() => spacecraftVisual(getScenario('earth_watch').baseDesign), [])
@@ -56,6 +57,7 @@ export function HomeScreen() {
   const openSettings = useGame((s) => s.openSettings)
   const [newCareer, setNewCareer] = useState(false)
   const [extras, setExtras] = useState(false)
+  const [online, setOnline] = useState(false)
   const navRef = useRef<HTMLElement>(null)
   const t = useT()
   useMusic('home')
@@ -98,6 +100,7 @@ export function HomeScreen() {
               {campaign ? item(t('home.continue'), () => go('campaign'), `${campaign.profile.title} ${campaign.profile.name}`, true) : item(t('home.newCareer'), () => setNewCareer(true), t('home.newCareer.first'), true)}
               {campaign && item(t('home.newCareer'), () => setNewCareer(true), t('home.newCareer.replace'))}
               {item(t('home.free'), () => go('free'), t('home.free.hint'))}
+              {item(t('home.online'), () => setOnline(true), t('home.online.hint'))}
               {item(t('home.learn'), () => openLearn('orbit'), t('home.learn.hint'))}
               {item(t('home.extras'), () => setExtras(true), t('home.extras.hint'))}
               {item(t('home.settings'), () => openSettings(true), t('home.settings.hint'))}
@@ -137,6 +140,7 @@ export function HomeScreen() {
         <p className="mt-1 text-[11px] text-white/40">{t('home.fictional')}</p>
       </div>
       <p className="absolute bottom-6 left-16 text-[11px] text-white/40">{t('home.disclaimer')}</p>
+      {online && <OnlineLobby onClose={() => setOnline(false)} />}
       {newCareer && (
         <ProfileDialog
           title={t('home.newCareer')}
