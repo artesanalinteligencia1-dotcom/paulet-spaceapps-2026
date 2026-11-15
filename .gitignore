@@ -1,3 +1,9 @@
 
 # Optional media made with models from Chinese companies: not published until an adviser approves
 media/act-videos/optional-cn/
+
+# HyperFrames work files and draft renders
+media/mission-videos/*/.hyperframes/
+media/mission-videos/*/node_modules/
+media/mission-videos/*/*-draft.mp4
+media/mission-videos/*/renders/
