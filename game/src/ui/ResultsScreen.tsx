@@ -239,6 +239,9 @@ export function ResultsScreen() {
             <button type="button" onClick={() => flyAgain(false)} className="rounded-lg border border-slate-600 px-4 py-2 hover:border-slate-300">
               {t('results.newSeed')}
             </button>
+            <button type="button" data-sound="back" onClick={() => useGame.getState().go('home')} className="rounded-lg border border-slate-600 px-4 py-2 hover:border-slate-300">
+              {t('select.back')}
+            </button>
               </>
             )}
           </div>

@@ -29,7 +29,16 @@ export interface Room {
   pad?: number
   /** The Mission Director's launch: every device lifts off together; in-flight decisions are shared per launch.
    *  `ready`: who pressed "Start mission"; the flight starts on every device once every player has. */
-  launch?: { seed: number; round: number; decisions?: Record<string, string>; ready?: Record<string, boolean> }
+  launch?: {
+    seed: number
+    round: number
+    decisions?: Record<string, string>
+    ready?: Record<string, boolean>
+    /** The shared pace of the flight: any player pauses or changes the speed for everyone. */
+    clock?: { speed: number; playing: boolean }
+    /** The mission week each device has reached (reported about once a second), so a device that fell behind catches up. */
+    weeks?: Record<string, number>
+  }
   /** A player asks to play again together (same mission, back to the table) or to fly another mission. Whoever
    *  declines leaves the room; the ones who accept go on together once everyone has answered. */
   next?: { id: number; from: string; kind: NextKind; scenarioId: string; answers?: Record<string, 'yes' | 'no'>; done?: boolean }
@@ -49,6 +58,13 @@ export function launcherOf(room: Room): string {
 export function notReady(room: Room): string[] {
   const ready = room.launch?.ready ?? {}
   return Object.keys(room.players ?? {}).filter((id) => !ready[id])
+}
+
+/** The furthest mission week another player in the room has reached (0 if none reported). */
+export function leadWeek(room: Room, me: string): number {
+  let lead = 0
+  for (const [id, w] of Object.entries(room.launch?.weeks ?? {})) if (id !== me && room.players?.[id] && w > lead) lead = w
+  return lead
 }
 
 /** Players (ids) who have not answered the proposal to play again yet. */

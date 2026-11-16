@@ -6,6 +6,7 @@ import { getScenario, scenarios } from '../../engine/catalog'
 import { useT, useTx, type StringKey } from '../../i18n'
 import { notAnswered } from '../../online/room'
 import { useOnline } from '../../store/online'
+import { useGame } from '../../store/game'
 
 /** The question on every other player's screen, and "waiting for…" for the ones who already answered. */
 export function NextProposal() {
@@ -61,6 +62,17 @@ export function PlayAgainTogether() {
       </button>
       <button type="button" disabled={busy} onClick={() => setPicking(true)} className="rounded-lg border border-violet-400/60 px-4 py-2 text-violet-200 hover:border-violet-300 disabled:opacity-40">
         {t('online.another')}
+      </button>
+      {/* leave the room and go back to the menu; the others keep playing */}
+      <button
+        type="button"
+        onClick={() => {
+          useOnline.getState().leave()
+          useGame.getState().go('home')
+        }}
+        className="rounded-lg border border-slate-600 px-4 py-2 hover:border-slate-300"
+      >
+        {t('online.exit')}
       </button>
       {picking && (
         <div role="dialog" aria-modal="true" aria-label={t('online.pickMission')} className="fixed inset-0 z-[60] grid place-items-center bg-slate-950/75 p-6">

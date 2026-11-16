@@ -1,4 +1,4 @@
-import { useOnline } from '../store/online'
+import { maybeStartFlight, useOnline } from '../store/online'
 import { launcherOf, notReady } from '../online/room'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { prefersReducedMotion } from '../store/settings'
@@ -65,6 +65,9 @@ export function LaunchScreen() {
   useEffect(() => {
     if (startAlert) audio.play('alert')
   }, [startAlert])
+  useEffect(() => {
+    if (phase === 'success' && iAmReady && waitingIds.length === 0) maybeStartFlight()
+  }, [phase, iAmReady, waitingIds.length])
 
   const ready = (
     <div className="deck-panel w-[660px]">

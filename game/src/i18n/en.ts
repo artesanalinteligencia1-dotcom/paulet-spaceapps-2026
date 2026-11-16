@@ -201,15 +201,23 @@ export const MESSAGES: Record<string, (p: P) => Message> = {
     why: t('review.msg.DEBRIS_NO_DISPOSAL.why', { dv: n(p, 'dv') }),
     levers: [t('review.msg.DEBRIS_NO_DISPOSAL.lever.0')],
   }),
-  LIFE_SHORT: (p) => ({
-    title: t('review.msg.LIFE_SHORT.title'),
-    why: t('review.msg.LIFE_SHORT.why', {
-      life: n(p, 'life', 1),
-      required: n(p, 'required', 1),
-      factor: LIFE_FACTOR[p.factor as string] ?? String(p.factor),
-    }),
-    levers: [t('review.msg.LIFE_SHORT.lever.0')],
-  }),
+  LIFE_SHORT: (p) => {
+    // one decimal can show "1.0 years, but 1.0 are required": then show two
+    const d = fmt(p.life as number, 1) === fmt(p.required as number, 1) ? 2 : 1
+    const factor = String(p.factor)
+    const specific = ['battery', 'panels', 'propellant', 'radiation', 'orbit'].includes(factor)
+    return {
+      title: t('review.msg.LIFE_SHORT.title'),
+      why: t('review.msg.LIFE_SHORT.why', {
+        life: n(p, 'life', d),
+        required: n(p, 'required', d === 2 ? 2 : 1),
+        factor: LIFE_FACTOR[factor] ?? factor,
+      }),
+      levers: specific
+        ? [t(`review.msg.LIFE_SHORT.lever.${factor}` as StringKey), t('review.msg.LIFE_SHORT.lever.where', { factor: t(`dashboard.life.factor.${factor}` as StringKey) })]
+        : [t('review.msg.LIFE_SHORT.lever.0')],
+    }
+  },
   RADIATION: (p) => ({
     title: t('review.msg.RADIATION.title'),
     why: t('review.msg.RADIATION.why', { dose: n(p, 'dose', 1), obc: String(p.obc), years: n(p, 'years', 1) }),

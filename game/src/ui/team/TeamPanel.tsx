@@ -33,6 +33,11 @@ export function GoalLine({ goal, compact }: { goal: RoleGoal; compact?: boolean 
       <div className="ml-5 mt-1 h-1.5 overflow-hidden rounded bg-slate-800">
         <div className={`h-full ${goal.met ? 'bg-emerald-400' : 'bg-amber-400'}`} style={{ width: `${Math.round(goal.progress * 100)}%` }} />
       </div>
+      {/* what the goal means and which controls move it */}
+      <details className="ml-5 mt-1 text-[11px] text-slate-400">
+        <summary className="cursor-pointer text-sky-300 hover:text-sky-200">{t('team.goalHow')}</summary>
+        <p className="mt-1 leading-snug">{t(`team.goalHow.${goal.key}` as StringKey)}</p>
+      </details>
     </div>
   )
 }

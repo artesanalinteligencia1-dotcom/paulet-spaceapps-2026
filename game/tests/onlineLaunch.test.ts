@@ -70,3 +70,13 @@ describe('playing again together', () => {
     expect(room.holders.lead).toBe(KUNTUR)
   })
 })
+
+describe('one pace in flight', () => {
+  it('a device knows how far ahead the others are', async () => {
+    const { leadWeek } = await import('../src/online/room')
+    const room = twoPlayers()
+    room.launch = { seed: 4, round: 1, weeks: { host: 10, p2: 30, gone: 99 } }
+    expect(leadWeek(room, 'host')).toBe(30)
+    expect(leadWeek(room, 'p2')).toBe(10)
+  })
+})

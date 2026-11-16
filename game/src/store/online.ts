@@ -7,7 +7,7 @@ import { getScenario } from '../engine/catalog'
 import { evaluateDesign } from '../engine/evaluate'
 import { TEAM_ROLES, kunturVote, reviewPasses, roleGoals, withinShares, type Holder, type Vote } from '../engine/team'
 import type { Design, Role } from '../engine/types'
-import { KUNTUR, decisionKey, launcherOf, leavePatch, newRoom, nextAccepted, nextOrder, nextPatch, notReady, roomCode, votesComplete, type NextKind, type Room } from '../online/room'
+import { KUNTUR, decisionKey, launcherOf, leadWeek, leavePatch, newRoom, nextAccepted, nextOrder, nextPatch, notReady, roomCode, votesComplete, type NextKind, type Room } from '../online/room'
 import { getTransport } from '../online/transport'
 import { useGame } from './game'
 import { useTeam } from './team'
@@ -68,6 +68,8 @@ interface OnlineStore {
   consumeAutoLaunch: () => void
   /** "Start mission" after liftoff: the flight starts everywhere once every player has pressed it. */
   readyToStart: () => void
+  /** Online flight: pause or change the speed for every player. */
+  setClock: (clock: { speed?: number; playing?: boolean }) => void
   /** Ask the team to play again (same mission) or to fly another mission together. */
   propose: (kind: NextKind, scenarioId: string) => void
   /** Answer the proposal: yes stays in the team; no leaves the room. */
@@ -162,13 +164,29 @@ export const useOnline = create<OnlineStore>((set, get) => ({
   launchTogether: () => {
     const { code, room, me } = get()
     if (!code || !room || room.review?.result !== 'passed' || launcherOf(room) !== me) return
-    void getTransport().update(code, { launch: { seed: useGame.getState().seed, round: (room.launch?.round ?? 0) + 1 }, 'review/open': false })
+    const g = useGame.getState()
+    // every device flies at the same pace from the start (any player can pause or change it later)
+    void getTransport().update(code, { launch: { seed: g.seed, round: (room.launch?.round ?? 0) + 1, clock: { speed: g.speed, playing: true } }, 'review/open': false })
   },
   consumeAutoLaunch: () => set({ autoLaunch: false }),
   readyToStart: () => {
     const { code, room, me } = get()
     if (!code || !room?.launch) return
     void getTransport().update(code, { [`launch/ready/${me}`]: true })
+  },
+  setClock: (clock) => {
+    const { code, room } = get()
+    if (!code || !room?.launch) return
+    const patch: Record<string, unknown> = {}
+    if (clock.speed !== undefined) patch['launch/clock/speed'] = clock.speed
+    if (clock.playing !== undefined) patch['launch/clock/playing'] = clock.playing
+    // the first change also writes the other half, so the shared clock is always complete
+    if (!room.launch.clock) {
+      const g = useGame.getState()
+      patch['launch/clock/speed'] = clock.speed ?? g.speed
+      patch['launch/clock/playing'] = clock.playing ?? g.playing
+    }
+    void getTransport().update(code, patch)
   },
   propose: (kind, scenarioId) => {
     const { code, room, me } = get()
@@ -289,11 +307,14 @@ function mirror(room: Room) {
     useGame.getState().goToLaunchPad()
   }
   // 5c. the flight starts on every device once every player pressed "Start mission" (nobody misses a decision)
-  const on = useOnline.getState()
-  if (room.launch && room.launch.round === on.launchedRound && room.launch.round > on.startedRound && notReady(room).length === 0) {
-    useOnline.setState({ startedRound: room.launch.round })
+  maybeStartFlight()
+  // 5d. in flight: the shared pace, and Kuntur takes over the role of a player who left
+  if (room.launch && room.launch.round === useOnline.getState().launchedRound && useGame.getState().screen === 'flight') {
     const g = useGame.getState()
-    if (g.screen === 'launch' && g.mission && g.mission.phase !== 'ended') g.startFlight()
+    const c = room.launch.clock
+    if (c && (c.speed !== g.speed || c.playing !== g.playing)) useGame.setState({ speed: c.speed, playing: c.playing })
+    const orphan = TEAM_ROLES.filter((r) => !g.delegated[r] && (room.holders[r] === KUNTUR || !room.players?.[room.holders[r]]))
+    if (orphan.length) useGame.setState({ delegated: { ...g.delegated, ...Object.fromEntries(orphan.map((r) => [r, true])) } })
   }
   // 6. shared in-flight decisions
   applyRoomDecision()
@@ -305,6 +326,25 @@ function mirror(room: Room) {
     useTeam.setState({ approval: null })
     useGame.setState({ screen: 'design', tab: 'mission', mission: null, playing: false, mode: 'free', contractId: null })
   }
+}
+
+/** Starts this device's flight when every player pressed "Start mission" (called on room changes and by the launch pad
+ *  once its ascent is over, in case the last "ready" arrived while this device was still loading). */
+export function maybeStartFlight() {
+  const { room, launchedRound, startedRound } = useOnline.getState()
+  if (!room?.launch || room.launch.round !== launchedRound || room.launch.round <= startedRound || notReady(room).length) return
+  const g = useGame.getState()
+  if (g.screen !== 'launch' || !g.mission || g.mission.phase === 'ended') return
+  useOnline.setState({ startedRound: room.launch.round })
+  g.startFlight()
+}
+
+/** Online flight: how many weeks this device is behind the furthest player (0 when in step or offline). */
+export function weeksBehind(): number {
+  const { room, me } = useOnline.getState()
+  const week = useGame.getState().mission?.week
+  if (!room?.launch || week === undefined) return 0
+  return Math.max(0, leadWeek(room, me) - week)
 }
 
 /** A decision answered on any device is applied on every device, so all of them keep flying the same mission. */
@@ -335,9 +375,22 @@ export function startOnlinePush() {
     window.clearTimeout(pushTimer)
     pushTimer = window.setTimeout(push, 120)
   }
+  let reported = 0
   const a = useGame.subscribe((s, p) => {
     if (s.design !== p.design) schedule()
-    if (s.tick !== p.tick) applyRoomDecision()
+    if (s.tick !== p.tick) {
+      applyRoomDecision()
+      // report this device's mission week about once a second, so a device that fell behind can catch up
+      const { code, room, me } = useOnline.getState()
+      const week = s.mission?.week
+      if (code && room?.launch && s.screen === 'flight' && week !== undefined && room.launch.weeks?.[me] !== week) {
+        const now = Date.now()
+        if (now - reported > 1000 || s.mission?.phase === 'ended') {
+          reported = now
+          void getTransport().update(code, { [`launch/weeks/${me}`]: week })
+        }
+      }
+    }
   })
   const b = useTeam.subscribe((s, p) => {
     if (s.team?.split !== p.team?.split) schedule()

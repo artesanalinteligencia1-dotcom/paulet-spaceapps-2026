@@ -1,6 +1,6 @@
 import { useMsg } from '../i18n'
 import { botChoice } from '../engine/simulate'
-import { useOnline } from '../store/online'
+import { useOnline, weeksBehind } from '../store/online'
 import { rich } from './rich'
 import { useEffect, useRef } from 'react'
 import { audio, useMusic } from '../audio/audio'
@@ -76,6 +76,9 @@ export function FlightScreen() {
         acc.current -= n
         stepWeeks(n)
       }
+      // online: a device that fell 2+ weeks behind the others (a slow phone, a hidden tab) catches up quickly
+      const behind = weeksBehind()
+      if (behind >= 2) stepWeeks(Math.min(behind, 8))
     }, 100)
     return () => window.clearInterval(id)
   }, [playing, speed, stepWeeks])
@@ -129,7 +132,7 @@ export function FlightScreen() {
           {!ended && (
             <button
               type="button"
-              onClick={() => setPlaying(!playing)}
+              onClick={() => (room?.launch ? useOnline.getState().setClock({ playing: !playing }) : setPlaying(!playing))}
               disabled={waitingForYou}
               className="rounded border border-slate-700 px-3 py-1 text-sm hover:border-slate-400 disabled:opacity-40"
             >
@@ -140,7 +143,7 @@ export function FlightScreen() {
             <button
               key={v}
               type="button"
-              onClick={() => setSpeed(v)}
+              onClick={() => (room?.launch ? useOnline.getState().setClock({ speed: v }) : setSpeed(v))}
               className={`rounded px-2 py-1 text-xs ${speed === v ? 'bg-sky-500/20 text-sky-300' : 'text-slate-400 hover:text-slate-200'}`}
             >
               {t(labelKey)}
