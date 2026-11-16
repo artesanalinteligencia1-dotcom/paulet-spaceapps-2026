@@ -3,7 +3,7 @@ import { useSettings } from '../../store/settings'
 import type { LaunchTarget } from '../../engine/types'
 
 /**
- * Illustrated launch scenery (LOCAL_TODO §8): flat/painterly layers in the style of docs/video-style.md.
+ * Illustrated launch scenery: flat/painterly layers.
  * Everything is drawn in an 800×480 viewBox with the ground line at y = 430 and the launch pad at x = 400.
  * Pure presentation: no timing lives here, callers pass altitude / scroll values.
  */

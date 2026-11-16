@@ -20,7 +20,7 @@ const voiceSrc = (name: string) => VOICE_FILES[`../assets/audio/voice/${name}.mp
 const sfxSrc = (name: Sfx) => SFX_FILES[`../assets/audio/sfx/${name}.mp3`]
 /** True when a voice line (e.g. 'count_10', 'ignition', 'farewell_1') is bundled. */
 export const hasVoice = (name: string) => Boolean(voiceSrc(name))
-/** Sound effects present in the bundle (see LOCAL_TODO if some are missing). */
+/** Sound effects present in the bundle. */
 export const AVAILABLE_SFX = Object.keys(SFX_FILES).map((k) => k.split('/').pop()!.replace('.mp3', ''))
 
 /**

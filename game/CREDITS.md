@@ -1,11 +1,11 @@
 # Credits
 
 ## Fonts
-- **Inter** — © The Inter Project Authors, SIL Open Font License 1.1 (`scripts/video/fonts/OFL-Inter.txt`).
-- **Space Grotesk** — © The Space Grotesk Project Authors, SIL Open Font License 1.1 (`scripts/video/fonts/OFL-SpaceGrotesk.txt`).
+- **Inter** — © The Inter Project Authors, SIL Open Font License 1.1 (via `@fontsource-variable/inter`).
+- **Space Grotesk** — © The Space Grotesk Project Authors, SIL Open Font License 1.1 (via `@fontsource-variable/space-grotesk`).
+- **Barlow Condensed** — © The Barlow Project Authors, SIL Open Font License 1.1 (via `@fontsource/barlow-condensed`).
 - **Caveat** — © The Caveat Project Authors, SIL Open Font License 1.1 (via `@fontsource/caveat`; art-direction mock-up 1 only).
 - **JetBrains Mono** — © The JetBrains Mono Project Authors, SIL Open Font License 1.1 (via `@fontsource-variable/jetbrains-mono`; mock-up 2 only).
-  Static TTF instances in `scripts/video/fonts/` were generated from the variable fonts for subtitle rendering.
 
 ## Audio
 - Soundtrack songs — "Beneath the Misti" (menu), "Paulet's Fire" (launch), "Lagrange" (results/ending):
@@ -15,14 +15,20 @@
   the licence puts no restriction on the generated audio. As the ACE-Step disclaimer asks, AI involvement is disclosed here.
   Loudness-normalised to −16 LUFS with ffmpeg `loudnorm`
   (`src/assets/audio/music/{home-beneath-the-misti,launch-paulets-fire,results-lagrange}.mp3`).
+- Second batch (2026-11-15), same tool and same disclosure, lyrics and prompts written for this project: "T-Minus"
+  (launch pad), "Mission Control" (in-flight decisions), "Cuatro Voces" (online design table), "Fallen Star", two takes
+  (failed-mission report); 96 kbps, −16 LUFS (T-Minus −18).
 - Music loops "design focus" and "flight ambient": generated with ElevenLabs Music for this project (2026-11-02).
 - Sound effects (when present in `src/assets/audio/sfx/`): generated with ElevenLabs Sound Effects for this project.
-- Licence/terms of the owner's ElevenLabs plan to be confirmed before any commercial use (see LOCAL_TODO.md).
+- Licence/terms of the owner's ElevenLabs plan to be confirmed before any commercial use.
 
 ## Video
 - "Watch intro" (style A "Painted cinema", 31 s, `src/assets/video/intro.mp4`): illustrations, narration (take B) and music
-  generated with ElevenLabs for this project; animated with HyperFrames (source `C:\PPgame\intro-a`, `build.mjs`),
-  English captions burned in; 720p H.264 encode of `intro_paulet.mp4`.
+  generated with ElevenLabs for this project; animated with HyperFrames; English captions burned in.
+- Films in `public/videos/` (prologue, acts 1–4, one per mission): animated with HyperFrames; illustrations and clips
+  AI-generated (Google Gemini, Veo) and marked "AI-generated"; real archive images are public domain (credited in each
+  film); voices AI (Kokoro, run locally); music: the ACE-Step songs above. Subtitles in English and Spanish.
+- Teaser (Extras, `public/videos/teaser.mp4`, 23 s): AI-generated images, made for this project.
 
 ## Data
 - All component, launcher and mission values are simplified, fictional game values (see `docs/model.md`).

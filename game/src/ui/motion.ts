@@ -1,4 +1,4 @@
-// Interface choreography with GSAP (see HANDOFF, "Investigación: animación"). Every effect is skipped when the player
+// Interface choreography with GSAP (design notes kept in the PP.game repo). Every effect is skipped when the player
 // asks for reduced motion, and every tween is reverted on unmount, so screens never stay half-animated.
 import { useGSAP } from '@gsap/react'
 import { gsap } from 'gsap'

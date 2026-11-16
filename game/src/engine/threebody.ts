@@ -1,5 +1,5 @@
 // Circular restricted three-body problem (Earth–Moon + massless spacecraft), planar, rotating frame, normalised units.
-// HANDOFF §16.3: fixed-step RK4 and ONLY + − × ÷ √ inside the integrator (no Math.sin/cos/pow/hypot), so results are
+// Fixed-step RK4 and ONLY + − × ÷ √ inside the integrator (no Math.sin/cos/pow/hypot), so results are
 // identical in every browser (IEEE-754 guarantees correctly rounded + − × ÷ √). Documented in docs/model.md §18.
 
 /** Moon / (Earth + Moon) mass ratio. */
