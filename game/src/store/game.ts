@@ -104,7 +104,8 @@ interface GameState {
   launch: () => void
   startFlight: () => void
   stepWeeks: (weeks: number) => void
-  choose: (optionId: string, byBot?: boolean) => void
+  /** `by`: online, the name of the player who decided. */
+  choose: (optionId: string, byBot?: boolean, by?: string) => void
   setPlaying: (p: boolean) => void
   setSpeed: (weeksPerSecond: number) => void
   toggleDelegate: (role: Role) => void
@@ -273,10 +274,10 @@ export const useGame = create<GameState>((set, get) => ({
     if (s.pending && delegated[s.pending.role]) decide(s, botChoice(s.pending, personality), true)
     set({ tick: get().tick + 1, playing: s.phase === 'ended' ? false : get().playing })
   },
-  choose: (optionId, byBot = false) => {
+  choose: (optionId, byBot = false, by) => {
     const s = get().mission
     if (!s || !s.pending) return
-    decide(s, byBot ? botChoice(s.pending, get().personality) : optionId, byBot)
+    decide(s, byBot ? botChoice(s.pending, get().personality) : optionId, byBot, by)
     set({ tick: get().tick + 1 })
   },
   setPlaying: (playing) => set({ playing }),

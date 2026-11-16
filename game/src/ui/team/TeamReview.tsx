@@ -30,7 +30,7 @@ export function TeamReview({ design, report, scenario, onClose }: { design: Desi
   const room = useOnline((s) => s.room)
   const me = useOnline((s) => s.me)
   const onlineVote = useOnline((s) => s.vote)
-  const launchTogether = useOnline((s) => s.launchTogether)
+  const padTogether = useOnline((s) => s.padTogether)
   const votes = room ? (room.review?.votes ?? {}) : localVotes
   const result = room ? (room.review?.result ? room.review.result === 'passed' : null) : localResult
   const setVotes = (next: Partial<Record<Role, Vote>>) => {
@@ -127,10 +127,10 @@ export function TeamReview({ design, report, scenario, onClose }: { design: Desi
                     className="btn-primary px-4 py-2 text-sm"
                     onClick={() => {
                       onClose()
-                      launchTogether()
+                      padTogether()
                     }}
                   >
-                    {t('online.launchTogether')}
+                    {t('online.padTogether')}
                   </button>
                 ) : (
                   <span className="text-sm text-violet-300">{t('online.waitingHost', { host: hostName })}</span>

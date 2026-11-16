@@ -118,7 +118,7 @@ export interface MissionState {
   backlogGb: number
   opsWeeks: number
   safeWeeks: number
-  decisions: { eventId: string; optionId: string; quality: Quality; role: Role; byBot: boolean }[]
+  decisions: { eventId: string; optionId: string; quality: Quality; role: Role; byBot: boolean; by?: string }[]
   missedOpportunities: number
   pending: PendingDecision | null
   log: LogEntry[]
@@ -600,15 +600,16 @@ function scenarioOpportunity(s: MissionState) {
 }
 
 /** Apply a decision to the pending event. */
-export function decide(s: MissionState, optionId: string, byBot = false) {
+export function decide(s: MissionState, optionId: string, byBot = false, by?: string) {
   const p = s.pending
   if (!p) return
   const opt = p.options.find((o) => o.id === optionId) ?? p.options[0]
-  s.decisions.push({ eventId: p.eventId, optionId: opt.id, quality: opt.quality, role: p.role, byBot })
+  s.decisions.push({ eventId: p.eventId, optionId: opt.id, quality: opt.quality, role: p.role, byBot, ...(by ? { by } : {}) })
   const meta = p.meta ?? {}
   const obc = getObc(s.design.obcId)
   s.pending = null
-  const who = byBot ? ref('sim.who.bot', 'Bot') : ref('sim.who.you', 'You')
+  // online: the name of the player who decided (each device logs the same line)
+  const who = by ?? (byBot ? ref('sim.who.bot', 'Bot') : ref('sim.who.you', 'You'))
   switch (p.eventId as EventId | 'chaos_correction' | 'conjunction' | 'aerobrake_storm' | 'landing_storm') {
     case 'cleaning_gust':
       return

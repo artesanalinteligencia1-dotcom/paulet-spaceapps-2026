@@ -1,5 +1,5 @@
 import { useOnline } from '../store/online'
-import { launcherOf } from '../online/room'
+import { launcherOf, notReady } from '../online/room'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { prefersReducedMotion } from '../store/settings'
 import { audio, useMusic } from '../audio/audio'
@@ -55,6 +55,16 @@ export function LaunchScreen() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoLaunch, phase])
+  // online: "Start mission" waits for every player, so nobody misses the first decisions
+  const me = useOnline((st) => st.me)
+  const waitingIds = onlineRoom?.launch ? notReady(onlineRoom) : []
+  const iAmReady = !!onlineRoom?.launch?.ready?.[me]
+  const nameOf = (id: string) => onlineRoom?.players?.[id]?.name ?? '?'
+  const readyOthers = onlineRoom?.launch ? Object.keys(onlineRoom.launch.ready ?? {}).filter((id) => id !== me && onlineRoom.players?.[id]) : []
+  const startAlert = !!onlineRoom && !iAmReady && readyOthers.length > 0 && phase !== 'ready' && phase !== 'failure'
+  useEffect(() => {
+    if (startAlert) audio.play('alert')
+  }, [startAlert])
 
   const ready = (
     <div className="deck-panel w-[660px]">
@@ -89,9 +99,9 @@ export function LaunchScreen() {
       <div className="flex items-center gap-2 border-t border-[#3a3f47] px-3 py-2">
         <label className="flex items-center gap-2 text-[13px] uppercase tracking-wider text-[#8a8f98]">
           {t('launch.missionSeed')}
-          <input type="number" className="w-28 border border-[#3a3f47] bg-[#0d0f12] px-2 py-1 font-mono text-[#e8e0cc]" value={seed} onChange={(e) => setSeed(Number(e.target.value))} />
+          <input type="number" disabled={!canLaunch} className="w-28 border border-[#3a3f47] bg-[#0d0f12] px-2 py-1 font-mono text-[#e8e0cc] disabled:opacity-50" value={seed} onChange={(e) => setSeed(Number(e.target.value))} />
         </label>
-        <button type="button" className="deck-btn" onClick={() => setSeed(randomSeed())} aria-label={t('launch.randomSeed')}>
+        <button type="button" className="deck-btn disabled:opacity-40" disabled={!canLaunch} onClick={() => setSeed(randomSeed())} aria-label={t('launch.randomSeed')}>
           🎲
         </button>
         {onlineRoom && !canLaunch ? (
@@ -112,9 +122,16 @@ export function LaunchScreen() {
           <div className="text-[13px] uppercase tracking-[0.16em] text-[#d9b46a]">{t('launch.stage.orbit')}</div>
           <div className="text-[22px]">{tx(`scenario.${scenario.id}.name`, scenario.name)}</div>
         </div>
-        <button type="button" onClick={startFlight} className="btn-primary ml-auto px-6 py-3 text-lg">
-          {t('launch.startMission')}
-        </button>
+        {onlineRoom && iAmReady ? (
+          <div className="ml-auto text-right">
+            <div className="text-[15px] text-emerald-300">{t('online.startReady')}</div>
+            {waitingIds.length > 0 && <div className="text-[13px] text-amber-200">{t('online.startWaiting', { names: waitingIds.map(nameOf).join(', ') })}</div>}
+          </div>
+        ) : (
+          <button type="button" onClick={onlineRoom ? () => useOnline.getState().readyToStart() : startFlight} className={`btn-primary ml-auto px-6 py-3 text-lg ${startAlert ? 'animate-pulse ring-2 ring-amber-300' : ''}`}>
+            {t('launch.startMission')}
+          </button>
+        )}
       </div>
     ) : phase === 'failure' ? (
       <div className="deck-panel flex w-[560px] items-center gap-4 px-4 py-3">
@@ -127,6 +144,11 @@ export function LaunchScreen() {
 
   return (
     <main className="absolute inset-0 overflow-hidden">
+      {startAlert && (
+        <div role="alert" className="absolute inset-x-0 top-16 z-50 mx-auto w-fit max-w-[90%] border border-amber-300 bg-[#1a1408]/95 px-5 py-3 text-center text-[17px] text-amber-100 shadow-lg">
+          ⚠ {t('online.startAlert', { names: readyOthers.map(nameOf).join(', '), verb: t(readyOthers.length > 1 ? 'online.startAlert.are' : 'online.startAlert.is') })}
+        </div>
+      )}
       <LaunchSequence
         deck
         design={design}

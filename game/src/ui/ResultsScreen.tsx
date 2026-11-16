@@ -10,6 +10,7 @@ import { BOARD_KEY, loadBoard, type BoardEntry } from '../store/leaderboard'
 import { useOnline } from '../store/online'
 import { resultsLines, resultsMood } from './guide/lines'
 import { TeamResults } from './team/TeamResults'
+import { PlayAgainTogether } from './online/NextProposal'
 import { LetterToPaulet } from './results/LetterToPaulet'
 import { RealStoryButton } from './video/RealStory'
 import { evaluateDesign } from '../engine/evaluate'
@@ -33,6 +34,7 @@ export function ResultsScreen() {
   const mission = useGame((s) => s.mission)!
   const backToDesign = useGame((s) => s.backToDesign)
   const flyAgain = useGame((s) => s.flyAgain)
+  const onlineRoom = useOnline((s) => s.room)
   const mode = useGame((s) => s.mode)
   const collectReward = useGame((s) => s.collectReward)
   const [copied, setCopied] = useState(false)
@@ -138,7 +140,7 @@ export function ResultsScreen() {
 
         <section className="min-w-0 space-y-5">
           <RealStoryButton id={scenario.id} />
-          <LetterToPaulet outcome={good ? 'ok' : score.rank === 'Partial' ? 'partial' : 'fail'} causes={analysis.causes} values={values} missionName={tx(`scenario.${scenario.id}.name`, scenario.name)} onRetry={backToDesign} />
+          <LetterToPaulet outcome={good ? 'ok' : score.rank === 'Partial' ? 'partial' : 'fail'} causes={analysis.causes} values={values} missionName={tx(`scenario.${scenario.id}.name`, scenario.name)} onRetry={onlineRoom ? () => useOnline.getState().propose('again', mission.scenarioId) : backToDesign} />
           <div>
             <h2 className="hud-label">{t('results.whyTitle')}</h2>
             <ol className="mt-2 space-y-2">
@@ -223,6 +225,11 @@ export function ResultsScreen() {
             >
               ⚔ {challengeCopied ? t('results.copied') : t('challenge.send')}
             </button>
+            {onlineRoom ? (
+              // online: the team plays again together (the others are asked); nobody flies off alone
+              <PlayAgainTogether />
+            ) : (
+              <>
             <button type="button" onClick={backToDesign} className="btn-primary px-4 py-2 ">
               {t('results.redesign')}
             </button>
@@ -232,6 +239,8 @@ export function ResultsScreen() {
             <button type="button" onClick={() => flyAgain(false)} className="rounded-lg border border-slate-600 px-4 py-2 hover:border-slate-300">
               {t('results.newSeed')}
             </button>
+              </>
+            )}
           </div>
 
           <div>

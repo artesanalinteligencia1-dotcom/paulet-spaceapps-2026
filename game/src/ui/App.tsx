@@ -16,6 +16,7 @@ import { IntroScreen } from './hub/IntroScreen'
 import { LearnScreen } from './hub/LearnScreen'
 import { GuideDock } from './guide/GuideDock'
 import { JoinRoom } from './online/OnlinePanel'
+import { NextProposal } from './online/NextProposal'
 import { startOnlinePush } from '../store/online'
 import { MockScreen, mockFromUrl } from './mock/MockScreen'
 import { useT } from '../i18n'
@@ -137,6 +138,7 @@ export function App() {
             )}
             <GuideDock />
             <JoinRoom />
+            <NextProposal />
             {settingsOpen && <SettingsPanel onClose={() => openSettings(false)} />}
           </>
         )}

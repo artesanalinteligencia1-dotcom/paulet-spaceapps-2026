@@ -7,7 +7,7 @@ import { getScenario } from '../engine/catalog'
 import { evaluateDesign } from '../engine/evaluate'
 import { TEAM_ROLES, kunturVote, reviewPasses, roleGoals, withinShares, type Holder, type Vote } from '../engine/team'
 import type { Design, Role } from '../engine/types'
-import { KUNTUR, decisionKey, launcherOf, newRoom, nextOrder, roomCode, votesComplete, type Room } from '../online/room'
+import { KUNTUR, decisionKey, launcherOf, leavePatch, newRoom, nextAccepted, nextOrder, nextPatch, notReady, roomCode, votesComplete, type NextKind, type Room } from '../online/room'
 import { getTransport } from '../online/transport'
 import { useGame } from './game'
 import { useTeam } from './team'
@@ -46,6 +46,12 @@ interface OnlineStore {
   status: OnlineStatus
   /** The launch round this device already started (the host's launch reaches everyone once). */
   launchedRound: number
+  /** The launch-pad call this device already followed. */
+  padRound: number
+  /** The launch round whose flight already started here (once every player pressed "Start mission"). */
+  startedRound: number
+  /** The proposal to play again that this device already followed. */
+  nextHandled: number
   /** Set when a launch arrives: the launch pad starts the countdown by itself. */
   autoLaunch: boolean
   create: (name: string, design: Design) => Promise<string>
@@ -55,8 +61,17 @@ interface OnlineStore {
   openReview: () => void
   closeReview: () => void
   vote: (role: Role, v: Vote) => void
+  /** Mission Director, after a passed review: every device goes to the launch pad (no countdown yet). */
+  padTogether: () => void
+  /** Mission Director, on the launch pad: every device lifts off together. */
   launchTogether: () => void
   consumeAutoLaunch: () => void
+  /** "Start mission" after liftoff: the flight starts everywhere once every player has pressed it. */
+  readyToStart: () => void
+  /** Ask the team to play again (same mission) or to fly another mission together. */
+  propose: (kind: NextKind, scenarioId: string) => void
+  /** Answer the proposal: yes stays in the team; no leaves the room. */
+  answerNext: (yes: boolean) => void
   /** True when this device holds the role that has to answer the pending in-flight decision. */
   decidesFor: (role: Role) => boolean
   /** Share this device's answer to the pending in-flight decision with the room. */
@@ -73,6 +88,9 @@ export const useOnline = create<OnlineStore>((set, get) => ({
   room: null,
   status: 'idle',
   launchedRound: 0,
+  padRound: 0,
+  startedRound: 0,
+  nextHandled: 0,
   autoLaunch: false,
   create: async (name, design) => {
     const t = getTransport()
@@ -104,11 +122,7 @@ export const useOnline = create<OnlineStore>((set, get) => ({
   },
   leave: () => {
     const { code, me, room } = get()
-    if (code && room) {
-      const patch: Record<string, unknown> = { [`players/${me}`]: null }
-      for (const r of TEAM_ROLES) if (room.holders[r] === me) patch[`holders/${r}`] = KUNTUR
-      void getTransport().update(code, patch)
-    }
+    if (code && room) void getTransport().update(code, leavePatch(room, me))
     unsubscribe?.()
     unsubscribe = null
     set({ code: null, room: null, status: 'idle' })
@@ -140,12 +154,39 @@ export const useOnline = create<OnlineStore>((set, get) => ({
     if (!code || !room || room.holders[role] !== me || room.review?.result) return
     void getTransport().update(code, { [`review/votes/${role}`]: v })
   },
+  padTogether: () => {
+    const { code, room, me } = get()
+    if (!code || !room || room.review?.result !== 'passed' || launcherOf(room) !== me) return
+    void getTransport().update(code, { pad: (room.pad ?? 0) + 1, 'review/open': false })
+  },
   launchTogether: () => {
     const { code, room, me } = get()
     if (!code || !room || room.review?.result !== 'passed' || launcherOf(room) !== me) return
     void getTransport().update(code, { launch: { seed: useGame.getState().seed, round: (room.launch?.round ?? 0) + 1 }, 'review/open': false })
   },
   consumeAutoLaunch: () => set({ autoLaunch: false }),
+  readyToStart: () => {
+    const { code, room, me } = get()
+    if (!code || !room?.launch) return
+    void getTransport().update(code, { [`launch/ready/${me}`]: true })
+  },
+  propose: (kind, scenarioId) => {
+    const { code, room, me } = get()
+    if (!code || !room || (room.next && !room.next.done)) return
+    void getTransport().update(code, { next: { id: (room.next?.id ?? 0) + 1, from: me, kind, scenarioId, answers: { [me]: 'yes' } } })
+  },
+  answerNext: (yes) => {
+    const { code, room, me } = get()
+    if (!code || !room?.next || room.next.done) return
+    if (yes) return void getTransport().update(code, { [`next/answers/${me}`]: 'yes' })
+    // declining leaves the room: the others go on without this player
+    void getTransport().update(code, { [`next/answers/${me}`]: 'no', ...leavePatch(room, me) })
+    unsubscribe?.()
+    unsubscribe = null
+    set({ code: null, room: null, status: 'idle' })
+    useTeam.getState().disable()
+    useGame.setState({ screen: 'home', mission: null, playing: false })
+  },
   decidesFor: (role) => {
     const { room, me } = get()
     return !room || room.holders[role] === me
@@ -161,8 +202,22 @@ export const useOnline = create<OnlineStore>((set, get) => ({
 function listen(code: string) {
   unsubscribe?.()
   useOnline.setState({ code, status: 'joining' })
+  let first = true
   unsubscribe = getTransport().subscribe(code, (room) => {
     if (!room) return useOnline.setState({ room: null, status: 'missing' })
+    // a player who joins (or comes back) does not replay calls that happened before they arrived
+    if (first) {
+      first = false
+      useOnline.setState({ launchedRound: room.launch?.round ?? 0, padRound: room.pad ?? 0, startedRound: room.launch?.round ?? 0, nextHandled: room.next?.id ?? 0 })
+    }
+    if (!room.players?.[useOnline.getState().me]) {
+      // no longer in the room (the team went on without this player)
+      unsubscribe?.()
+      unsubscribe = null
+      useOnline.setState({ code: null, room: null, status: 'idle' })
+      useTeam.getState().disable()
+      return
+    }
     useOnline.setState({ room, status: 'in-room' })
     mirror(room)
   })
@@ -219,7 +274,12 @@ function mirror(room: Room) {
       useTeam.getState().recordReview(true, review.votes as Record<Role, Vote>, design, report)
     }
   }
-  // 5. the host's launch reaches everyone once; Kuntur flies the in-flight decisions, so every device flies the same mission
+  // 5a. the Mission Director calls everyone to the launch pad (the countdown waits for the Director's launch)
+  if ((room.pad ?? 0) > useOnline.getState().padRound) {
+    useOnline.setState({ padRound: room.pad! })
+    useGame.getState().goToLaunchPad()
+  }
+  // 5b. the Director's launch reaches everyone once, so every device lifts off together
   if (room.launch && room.launch.round > useOnline.getState().launchedRound) {
     useOnline.setState({ launchedRound: room.launch.round, autoLaunch: true })
     // Kuntur answers only for the roles nobody holds; each player answers their own role's decisions (shared through the room)
@@ -228,8 +288,23 @@ function mirror(room: Room) {
     useGame.getState().setSeed(room.launch.seed)
     useGame.getState().goToLaunchPad()
   }
+  // 5c. the flight starts on every device once every player pressed "Start mission" (nobody misses a decision)
+  const on = useOnline.getState()
+  if (room.launch && room.launch.round === on.launchedRound && room.launch.round > on.startedRound && notReady(room).length === 0) {
+    useOnline.setState({ startedRound: room.launch.round })
+    const g = useGame.getState()
+    if (g.screen === 'launch' && g.mission && g.mission.phase !== 'ended') g.startFlight()
+  }
   // 6. shared in-flight decisions
   applyRoomDecision()
+  // 7. play again together: once every player still here accepted, the table opens again for all of them
+  if (nextAccepted(room)) void getTransport().update(useOnline.getState().code!, nextPatch(room))
+  const next = room.next
+  if (next?.done && next.id > useOnline.getState().nextHandled) {
+    useOnline.setState({ nextHandled: next.id })
+    useTeam.setState({ approval: null })
+    useGame.setState({ screen: 'design', tab: 'mission', mission: null, playing: false, mode: 'free', contractId: null })
+  }
 }
 
 /** A decision answered on any device is applied on every device, so all of them keep flying the same mission. */
@@ -238,7 +313,7 @@ export function applyRoomDecision() {
   const p = useGame.getState().mission?.pending
   if (!room?.launch?.decisions || !p) return
   const choice = room.launch.decisions[decisionKey(p.eventId, p.week)]
-  if (choice) useGame.getState().choose(choice)
+  if (choice) useGame.getState().choose(choice, false, room.players?.[room.holders[p.role]]?.name)
 }
 
 /** Local edits go to the room: the design and the money split. */

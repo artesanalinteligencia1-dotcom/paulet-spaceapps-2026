@@ -160,6 +160,12 @@ export function FlightScreen() {
                 <span className="text-sm">
                   {ROLE_ICON[role]} {ROLE_LABEL[role]}
                 </span>
+                {room?.launch ? (
+                  // online: who holds each role is fixed by the room (a player, or Kuntur for the roles nobody holds)
+                  <span className={`rounded px-2 py-0.5 text-xs font-semibold ${delegated[role] ? 'bg-violet-500/20 text-violet-300' : useOnline.getState().decidesFor(role) ? 'bg-sky-500/20 text-sky-300' : 'bg-emerald-500/15 text-emerald-200'}`}>
+                    {delegated[role] ? t('online.byKuntur') : room.players?.[room.holders[role]]?.name ?? '?'}
+                  </span>
+                ) : (
                 <button
                   type="button"
                   onClick={() => toggleDelegate(role)}
@@ -168,6 +174,7 @@ export function FlightScreen() {
                 >
                   {delegated[role] ? t('flight.team.bot') : t('flight.team.you')}
                 </button>
+                )}
               </li>
             ))}
           </ul>
@@ -175,8 +182,9 @@ export function FlightScreen() {
             {t('flight.personality.label')}
             <select
               value={personality}
+              disabled={!!room?.launch}
               onChange={(e) => setPersonality(e.target.value as Personality)}
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200"
+              className="mt-1 disabled:opacity-50 w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200"
             >
               <option value="prudent">{t('flight.personality.prudent')}</option>
               <option value="balanced">{t('flight.personality.balanced')}</option>
