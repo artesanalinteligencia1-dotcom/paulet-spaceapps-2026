@@ -12,7 +12,7 @@ export const REAL_STORIES = [
   'lunar_pathfinder', 'lagrange_observatory', 'mars_orbiter', 'mars_stranded', 'mars_oxygen', 'mars_terraform',
 ] as const
 export const ACT_FILMS = ['prologue', 'act1', 'act2', 'act3', 'act4'] as const
-const READY = new Set<string>(['prologue', 'act1', 'act2', 'act3', 'act4', 'earth_watch', 'andean_eye', 'station_resupply', 'storm_tracker'])
+const READY = new Set<string>(['prologue', 'act1', 'act2', 'act3', 'act4', 'first_light', 'earth_watch', 'andean_eye', 'station_resupply', 'storm_tracker', 'lunar_pathfinder', 'lagrange_observatory'])
 
 export const hasRealStory = (id: string) => READY.has(id)
 export const readyFilms = (ids: readonly string[]) => ids.filter((id) => READY.has(id))
