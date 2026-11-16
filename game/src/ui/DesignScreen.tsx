@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useReveal } from './motion'
 import { useTeam } from '../store/team'
+import { useOnline } from '../store/online'
 import { useGuideContent } from '../store/guide'
 import { useSettings } from '../store/settings'
 import { TUTORIAL, designHints, designMood, missionBriefing, questionsFor } from './guide/lines'
@@ -123,7 +124,9 @@ export function DesignScreen({ design }: { design: Design }) {
   const report = useMemo(() => evaluateDesign(design, scenario), [design, scenario])
   const values = useMemo(() => goicocheaValues(design, report, scenario), [design, report, scenario])
   const blocking = report.review.filter((r) => r.blocking).length
-  useMusic('design')
+  // an online room designs to its own song ("Cuatro Voces"); alone or local, the quiet design loop
+  const inRoom = useOnline((st) => !!st.room)
+  useMusic(inRoom ? 'team' : 'design')
   useDesignGuide(report, tab, setTab, scenario)
   const body = useRef<HTMLElement>(null)
   useReveal(body, tab)

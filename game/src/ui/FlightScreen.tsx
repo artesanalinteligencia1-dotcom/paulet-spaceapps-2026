@@ -61,7 +61,6 @@ export function FlightScreen() {
   const scenario = getScenario(mission.scenarioId)
   const r = mission.report
   const acc = useRef(0)
-  useMusic('flight')
   const pendingKey = mission.pending ? `${mission.pending.eventId}-${mission.pending.week}` : ''
   useEffect(() => {
     if (pendingKey) audio.play('alert')
@@ -94,6 +93,8 @@ export function FlightScreen() {
     else if (room?.launch && byBot && pending) useOnline.getState().decide(botChoice(pending, personality))
     else choose(id, byBot)
   }
+  // tension music while a person has to decide (Kuntur's decisions are instant)
+  useMusic(waitingForYou || waitingForOther ? 'decision' : 'flight')
   const otherName = pending && room ? room.players?.[room.holders[pending.role]]?.name ?? '' : ''
   const years = mission.opsWeeks / SIM_WEEKS_PER_YEAR
   const obc = getObc(mission.design.obcId)

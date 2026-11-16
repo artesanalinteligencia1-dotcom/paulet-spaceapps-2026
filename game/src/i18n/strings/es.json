@@ -59,7 +59,7 @@
   "home.learn": "Aprender",
   "home.learn.hint": "Órbitas, cohetes, caos",
   "home.extras": "Extras",
-  "home.extras.hint": "Intro, Paulet, caja de arena",
+  "home.extras.hint": "Intro, teaser, Paulet, caja de arena",
   "home.settings": "Ajustes",
   "home.settings.hint": "Sonido, pantalla, partidas",
   "home.quit": "Salir",
@@ -2071,5 +2071,9 @@
   "team.goalHow.longerLife": "La vida la fija lo que se acaba primero (el «factor limitante» de la barra Vida útil). Mejora esa parte: computadora endurecida, batería más grande, más paneles o propulsión.",
   "team.goalHow.moreScience": "La ciencia al año sube con instrumentos adecuados para esta misión, ciclos de trabajo más altos, mejor apuntado y más datos bajados.",
   "team.goalHow.passenger": "Agrega un instrumento de astrobiología en la pestaña Carga útil, por ejemplo el Generador de imágenes multiespectral o el Espectrómetro infrarrojo.",
-  "online.exit": "🚪 Salir de la partida"
+  "online.exit": "🚪 Salir de la partida",
+  "home.teaser": "Ver el teaser",
+  "home.teaser.hint": "23 s · imágenes generadas con IA",
+  "video.name.teaser": "Paulet: Andes to Orbit",
+  "video.title.teaser": "Teaser"
 }

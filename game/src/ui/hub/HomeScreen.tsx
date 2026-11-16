@@ -13,6 +13,7 @@ import { spacecraftVisual } from '../spacecraft/visual'
 import { ProfileDialog } from './ProfileDialog'
 import { PauletLogo } from '../brand/PauletLogo'
 import { OnlineLobby } from '../online/OnlinePanel'
+import { RealStoryPlayer, TEASER } from '../video/RealStory'
 
 export function MenuBackdrop() {
   const v = useMemo(() => spacecraftVisual(getScenario('earth_watch').baseDesign), [])
@@ -59,6 +60,7 @@ export function HomeScreen() {
   const [newCareer, setNewCareer] = useState(false)
   const [extras, setExtras] = useState(false)
   const [online, setOnline] = useState(false)
+  const [teaser, setTeaser] = useState(false)
   const navRef = useRef<HTMLElement>(null)
   const t = useT()
   useMusic('home')
@@ -113,6 +115,7 @@ export function HomeScreen() {
               {item(t('home.rocket'), () => go('rocket'), t('home.rocket.hint'))}
               {item(t('home.astro'), () => go('astro'), t('home.astro.hint'))}
               {item(t('home.intro'), () => go('intro'), t('home.intro.hint'))}
+              {item(t('home.teaser'), () => setTeaser(true), t('home.teaser.hint'))}
               {item(t('home.legacy'), () => openLearn('paulet'), t('home.legacy.hint'))}
               {item(t('home.sandbox'), () => startScenario('sandbox'), t('home.sandbox.hint'))}
               {item(t('home.back'), () => setExtras(false))}
@@ -143,6 +146,7 @@ export function HomeScreen() {
       </div>
       <p className="absolute bottom-6 left-16 text-[11px] text-white/40">{t('home.disclaimer')}</p>
       {online && <OnlineLobby onClose={() => setOnline(false)} />}
+      {teaser && <RealStoryPlayer id={TEASER} onClose={() => setTeaser(false)} />}
       {newCareer && (
         <ProfileDialog
           title={t('home.newCareer')}

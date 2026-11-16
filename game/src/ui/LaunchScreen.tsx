@@ -33,7 +33,7 @@ export function LaunchScreen() {
   const [phase, setPhase] = useState<Phase>('ready')
   const [skip, setSkip] = useState(false)
   // Silence during the countdown so mission control is heard; music B starts at liftoff (LaunchSequence).
-  useMusic(phase === 'ready' ? 'design' : phase === 'success' ? 'launch' : 'none')
+  useMusic(phase === 'ready' ? 'pad' : phase === 'success' ? 'launch' : 'none')
 
   const failed = mission?.endReason === 'launch_failure'
   const go = () => {

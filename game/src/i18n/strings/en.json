@@ -59,7 +59,7 @@
   "home.learn": "Learn",
   "home.learn.hint": "Orbits, rockets, chaos",
   "home.extras": "Extras",
-  "home.extras.hint": "Intro, Paulet, sandbox",
+  "home.extras.hint": "Intro, teaser, Paulet, sandbox",
   "home.settings": "Settings",
   "home.settings.hint": "Sound, display, saves",
   "home.quit": "Quit",
@@ -2071,5 +2071,9 @@
   "team.goalHow.longerLife": "Mission life is set by whatever runs out first (the \"limit\" on the Lifetime bar). Improve that part: a radiation-hardened computer, a bigger battery, more panels or propulsion.",
   "team.goalHow.moreScience": "Science per year grows with instruments that suit this mission, higher duty cycles, better pointing and more data brought home.",
   "team.goalHow.passenger": "Add an astrobiology instrument in the Payload tab, for example the multispectral imager or the infrared spectrometer.",
-  "online.exit": "🚪 Leave the game"
+  "online.exit": "🚪 Leave the game",
+  "home.teaser": "Watch the teaser",
+  "home.teaser.hint": "23 s · AI-generated images",
+  "video.name.teaser": "Paulet: Andes to Orbit",
+  "video.title.teaser": "Teaser"
 }

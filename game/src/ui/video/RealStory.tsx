@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useT, type StringKey } from '../../i18n'
 import { useSettings } from '../../store/settings'
+import { audio } from '../../audio/audio'
 
 /** Films that exist in public/videos (<id>.mp4 + <id>.en.vtt + <id>.es.vtt). */
 export const REAL_STORIES = [
@@ -12,7 +13,9 @@ export const REAL_STORIES = [
   'lunar_pathfinder', 'lagrange_observatory', 'mars_orbiter', 'mars_stranded', 'mars_oxygen', 'mars_terraform',
 ] as const
 export const ACT_FILMS = ['prologue', 'act1', 'act2', 'act3', 'act4'] as const
-const READY = new Set<string>([...ACT_FILMS, ...REAL_STORIES])
+/** The game's teaser (Extras): English text is in the picture, so only the Spanish track has cues. */
+export const TEASER = 'teaser'
+const READY = new Set<string>([...ACT_FILMS, ...REAL_STORIES, TEASER])
 
 export const hasRealStory = (id: string) => READY.has(id)
 export const readyFilms = (ids: readonly string[]) => ids.filter((id) => READY.has(id))
@@ -48,6 +51,13 @@ export function RealStoryPlayer({ id, onClose }: { id: string; onClose: () => vo
   const video = useRef<HTMLVideoElement>(null)
   const close = useRef<HTMLButtonElement>(null)
 
+  // the film has its own soundtrack: the game's music stops while it plays and comes back when it closes
+  useEffect(() => {
+    const prev = audio.getStage()
+    audio.setStage('none')
+    return () => audio.setStage(prev)
+  }, [])
+
   useEffect(() => {
     if (lang === 'off') { setCues([]); return }
     let alive = true
@@ -74,10 +84,10 @@ export function RealStoryPlayer({ id, onClose }: { id: string; onClose: () => vo
   }, [onClose])
 
   return createPortal(
-    <div className="fixed inset-0 z-[70] grid place-items-center bg-black/85 p-4" role="dialog" aria-modal="true" aria-label={t('video.title')}>
+    <div className="fixed inset-0 z-[70] grid place-items-center bg-black/85 p-4" role="dialog" aria-modal="true" aria-label={t(id === TEASER ? 'video.title.teaser' : 'video.title')}>
       <div className="w-full" style={{ maxWidth: "min(1280px, calc((100vh - 80px) * 16 / 9))" }}>
         <div className="mb-2 flex items-center gap-3">
-          <span className="hud-label">{t('video.title')}</span>
+          <span className="hud-label">{t(id === TEASER ? 'video.title.teaser' : 'video.title')}</span>
           <span className="text-[15px] text-[#e8e0cc]">{t(`video.name.${id}` as StringKey)}</span>
           <div className="ml-auto flex items-center gap-1" role="group" aria-label={t('video.subtitles')}>
             <span className="mr-1 text-[12px] uppercase tracking-wider text-[#8a8f98]">{t('video.subtitles')}</span>

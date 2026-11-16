@@ -57,7 +57,7 @@ export function ResultsScreen() {
     lines: resultsLines(analysis.causes).map((l) => ({ title: l.title, text: l.text, mood: l.mood })),
   })
   const [board, setBoard] = useState<BoardEntry[]>([])
-  useMusic('results')
+  useMusic(score.rank === 'Fail' ? 'failure' : 'results')
   const good = score.rank === 'Success' || score.rank === 'Outstanding'
   useEffect(() => {
     audio.play(good ? 'success' : 'failure')

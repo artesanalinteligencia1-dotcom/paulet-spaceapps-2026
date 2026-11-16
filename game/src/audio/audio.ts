@@ -8,7 +8,7 @@
 // music ducks while mission control speaks.
 import { useEffect, useSyncExternalStore } from 'react'
 
-export type MusicStage = 'home' | 'design' | 'launch' | 'flight' | 'results' | 'none'
+export type MusicStage = 'home' | 'design' | 'team' | 'pad' | 'launch' | 'flight' | 'decision' | 'results' | 'failure' | 'none'
 export type Sfx = 'countdown' | 'liftoff' | 'staging' | 'fairing' | 'deploy' | 'orbit' | 'explosion' | 'alert' | 'success' | 'failure'
 
 // Bundled audio files (hashed by Vite). Missing files are simply absent → no 404s.
@@ -27,13 +27,20 @@ export const AVAILABLE_SFX = Object.keys(SFX_FILES).map((k) => k.split('/').pop(
  * Stage → music. Soundtrack songs (ACE-Step 1.5, normalised to −16 LUFS): "Beneath the Misti" = home,
  * "Paulet's Fire" = launch, "Lagrange" = results. Design and flight keep their quieter loops (≈ −20 LUFS)
  * when bundled (design-focus.mp3, flight-ambient.mp3), otherwise the home song softly.
+ * Second batch (2026-11-15, chosen by the owner, 96 kbps): "T-Minus" = launch pad before the countdown, "Mission Control" =
+ * an in-flight decision, "Cuatro Voces" = the design table of an online room, "Fallen Star" (two takes, one picked at
+ * random each time) = the report of a failed mission.
  */
-export const MUSIC: Record<Exclude<MusicStage, 'none'>, { src: string; volume: number } | null> = {
+export const MUSIC: Record<Exclude<MusicStage, 'none'>, { src: string; volume: number; alt?: string } | null> = {
   home: { src: music('home-beneath-the-misti'), volume: 0.45 },
   design: music('design-focus') ? { src: music('design-focus'), volume: 0.4 } : { src: music('home-beneath-the-misti'), volume: 0.18 },
+  team: { src: music('team-cuatro-voces'), volume: 0.3 },
+  pad: { src: music('pad-t-minus'), volume: 0.4 },
   launch: { src: music('launch-paulets-fire'), volume: 0.5 },
   flight: music('flight-ambient') ? { src: music('flight-ambient'), volume: 0.4 } : { src: music('home-beneath-the-misti'), volume: 0.14 },
+  decision: { src: music('decision-mission-control'), volume: 0.4 },
   results: { src: music('results-lagrange'), volume: 0.4 },
+  failure: { src: music('failure-fallen-star-a'), alt: music('failure-fallen-star-b'), volume: 0.4 },
 }
 
 const SFX_VOLUME: Partial<Record<Sfx, number>> = { liftoff: 0.9, explosion: 0.8, alert: 0.5 }
@@ -187,6 +194,11 @@ class AudioEngine {
     o.onended = () => g.disconnect()
   }
 
+  /** The current music stage (films pause it and restore it when they close). */
+  getStage(): MusicStage {
+    return this.stage
+  }
+
   setStage(stage: MusicStage) {
     if (stage === this.stage) return
     this.stage = stage
@@ -209,7 +221,10 @@ class AudioEngine {
   private applyStage() {
     const ctx = this.ctx
     if (!ctx) return
-    const t = this.stage === 'none' ? null : MUSIC[this.stage]
+    const entry = this.stage === 'none' ? null : MUSIC[this.stage]
+    // a stage with two takes keeps the one already playing, otherwise picks one at random
+    const src = !entry ? '' : entry.alt && this.track?.src !== entry.src && (this.track?.src === entry.alt || Math.random() < 0.5) ? entry.alt : entry.src
+    const t = entry ? { src, volume: entry.volume } : null
     if (t && this.track?.src === t.src) {
       this.track.gain.gain.setTargetAtTime(t.volume, ctx.currentTime, CROSSFADE / 4)
       return
