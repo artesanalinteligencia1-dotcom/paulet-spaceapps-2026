@@ -25,11 +25,22 @@ export interface Room {
   failedRounds: number
   vetoesUsed?: Partial<Record<Role, boolean>>
   review?: { round: number; open: boolean; votes?: Partial<Record<Role, Vote>>; result?: 'passed' | 'failed' }
-  launch?: { seed: number; round: number }
+  /** The Mission Director's launch: every device lifts off together; in-flight decisions are shared per launch. */
+  launch?: { seed: number; round: number; decisions?: Record<string, string> }
 }
 
 export const MAX_PLAYERS = 4
 export const KUNTUR = 'kuntur'
+
+/** Who may press launch: the Mission Director, or the host when Kuntur holds that role. */
+export function launcherOf(room: Room): string {
+  return room.holders.lead && room.holders.lead !== KUNTUR && room.players?.[room.holders.lead] ? room.holders.lead : room.host
+}
+
+/** A Firebase-safe key for one in-flight decision. */
+export function decisionKey(eventId: string, week: number): string {
+  return `${eventId}_${week}`.replace(/[.#$[\]/]/g, '_')
+}
 
 /** Short room codes without look-alike characters (no 0/O, 1/I/L). */
 export function roomCode(rand: () => number = Math.random): string {

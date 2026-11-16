@@ -2036,5 +2036,7 @@
   "video.name.act1": "Acto 1 · Tres fallos",
   "video.name.act2": "Acto 2 · El punto tranquilo",
   "video.name.act3": "Acto 3 · La ventana",
-  "video.name.act4": "Acto 4 · El Paulet 1 en órbita"
+  "video.name.act4": "Acto 4 · El Paulet 1 en órbita",
+  "online.waitingDecision": "Esperando que {name} ({role}) decida…",
+  "online.waitingDirector": "Esperando que el Director de misión, {name}, despegue"
 }

@@ -7,7 +7,7 @@ import { getScenario } from '../engine/catalog'
 import { evaluateDesign } from '../engine/evaluate'
 import { TEAM_ROLES, kunturVote, reviewPasses, roleGoals, withinShares, type Holder, type Vote } from '../engine/team'
 import type { Design, Role } from '../engine/types'
-import { KUNTUR, newRoom, nextOrder, roomCode, votesComplete, type Room } from '../online/room'
+import { KUNTUR, decisionKey, launcherOf, newRoom, nextOrder, roomCode, votesComplete, type Room } from '../online/room'
 import { getTransport } from '../online/transport'
 import { useGame } from './game'
 import { useTeam } from './team'
@@ -57,6 +57,10 @@ interface OnlineStore {
   vote: (role: Role, v: Vote) => void
   launchTogether: () => void
   consumeAutoLaunch: () => void
+  /** True when this device holds the role that has to answer the pending in-flight decision. */
+  decidesFor: (role: Role) => boolean
+  /** Share this device's answer to the pending in-flight decision with the room. */
+  decide: (optionId: string) => void
 }
 
 let unsubscribe: (() => void) | null = null
@@ -137,11 +141,21 @@ export const useOnline = create<OnlineStore>((set, get) => ({
     void getTransport().update(code, { [`review/votes/${role}`]: v })
   },
   launchTogether: () => {
-    const { code, room } = get()
-    if (!code || !room || room.review?.result !== 'passed') return
+    const { code, room, me } = get()
+    if (!code || !room || room.review?.result !== 'passed' || launcherOf(room) !== me) return
     void getTransport().update(code, { launch: { seed: useGame.getState().seed, round: (room.launch?.round ?? 0) + 1 }, 'review/open': false })
   },
   consumeAutoLaunch: () => set({ autoLaunch: false }),
+  decidesFor: (role) => {
+    const { room, me } = get()
+    return !room || room.holders[role] === me
+  },
+  decide: (optionId) => {
+    const { code, room } = get()
+    const p = useGame.getState().mission?.pending
+    if (!code || !room?.launch || !p) return
+    void getTransport().update(code, { [`launch/decisions/${decisionKey(p.eventId, p.week)}`]: optionId })
+  },
 }))
 
 function listen(code: string) {
@@ -208,10 +222,23 @@ function mirror(room: Room) {
   // 5. the host's launch reaches everyone once; Kuntur flies the in-flight decisions, so every device flies the same mission
   if (room.launch && room.launch.round > useOnline.getState().launchedRound) {
     useOnline.setState({ launchedRound: room.launch.round, autoLaunch: true })
-    useGame.setState({ delegated: { lead: true, engineer: true, astrophysicist: true, astrobiologist: true }, personality: 'balanced' })
+    // Kuntur answers only for the roles nobody holds; each player answers their own role's decisions (shared through the room)
+    const k = (r: Role) => room.holders[r] === KUNTUR || !room.players?.[room.holders[r]]
+    useGame.setState({ delegated: { lead: k('lead'), engineer: k('engineer'), astrophysicist: k('astrophysicist'), astrobiologist: k('astrobiologist') }, personality: 'balanced' })
     useGame.getState().setSeed(room.launch.seed)
     useGame.getState().goToLaunchPad()
   }
+  // 6. shared in-flight decisions
+  applyRoomDecision()
+}
+
+/** A decision answered on any device is applied on every device, so all of them keep flying the same mission. */
+export function applyRoomDecision() {
+  const room = useOnline.getState().room
+  const p = useGame.getState().mission?.pending
+  if (!room?.launch?.decisions || !p) return
+  const choice = room.launch.decisions[decisionKey(p.eventId, p.week)]
+  if (choice) useGame.getState().choose(choice)
 }
 
 /** Local edits go to the room: the design and the money split. */
@@ -235,6 +262,7 @@ export function startOnlinePush() {
   }
   const a = useGame.subscribe((s, p) => {
     if (s.design !== p.design) schedule()
+    if (s.tick !== p.tick) applyRoomDecision()
   })
   const b = useTeam.subscribe((s, p) => {
     if (s.team?.split !== p.team?.split) schedule()

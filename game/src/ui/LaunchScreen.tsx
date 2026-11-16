@@ -1,4 +1,5 @@
 import { useOnline } from '../store/online'
+import { launcherOf } from '../online/room'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { prefersReducedMotion } from '../store/settings'
 import { audio, useMusic } from '../audio/audio'
@@ -44,6 +45,9 @@ export function LaunchScreen() {
   const onDone = useCallback((o: LaunchOutcome) => setPhase(o), [])
   // online: the host's launch reaches every device; the countdown starts by itself
   const autoLaunch = useOnline((st) => st.autoLaunch)
+  const onlineRoom = useOnline((st) => st.room)
+  const canLaunch = !onlineRoom || launcherOf(onlineRoom) === useOnline.getState().me
+  const directorName = onlineRoom ? onlineRoom.players?.[launcherOf(onlineRoom)]?.name ?? '' : ''
   useEffect(() => {
     if (autoLaunch && phase === 'ready') {
       useOnline.getState().consumeAutoLaunch()
@@ -90,9 +94,13 @@ export function LaunchScreen() {
         <button type="button" className="deck-btn" onClick={() => setSeed(randomSeed())} aria-label={t('launch.randomSeed')}>
           🎲
         </button>
-        <button type="button" onClick={go} className="btn-primary ml-auto px-8 py-2.5 text-xl">
+        {onlineRoom && !canLaunch ? (
+          <span className="ml-auto text-[15px] text-amber-200">{t('online.waitingDirector', { name: directorName })}</span>
+        ) : (
+        <button type="button" onClick={onlineRoom ? () => useOnline.getState().launchTogether() : go} disabled={!!onlineRoom && onlineRoom.review?.result !== 'passed'} className="btn-primary ml-auto px-8 py-2.5 text-xl disabled:opacity-40">
           {t('launch.launchBtn')}
         </button>
+        )}
       </div>
     </div>
   )

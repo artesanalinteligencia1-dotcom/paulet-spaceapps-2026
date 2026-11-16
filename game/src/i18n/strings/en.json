@@ -2036,5 +2036,7 @@
   "video.name.act1": "Act 1 · Three Failures",
   "video.name.act2": "Act 2 · The Quiet Point",
   "video.name.act3": "Act 3 · The Window",
-  "video.name.act4": "Act 4 · The Paulet 1 in Orbit"
+  "video.name.act4": "Act 4 · The Paulet 1 in Orbit",
+  "online.waitingDecision": "Waiting for {name} ({role}) to decide…",
+  "online.waitingDirector": "Waiting for the Mission Director, {name}, to launch"
 }

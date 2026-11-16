@@ -8,6 +8,7 @@ import { useT, type StringKey } from '../../i18n'
 import { useGame } from '../../store/game'
 import { useTeam } from '../../store/team'
 import { useOnline } from '../../store/online'
+import { launcherOf } from '../../online/room'
 import { Kuntur } from '../guide/robots'
 import { ROLE_ICON } from '../tabs/MissionTab'
 import { GoalLine, holderLabel } from './TeamPanel'
@@ -37,7 +38,7 @@ export function TeamReview({ design, report, scenario, onClose }: { design: Desi
     for (const r of TEAM_ROLES) if (next[r] !== votes[r] && next[r]) onlineVote(r, next[r]!)
   }
   const canVote = (r: Role) => (room ? room.holders[r] === me : team.holders[r] !== 0)
-  const hostName = room ? (room.players?.[room.host]?.name ?? '') : ''
+  const hostName = room ? (room.players?.[launcherOf(room)]?.name ?? '') : ''
   const ready = TEAM_ROLES.every((r) => votes[r])
   const count = () => {
     const all = votes as Record<Role, Vote>
@@ -120,7 +121,7 @@ export function TeamReview({ design, report, scenario, onClose }: { design: Desi
             <p className="mt-1 text-xs text-slate-400">{result ? t('team.review.passedHint') : t('team.review.failedHint')}</p>
             <div className="mt-3 flex justify-end gap-2">
               {result && room ? (
-                room.host === me ? (
+                launcherOf(room) === me ? (
                   <button
                     type="button"
                     className="btn-primary px-4 py-2 text-sm"

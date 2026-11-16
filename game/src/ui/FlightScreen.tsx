@@ -1,4 +1,6 @@
 import { useMsg } from '../i18n'
+import { botChoice } from '../engine/simulate'
+import { useOnline } from '../store/online'
 import { rich } from './rich'
 import { useEffect, useRef } from 'react'
 import { audio, useMusic } from '../audio/audio'
@@ -80,7 +82,16 @@ export function FlightScreen() {
 
   const ended = mission.phase === 'ended'
   const pending = mission.pending
-  const waitingForYou = !!pending && !delegated[pending.role]
+  const room = useOnline((st) => st.room)
+  const mine = !pending || useOnline.getState().decidesFor(pending.role)
+  const waitingForYou = !!pending && !delegated[pending.role] && mine
+  const waitingForOther = !!pending && !delegated[pending.role] && !mine
+  const answer = (id: string, byBot = false) => {
+    if (room?.launch && !byBot) useOnline.getState().decide(id)
+    else if (room?.launch && byBot && pending) useOnline.getState().decide(botChoice(pending, personality))
+    else choose(id, byBot)
+  }
+  const otherName = pending && room ? room.players?.[room.holders[pending.role]]?.name ?? '' : ''
   const years = mission.opsWeeks / SIM_WEEKS_PER_YEAR
   const obc = getObc(mission.design.obcId)
   const last = mission.series[mission.series.length - 1]
@@ -297,6 +308,11 @@ export function FlightScreen() {
         </section>
       </div>
 
+      {waitingForOther && pending && (
+        <div className="fixed inset-x-0 top-20 z-30 mx-auto w-fit border border-amber-400/50 bg-[#0d0f12]/95 px-5 py-3 text-[15px] text-amber-200" role="status">
+          {ROLE_ICON[pending.role]} {t('online.waitingDecision', { name: otherName, role: ROLE_LABEL[pending.role] })}
+        </div>
+      )}
       {waitingForYou && pending && (
         <div className="fixed inset-0 z-30 grid place-items-center bg-slate-950/70 p-4" role="dialog" aria-modal="true" aria-labelledby="decision-title">
           <div className="w-full max-w-lg rounded-2xl border border-amber-400/50 bg-slate-900 p-5 shadow-2xl">
@@ -312,7 +328,7 @@ export function FlightScreen() {
                 <button
                   key={o.id}
                   type="button"
-                  onClick={() => choose(o.id)}
+                  onClick={() => answer(o.id)}
                   className="w-full rounded-lg border border-slate-700 p-3 text-left hover:border-sky-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
                 >
                   <div className="font-medium">{msg(o.label)}</div>
@@ -320,7 +336,7 @@ export function FlightScreen() {
                 </button>
               ))}
             </div>
-            <button type="button" onClick={() => choose('', true)} className="mt-3 text-xs text-violet-300 hover:text-violet-200">
+            <button type="button" onClick={() => answer('', true)} className="mt-3 text-xs text-violet-300 hover:text-violet-200">
               {t('flight.decision.delegateBot', {
                 personality: t(`flight.personality.name.${personality}` as StringKey),
               })}
