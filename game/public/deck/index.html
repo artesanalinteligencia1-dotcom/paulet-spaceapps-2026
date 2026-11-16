@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Paulet: A 130-Year Promise — Demo</title>
-<meta name="description" content="Seven-slide demo of Paulet: A 130-Year Promise, a Space Mission Design Game for the NASA Space Apps Challenge 2026.">
+<title>Paulet: Andes to Orbit — Demo</title>
+<meta name="description" content="Seven-slide demo of Paulet: Andes to Orbit, a Space Mission Design Game for the NASA Space Apps Challenge 2026.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
 <style>
@@ -16,12 +16,13 @@
 }
 *{box-sizing:border-box;margin:0}
 html,body{height:100%;background:#000;color:var(--cream);font-family:var(--body)}
-.viewport{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
-.stage{width:1920px;height:1080px;position:relative;transform-origin:center center;flex:none}
+.viewport{position:fixed;inset:0;overflow:hidden}
+/* centred on any screen: scaled around its own centre, which sits at the centre of the window */
+.stage{width:1920px;height:1080px;position:absolute;left:50%;top:50%;transform-origin:center center;transform:translate(-50%,-50%)}
 .slide{position:absolute;inset:0;background:var(--bg);padding:84px 110px;display:none;overflow:hidden}
 .slide.on{display:block}
 body.all .viewport{position:static;display:block}
-body.all .stage{transform:none!important;height:auto;width:auto}
+body.all .stage{transform:none!important;height:auto;width:auto;position:static}
 body.all .slide{display:block;position:relative;width:1920px;height:1080px;margin:0 auto 24px;zoom:var(--allzoom,0.5)}
 .eyebrow{font:600 26px/1 var(--display);letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
 h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.02;text-wrap:balance}
@@ -106,7 +107,7 @@ body.all .nav{position:fixed}
 <section class="slide s1" aria-label="Slide 1: title">
   <div class="eyebrow">NASA Space Apps Challenge 2026 · Space Mission Design Game</div>
   <div class="logo">PAUL<span>Ǝ</span>T</div>
-  <div class="promise">A 130-Year Promise</div>
+  <div class="promise">Andes to Orbit</div>
   <p class="lead">A free game where one to four players design a complete space mission, negotiate it as a team, launch it, fly it, and learn <span class="accent">why</span> it worked or failed.</p>
   <dl class="team">
     <dt>Team</dt><dd>Paulet Delta-V</dd>
@@ -127,7 +128,7 @@ body.all .nav{position:fixed}
     <div class="panel"><h3>The trade-offs</h3><p>Mass, power, data, budget, orbit and launcher stay abstract when you learn them one at a time.</p></div>
     <div class="panel"><h3>Our answer</h3><p>A game where every choice moves at least two resources, and there is never one right design.</p></div>
   </div>
-  <div class="brand">PAULƎT · A 130-YEAR PROMISE</div><div class="num">02 / 07</div>
+  <div class="brand">PAULƎT · ANDES TO ORBIT</div><div class="num">02 / 07</div>
 </section>
 
 <!-- 3 · The game / user experience -->
@@ -239,7 +240,7 @@ function fit() {
     return;
   }
   const s = Math.min(innerWidth / 1920, innerHeight / 1080);
-  stage.style.transform = 'scale(' + s + ')';
+  stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
 }
 function show(n) {
   i = (n + slides.length) % slides.length;
