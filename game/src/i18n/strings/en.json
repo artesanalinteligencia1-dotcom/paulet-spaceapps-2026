@@ -2075,5 +2075,8 @@
   "home.teaser": "Watch the teaser",
   "home.teaser.hint": "23 s · AI-generated images",
   "video.name.teaser": "Paulet: Andes to Orbit",
-  "video.title.teaser": "Teaser"
+  "video.title.teaser": "Teaser",
+  "mobile.rotate.title": "Turn your device sideways",
+  "mobile.rotate.hint": "Paulet is played in landscape. Rotate your phone or tablet to continue.",
+  "boot.tapToStart": "Tap the screen to start"
 }

@@ -21,7 +21,20 @@ h1, h2, h3, .font-display {
 body {
   background: #020617;
   color: #e2e8f0;
+  /* phones and tablets: no double-tap zoom, no pull-to-refresh or bounce while playing */
+  touch-action: manipulation;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
 }
+
+/* "Turn your device" notice: the phone outline tips over to landscape */
+@keyframes rotate-hint {
+  0%, 25% { transform: rotate(0deg); }
+  55%, 85% { transform: rotate(-90deg); }
+  100% { transform: rotate(0deg); }
+}
+.rotate-hint { animation: rotate-hint 2.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .rotate-hint { animation: none; transform: rotate(-90deg); } }
 
 @keyframes delta-flash {
   0% { opacity: 0; transform: translateY(4px); }

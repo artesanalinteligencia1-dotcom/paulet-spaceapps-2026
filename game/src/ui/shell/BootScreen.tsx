@@ -100,7 +100,7 @@ export function BootScreen({ onStart }: { onStart: () => void }) {
                 <div className={`h-full bg-orange-500 transition-all duration-700 ${ready ? 'w-full' : 'w-1/3'}`} />
               </div>
               <p className={`mt-6 font-display text-lg tracking-wide ${ready ? 'boot-pulse text-slate-100' : 'text-slate-500'}`} aria-live="polite">
-                {ready ? t('boot.pressKey') : t('boot.loading')}
+                {ready ? t(window.matchMedia('(pointer: coarse)').matches ? 'boot.tapToStart' : 'boot.pressKey') : t('boot.loading')}
               </p>
             </>
           )}
