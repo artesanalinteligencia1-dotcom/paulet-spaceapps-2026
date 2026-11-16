@@ -1,4 +1,5 @@
 import { useMsg } from '../../i18n'
+import { ACT_FILMS, RealStoryButton } from '../video/RealStory'
 import { useState } from 'react'
 import { useMusic } from '../../audio/audio'
 import { CONTRACTS, INVESTORS, TECH, availableLaunchers, canBuyTech, contractStatus, trustMultiplier, type InvestorId } from '../../engine/campaign'
@@ -90,7 +91,10 @@ export function CampaignScreen() {
             if (!list.length) return null
             return (
               <div key={act}>
-                <h2 className="hud-label">{t(ACT_KEY[act])}</h2>
+                <div className="flex flex-wrap items-center gap-3">
+                  <h2 className="hud-label">{t(ACT_KEY[act])}</h2>
+                  <RealStoryButton id={ACT_FILMS[act]} label={t(`video.name.${ACT_FILMS[act]}` as StringKey)} className="px-2 py-0.5 text-[12px]" />
+                </div>
                 <div className="mt-2 grid gap-3 sm:grid-cols-2">
                   {list.map((k) => {
                     const status = contractStatus(c, k)

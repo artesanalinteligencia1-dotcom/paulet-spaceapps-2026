@@ -24,3 +24,10 @@ media/mission-videos/*/review/
 media/act-videos/*/review/
 media/act-videos/*/*.mp4
 !media/act-videos/main/veo/*.mp4
+
+# Act video projects: copies of the owner's images/clips (originals live in media/act-videos/main/) and work files
+media/act-videos/*/.hyperframes/
+media/act-videos/*/assets/prologue-0*
+media/act-videos/*/assets/act?-0*
+media/act-videos/*/assets/vo/*.wav
+media/mission-videos/*/assets/vo/*.wav

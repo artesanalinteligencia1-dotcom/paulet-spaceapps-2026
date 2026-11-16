@@ -12,7 +12,7 @@ export const REAL_STORIES = [
   'lunar_pathfinder', 'lagrange_observatory', 'mars_orbiter', 'mars_stranded', 'mars_oxygen', 'mars_terraform',
 ] as const
 export const ACT_FILMS = ['prologue', 'act1', 'act2', 'act3', 'act4'] as const
-const READY = new Set<string>(['earth_watch', 'andean_eye', 'station_resupply', 'storm_tracker'])
+const READY = new Set<string>(['prologue', 'act1', 'act2', 'act3', 'act4', 'earth_watch', 'andean_eye', 'station_resupply', 'storm_tracker'])
 
 export const hasRealStory = (id: string) => READY.has(id)
 export const readyFilms = (ids: readonly string[]) => ids.filter((id) => READY.has(id))
@@ -107,14 +107,14 @@ export function RealStoryPlayer({ id, onClose }: { id: string; onClose: () => vo
   )
 }
 
-export function RealStoryButton({ id, className = '' }: { id: string; className?: string }) {
+export function RealStoryButton({ id, className = '', label }: { id: string; className?: string; label?: string }) {
   const t = useT()
   const [open, setOpen] = useState(false)
   if (!hasRealStory(id)) return null
   return (
     <>
       <button type="button" className={`btn-secondary px-3 py-1.5 text-[14px] ${className}`} onClick={() => setOpen(true)}>
-        ▶ {t('video.watch')}
+        ▶ {label ?? t('video.watch')}
       </button>
       {open && <RealStoryPlayer id={id} onClose={() => setOpen(false)} />}
     </>
